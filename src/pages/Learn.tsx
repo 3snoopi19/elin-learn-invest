@@ -27,24 +27,8 @@ const Learn = () => {
       progress: 25,
       icon: BookOpen,
       topics: ["Stock Market Basics", "Bond Fundamentals", "Risk & Return", "Diversification"],
-      courseModules: [
-        {
-          title: "Introduction to Investing",
-          lessons: [
-            { title: "What is Investing?", type: "video", duration: "12 min", completed: true },
-            { title: "Risk vs Return Basics", type: "article", duration: "8 min", completed: true },
-            { title: "Getting Started Quiz", type: "quiz", duration: "5 min", completed: false }
-          ]
-        },
-        {
-          title: "Stock Market Fundamentals",
-          lessons: [
-            { title: "How Stock Markets Work", type: "video", duration: "15 min", completed: false },
-            { title: "Types of Stocks", type: "article", duration: "10 min", completed: false },
-            { title: "Reading Stock Quotes", type: "interactive", duration: "12 min", completed: false }
-          ]
-        }
-      ]
+      totalLessons: 6,
+      completedLessons: 2
     },
     {
       id: 2,
@@ -53,27 +37,11 @@ const Learn = () => {
       level: "Intermediate",
       duration: "6 weeks",
       modules: 12,
-      progress: 0,
+      progress: 15,
       icon: BarChart3,
       topics: ["Income Statements", "Balance Sheets", "Cash Flow", "Ratio Analysis"],
-      courseModules: [
-        {
-          title: "Financial Statement Basics",
-          lessons: [
-            { title: "Three Core Financial Statements", type: "video", duration: "18 min", completed: false },
-            { title: "Understanding Annual Reports", type: "article", duration: "12 min", completed: false },
-            { title: "SEC Filing Requirements", type: "article", duration: "8 min", completed: false }
-          ]
-        },
-        {
-          title: "Income Statement Deep Dive",
-          lessons: [
-            { title: "Revenue Recognition", type: "video", duration: "14 min", completed: false },
-            { title: "Operating vs Non-Operating Income", type: "article", duration: "10 min", completed: false },
-            { title: "Earnings Per Share Analysis", type: "interactive", duration: "15 min", completed: false }
-          ]
-        }
-      ]
+      totalLessons: 8,
+      completedLessons: 1
     },
     {
       id: 3,
@@ -85,16 +53,8 @@ const Learn = () => {
       progress: 60,
       icon: Target,
       topics: ["Asset Allocation", "Rebalancing", "Risk Management", "Performance Tracking"],
-      courseModules: [
-        {
-          title: "Portfolio Theory Foundations",
-          lessons: [
-            { title: "Modern Portfolio Theory", type: "video", duration: "20 min", completed: true },
-            { title: "Diversification Benefits", type: "article", duration: "12 min", completed: true },
-            { title: "Correlation and Risk", type: "interactive", duration: "15 min", completed: true }
-          ]
-        }
-      ]
+      totalLessons: 10,
+      completedLessons: 6
     },
     {
       id: 4,
@@ -106,16 +66,8 @@ const Learn = () => {
       progress: 10,
       icon: TrendingUp,
       topics: ["Technical Analysis", "Options Trading", "Market Psychology", "Advanced Strategies"],
-      courseModules: [
-        {
-          title: "Technical Analysis Fundamentals",
-          lessons: [
-            { title: "Chart Patterns Introduction", type: "video", duration: "25 min", completed: true },
-            { title: "Support and Resistance", type: "article", duration: "15 min", completed: false },
-            { title: "Moving Averages", type: "interactive", duration: "18 min", completed: false }
-          ]
-        }
-      ]
+      totalLessons: 16,
+      completedLessons: 1
     },
     {
       id: 5,
@@ -127,16 +79,8 @@ const Learn = () => {
       progress: 0,
       icon: Shield,
       topics: ["Regulatory Compliance", "Risk Assessment", "Legal Frameworks", "Ethics"],
-      courseModules: [
-        {
-          title: "Investment Regulations Overview",
-          lessons: [
-            { title: "SEC and FINRA Basics", type: "video", duration: "16 min", completed: false },
-            { title: "Fiduciary Responsibility", type: "article", duration: "12 min", completed: false },
-            { title: "Compliance Case Studies", type: "article", duration: "20 min", completed: false }
-          ]
-        }
-      ]
+      totalLessons: 8,
+      completedLessons: 0
     },
     {
       id: 6,
@@ -148,16 +92,8 @@ const Learn = () => {
       progress: 0,
       icon: DollarSign,
       topics: ["REITs", "Commodities", "Cryptocurrency", "Private Equity"],
-      courseModules: [
-        {
-          title: "Real Estate Investment Trusts",
-          lessons: [
-            { title: "REIT Basics and Types", type: "video", duration: "18 min", completed: false },
-            { title: "REIT Analysis Metrics", type: "article", duration: "14 min", completed: false },
-            { title: "Commercial vs Residential REITs", type: "interactive", duration: "12 min", completed: false }
-          ]
-        }
-      ]
+      totalLessons: 12,
+      completedLessons: 0
     }
   ];
 
@@ -377,7 +313,7 @@ const Learn = () => {
                     
                     <CardContent>
                       <Accordion type="single" collapsible className="w-full">
-                        {path.courseModules?.map((module, moduleIndex) => (
+                        {courseContent[path.id as keyof typeof courseContent]?.modules?.map((module, moduleIndex) => (
                           <AccordionItem key={moduleIndex} value={`module-${moduleIndex}`}>
                             <AccordionTrigger className="text-left">
                               <div className="flex items-center justify-between w-full pr-4">
@@ -424,7 +360,15 @@ const Learn = () => {
                               </div>
                             </AccordionContent>
                           </AccordionItem>
-                        ))}
+                        )) || (
+                          <div className="text-center py-8 text-muted-foreground">
+                            <BookOpen className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                            <p className="text-lg font-medium mb-2">Course Content Coming Soon</p>
+                            <p className="text-sm">
+                              {path.totalLessons} lessons • {path.completedLessons}/{path.totalLessons} completed
+                            </p>
+                          </div>
+                        )}
                       </Accordion>
                     </CardContent>
                   </Card>
