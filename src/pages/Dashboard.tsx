@@ -6,19 +6,31 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { Input } from "@/components/ui/input";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { BookOpen, TrendingUp, MessageSquare, FileText, Users, Plus, Award, Star, Brain, Sparkles, Play, History, Settings, ShieldCheck, LineChart } from "lucide-react";
+import { BookOpen, TrendingUp, MessageSquare, FileText, Award, Star, Brain, Sparkles, Play, History, Settings, ShieldCheck, LineChart, Upload, Search, Eye, PlusCircle } from "lucide-react";
 import { RiskProfileBadge } from "@/components/RiskProfileBadge";
 import { PortfolioSparkline } from "@/components/PortfolioSparkline";
+import { DashboardCard } from "@/components/DashboardCard";
+import { ProgressBar } from "@/components/ProgressBar";
 import { motion } from "framer-motion";
+import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
+
+// Mock data for portfolio donut chart
+const portfolioData = [
+  { name: "Stocks", value: 60, color: "hsl(var(--primary))" },
+  { name: "Bonds", value: 30, color: "hsl(var(--secondary))" },
+  { name: "Cash", value: 10, color: "hsl(var(--muted))" }
+];
 
 const Dashboard = () => {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [userProfile, setUserProfile] = useState<any>(null);
+  const [savedScenariosCount] = useState(3); // Mock count - would come from API
   const { toast } = useToast();
 
   // Check if user just completed the quiz
@@ -203,11 +215,13 @@ const Dashboard = () => {
                   </div>
                 </div>
 
-                {/* Footer Actions */}
-                <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+                {/* Footer Actions - FIXED */}
+                <div className="flex flex-wrap items-center gap-3 md:gap-4 justify-between md:justify-start">
                   <div className="flex flex-col sm:flex-row gap-2">
+                    {/* Primary Action */}
                     <Button 
-                      className="bg-white text-emerald-600 hover:bg-white/90 font-medium"
+                      size="lg"
+                      className="h-11 px-5 rounded-xl bg-white text-emerald-600 hover:bg-white/90 font-medium"
                       onClick={(e) => {
                         e.stopPropagation();
                         navigate('/portfolio-simulator');
@@ -217,21 +231,51 @@ const Dashboard = () => {
                       Open Simulator
                     </Button>
                     
-                    <Button 
-                      variant="outline" 
-                      className="border-white/30 text-white hover:bg-white/10"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        navigate('/portfolio-simulator?tab=scenarios');
-                      }}
-                    >
-                      <History className="h-4 w-4 mr-2" />
-                      Saved Scenarios
-                    </Button>
+                    {/* Secondary Action - FIXED */}
+                    <div className="relative">
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button 
+                            variant="outline" 
+                            size="lg"
+                            className="h-11 px-5 rounded-xl border-white/30 text-white hover:bg-white/10 font-medium focus-visible:ring-2 focus-visible:ring-emerald-400/70"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              navigate('/portfolio-simulator/saved');
+                            }}
+                            disabled={savedScenariosCount === 0}
+                            aria-disabled={savedScenariosCount === 0}
+                          >
+                            <History className="h-4 w-4 mr-2" />
+                            Saved Scenarios
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>{savedScenariosCount === 0 ? "No saved scenarios yet" : "View your saved simulations"}</p>
+                        </TooltipContent>
+                      </Tooltip>
+                      {/* Count Badge */}
+                      {savedScenariosCount > 0 && (
+                        <Badge className="absolute -top-2 -right-2 bg-emerald-600 text-white dark:bg-emerald-500 text-xs min-w-[1.25rem] h-5 flex items-center justify-center">
+                          {savedScenariosCount}
+                        </Badge>
+                      )}
+                    </div>
                   </div>
                   
-                  <div className="flex items-center gap-2 text-xs text-white/70">
-                    <span>Last run: 2d ago</span>
+                  {/* Tertiary & Settings */}
+                  <div className="flex items-center gap-2 text-xs text-white/70 ml-auto">
+                    <Button 
+                      variant="ghost"
+                      size="sm"
+                      className="text-xs text-white/70 hover:text-white hover:bg-white/10"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        // Handle last run navigation
+                      }}
+                    >
+                      Last run: 2d ago
+                    </Button>
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <Button 
@@ -256,124 +300,174 @@ const Dashboard = () => {
             </motion.div>
           </motion.div>
 
-          {/* Secondary Cards */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.1 }}
-          >
-            <motion.div
-              className="group relative rounded-2xl p-5 shadow-[0_10px_30px_rgba(0,0,0,0.08)] dark:shadow-none border border-zinc-100 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 backdrop-blur cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-400/70 transition-all duration-300 h-full"
-              whileHover={{ y: -2, scale: 1.01 }}
-              whileTap={{ scale: 0.995 }}
-              onClick={() => navigate('/portfolio-simulator?tab=scenarios')}
-              tabIndex={0}
-              role="button"
-              aria-label="Open Scenario Analysis"
-            >
-              {/* Neutral Gradient Background */}
-              <div className="absolute inset-0 rounded-2xl bg-gradient-to-tr from-slate-400 via-slate-500 to-slate-600 opacity-80 dark:opacity-70">
-                <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-in-out" />
-              </div>
-              
-              <div className="relative z-10">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="rounded-xl bg-white/15 p-2 backdrop-blur">
-                    <LineChart className="h-5 w-5 text-white drop-shadow" />
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-bold text-white">Scenario Analysis</h3>
-                    <p className="text-sm text-white/80">Compare market conditions</p>
-                  </div>
-                </div>
-                
-                <Button 
-                  className="bg-white text-slate-600 hover:bg-white/90 font-medium w-full"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    navigate('/portfolio-simulator?tab=scenarios');
-                  }}
-                >
-                  Open Analysis
-                </Button>
-              </div>
-            </motion.div>
-          </motion.div>
+          {/* Secondary Scenario Analysis Card */}
+          <DashboardCard
+            title="Scenario Analysis"
+            subtitle="Compare market conditions and their impact"
+            icon={<LineChart className="h-6 w-6 text-white drop-shadow" />}
+            primaryAction={{
+              label: "Open Analysis",
+              icon: <LineChart className="h-4 w-4 mr-2" />,
+              onClick: () => navigate('/portfolio-simulator?tab=scenarios')
+            }}
+            onClick={() => navigate('/portfolio-simulator?tab=scenarios')}
+            delay={0.1}
+            className="h-full shadow-[0_10px_30px_rgba(0,0,0,0.08)] dark:shadow-none border border-zinc-100 dark:border-zinc-800 bg-gradient-to-tr from-slate-400 via-slate-500 to-slate-600 text-white"
+          />
         </div>
 
-        {/* Standard Quick Actions Grid */}
+        {/* Unified Card System Grid */}
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
+          {/* Chat with ELIN */}
+          <DashboardCard
+            title="Chat with ELIN"
+            subtitle="Ask anything about investing. Get personalized, educational guidance."
+            icon={<MessageSquare className="h-6 w-6 text-primary" />}
+            primaryAction={{
+              label: "Open Chat",
+              icon: <MessageSquare className="h-4 w-4 mr-2" />,
+              onClick: () => navigate('/chat')
+            }}
+            secondaryAction={{
+              label: "Prompt Library",
+              icon: <FileText className="h-4 w-4 mr-2" />,
+              onClick: () => navigate('/chat?tab=prompts')
+            }}
+            statChip={{ label: "Avg response ~3s" }}
+            onClick={() => navigate('/chat')}
+            delay={0.2}
           >
-            <Card className="hover:shadow-lg transition-shadow cursor-pointer h-full" onClick={() => navigate('/chat')}>
-              <CardHeader className="pb-3">
-                <MessageSquare className="h-8 w-8 text-primary mb-2" />
-                <CardTitle className="text-lg">Chat with ELIN</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <CardDescription>
-                  Ask questions about investing concepts and get personalized educational guidance
-                </CardDescription>
-              </CardContent>
-            </Card>
-          </motion.div>
-          
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.3 }}
+            <div className="space-y-2">
+              <div className="flex flex-wrap gap-1">
+                <Badge variant="outline" className="text-xs cursor-pointer hover:bg-muted" onClick={(e) => { e.stopPropagation(); navigate('/chat?prompt=explain-etfs'); }}>
+                  "Explain ETFs like I'm new"
+                </Badge>
+              </div>
+              <div className="flex flex-wrap gap-1">
+                <Badge variant="outline" className="text-xs cursor-pointer hover:bg-muted" onClick={(e) => { e.stopPropagation(); navigate('/chat?prompt=apple-10k'); }}>
+                  "Summarize Apple's 10-K risks"
+                </Badge>
+              </div>
+              <div className="flex flex-wrap gap-1">
+                <Badge variant="outline" className="text-xs cursor-pointer hover:bg-muted" onClick={(e) => { e.stopPropagation(); navigate('/chat?prompt=pe-ratio'); }}>
+                  "What does P/E mean?"
+                </Badge>
+              </div>
+            </div>
+          </DashboardCard>
+
+          {/* Portfolio Tracker */}
+          <DashboardCard
+            title="Portfolio Tracker"
+            subtitle="Track your positions and see diversification insights."
+            icon={<TrendingUp className="h-6 w-6 text-success" />}
+            primaryAction={{
+              label: "Open Tracker",
+              icon: <TrendingUp className="h-4 w-4 mr-2" />,
+              onClick: () => navigate('/portfolio')
+            }}
+            secondaryAction={{
+              label: "Import Holdings",
+              icon: <Upload className="h-4 w-4 mr-2" />,
+              onClick: () => navigate('/portfolio?action=import')
+            }}
+            onClick={() => navigate('/portfolio')}
+            delay={0.3}
           >
-            <Card className="hover:shadow-lg transition-shadow cursor-pointer h-full" onClick={() => navigate('/portfolio')}>
-              <CardHeader className="pb-3">
-                <TrendingUp className="h-8 w-8 text-success mb-2" />
-                <CardTitle className="text-lg">Portfolio Tracker</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <CardDescription>
-                  Track your investments and learn about diversification strategies
-                </CardDescription>
-              </CardContent>
-            </Card>
-          </motion.div>
-          
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.4 }}
+            <div className="space-y-3">
+              {/* Tiny donut chart */}
+              <div className="h-16">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={portfolioData}
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={20}
+                      outerRadius={30}
+                      paddingAngle={5}
+                      dataKey="value"
+                    >
+                      {portfolioData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.color} />
+                      ))}
+                    </Pie>
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+              {/* Pill tags */}
+              <div className="flex flex-wrap gap-1">
+                <Badge variant="secondary" className="text-xs">
+                  <div className="w-2 h-2 rounded-full bg-primary mr-1.5" />
+                  Stocks 60%
+                </Badge>
+                <Badge variant="secondary" className="text-xs">
+                  <div className="w-2 h-2 rounded-full bg-secondary mr-1.5" />
+                  Bonds 30%
+                </Badge>
+                <Badge variant="secondary" className="text-xs">
+                  <div className="w-2 h-2 rounded-full bg-muted-foreground mr-1.5" />
+                  Cash 10%
+                </Badge>
+              </div>
+            </div>
+          </DashboardCard>
+
+          {/* Learning Paths */}
+          <DashboardCard
+            title="Learning Paths"
+            subtitle="Structured courses to build your skills step by step."
+            icon={<BookOpen className="h-6 w-6 text-education" />}
+            primaryAction={{
+              label: "Continue Learning",
+              icon: <BookOpen className="h-4 w-4 mr-2" />,
+              onClick: () => navigate('/learn')
+            }}
+            secondaryAction={{
+              label: "Browse Courses",
+              icon: <Search className="h-4 w-4 mr-2" />,
+              onClick: () => navigate('/learn?tab=browse')
+            }}
+            onClick={() => navigate('/learn')}
+            delay={0.4}
           >
-            <Card className="hover:shadow-lg transition-shadow cursor-pointer h-full" onClick={() => navigate('/learn')}>
-              <CardHeader className="pb-3">
-                <BookOpen className="h-8 w-8 text-education mb-2" />
-                <CardTitle className="text-lg">Learning Paths</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <CardDescription>
-                  Structured courses to build your investment knowledge step by step
-                </CardDescription>
-              </CardContent>
-            </Card>
-          </motion.div>
-          
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.5 }}
+            <div className="space-y-3">
+              <ProgressBar label="Investment Basics" current={3} total={5} />
+              <ProgressBar label="Portfolio Mgmt" current={1} total={4} />
+            </div>
+          </DashboardCard>
+
+          {/* SEC Filings */}
+          <DashboardCard
+            title="SEC Filings"
+            subtitle="Decode company filings with AI-powered explanations."
+            icon={<FileText className="h-6 w-6 text-muted-foreground" />}
+            primaryAction={{
+              label: "Open Filings",
+              icon: <FileText className="h-4 w-4 mr-2" />,
+              onClick: () => navigate('/filings')
+            }}
+            secondaryAction={{
+              label: "Watchlist",
+              icon: <Eye className="h-4 w-4 mr-2" />,
+              onClick: () => navigate('/filings?tab=watchlist')
+            }}
+            onClick={() => navigate('/filings')}
+            delay={0.5}
           >
-            <Card className="hover:shadow-lg transition-shadow cursor-pointer h-full" onClick={() => navigate('/filings')}>
-              <CardHeader className="pb-3">
-                <FileText className="h-8 w-8 text-muted-foreground mb-2" />
-                <CardTitle className="text-lg">SEC Filings</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <CardDescription>
-                  Decode and understand company filings with AI-powered explanations
-                </CardDescription>
-              </CardContent>
-            </Card>
-          </motion.div>
+            <div className="space-y-3">
+              <Input 
+                placeholder="Search filings..." 
+                className="text-xs h-8" 
+                disabled 
+              />
+              <div className="flex gap-1">
+                <Badge variant="outline" className="text-xs">
+                  AAPL
+                </Badge>
+              </div>
+            </div>
+          </DashboardCard>
         </div>
 
         {/* Personalized Recommendations */}
@@ -383,7 +477,7 @@ const Dashboard = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.6 }}
           >
-            <Card className="mb-8">
+            <Card className="mb-8 rounded-2xl border border-zinc-100 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 backdrop-blur">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Star className="h-5 w-5 text-warning" />
@@ -437,90 +531,69 @@ const Dashboard = () => {
           </motion.div>
         )}
 
-        {/* Learning Progress Section */}
+        {/* Learning Journey - Converted to Unified Card System */}
         <motion.div
           className="grid lg:grid-cols-2 gap-6"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.7 }}
         >
-          <Card>
-            <CardHeader>
-              <CardTitle>Your Learning Journey</CardTitle>
-              <CardDescription>Track your progress through investment education</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <div className="flex justify-between">
-                  <span className="text-sm font-medium">Investment Basics</span>
-                  <span className="text-sm text-muted-foreground">3/5 lessons</span>
-                </div>
-                <div className="w-full bg-muted rounded-full h-2">
-                  <div className="bg-primary h-2 rounded-full" style={{ width: '60%' }}></div>
-                </div>
-              </div>
-              
-              <div className="space-y-2">
-                <div className="flex justify-between">
-                  <span className="text-sm font-medium">Portfolio Management</span>
-                  <span className="text-sm text-muted-foreground">1/4 lessons</span>
-                </div>
-                <div className="w-full bg-muted rounded-full h-2">
-                  <div className="bg-primary h-2 rounded-full" style={{ width: '25%' }}></div>
-                </div>
-              </div>
+          <DashboardCard
+            title="Your Learning Journey"
+            subtitle="Track your progress through investment education"
+            icon={<BookOpen className="h-6 w-6 text-education" />}
+            primaryAction={{
+              label: "Continue Learning",
+              icon: <BookOpen className="h-4 w-4 mr-2" />,
+              onClick: () => navigate('/learn')
+            }}
+            gradientHeader={true}
+            delay={0.7}
+          >
+            <div className="space-y-4">
+              <ProgressBar label="Investment Basics" current={3} total={5} />
+              <ProgressBar label="Portfolio Management" current={1} total={4} />
+              <ProgressBar label="Risk Management" current={0} total={3} />
+            </div>
+          </DashboardCard>
 
-              <div className="space-y-2">
-                <div className="flex justify-between">
-                  <span className="text-sm font-medium">Risk Management</span>
-                  <span className="text-sm text-muted-foreground">0/3 lessons</span>
-                </div>
-                <div className="w-full bg-muted rounded-full h-2">
-                  <div className="bg-muted h-2 rounded-full"></div>
-                </div>
-              </div>
-              
-              <Button variant="outline" className="w-full mt-4" onClick={() => navigate('/learn')}>
-                Continue Learning
-              </Button>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Recent Activity</CardTitle>
-              <CardDescription>Your latest educational interactions</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
+          <DashboardCard
+            title="Recent Activity"
+            subtitle="Your latest educational interactions"
+            icon={<Star className="h-6 w-6 text-primary" />}
+            primaryAction={{
+              label: "Start New Conversation",
+              icon: <PlusCircle className="h-4 w-4 mr-2" />,
+              onClick: () => navigate('/chat')
+            }}
+            delay={0.8}
+          >
+            <div className="space-y-4">
               <div className="flex items-center space-x-3">
-                <MessageSquare className="h-5 w-5 text-primary" />
-                <div className="flex-1">
-                  <p className="text-sm font-medium">Asked ELIN about ETFs</p>
+                <MessageSquare className="h-5 w-5 text-primary flex-shrink-0" />
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium truncate">Asked ELIN about ETFs</p>
                   <p className="text-xs text-muted-foreground">2 hours ago</p>
                 </div>
               </div>
               
               <div className="flex items-center space-x-3">
-                <BookOpen className="h-5 w-5 text-education" />
-                <div className="flex-1">
-                  <p className="text-sm font-medium">Completed: Understanding Dividends</p>
+                <BookOpen className="h-5 w-5 text-education flex-shrink-0" />
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium truncate">Completed: Understanding Dividends</p>
                   <p className="text-xs text-muted-foreground">Yesterday</p>
                 </div>
               </div>
               
               <div className="flex items-center space-x-3">
-                <TrendingUp className="h-5 w-5 text-success" />
-                <div className="flex-1">
-                  <p className="text-sm font-medium">Added AAPL to portfolio tracker</p>
+                <TrendingUp className="h-5 w-5 text-success flex-shrink-0" />
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium truncate">Added AAPL to portfolio tracker</p>
                   <p className="text-xs text-muted-foreground">3 days ago</p>
                 </div>
               </div>
-              
-              <Button variant="outline" className="w-full mt-4" onClick={() => navigate('/chat')}>
-                Start New Conversation
-              </Button>
-            </CardContent>
-          </Card>
+            </div>
+          </DashboardCard>
         </motion.div>
       </main>
       
