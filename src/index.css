@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -8,128 +9,113 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
-
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
-
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
-
-    /* Brand color palette - consistent across all sections */
-    --primary: 142 76% 36%;
-    --primary-foreground: 210 40% 98%;
+    /* Dark crypto dashboard theme - primary theme */
+    --background: 220 13% 9%;           /* Rich charcoal #0f1419 */
+    --foreground: 220 9% 97%;           /* Near white #f8fafc */
+    --card: 220 13% 11%;                /* Card background #1a1f2e */
+    --card-foreground: 220 9% 97%;      /* Card text */
+    --popover: 220 13% 11%;
+    --popover-foreground: 220 9% 97%;
+    
+    /* Brand color palette - neon accents */
+    --primary: 142 76% 36%;             /* Neon green #16a34a */
+    --primary-foreground: 220 9% 97%;
     --primary-hover: 142 76% 30%;
+    
+    /* Secondary neon blue */
+    --secondary: 217 91% 60%;           /* Bright blue #3b82f6 */
+    --secondary-foreground: 220 9% 97%;
     
     /* Success/financial green variations */
     --success: 134 61% 41%;
-    --success-foreground: 0 0% 100%;
+    --success-foreground: 220 9% 97%;
     
     /* Warning for risk indicators */
     --warning: 38 92% 50%;
-    --warning-foreground: 222.2 84% 4.9%;
+    --warning-foreground: 220 13% 9%;
     
     /* Educational blue accents */
     --education: 217 91% 60%;
-    --education-foreground: 0 0% 100%;
+    --education-foreground: 220 9% 97%;
     
-    /* Text hierarchy tokens */
-    --text-heading: 220 13% 9%;
-    --text-secondary: 215 28% 24%;
-    --text-muted: 215 20% 42%;
+    /* Text hierarchy tokens - adjusted for dark theme */
+    --text-heading: 220 9% 97%;
+    --text-secondary: 220 9% 80%;
+    --text-muted: 220 9% 60%;
     
-    /* Progress bar colors */
-    --progress-completed: 134 61% 41%;
+    /* Progress bar colors - neon themed */
+    --progress-completed: 142 76% 36%;
     --progress-in-progress: 217 91% 60%;
-    --progress-remaining: 220 13% 90%;
+    --progress-remaining: 220 13% 20%;
     
-    /* Portfolio colors */
-    --portfolio-stocks: 142 76% 36%;
-    --portfolio-bonds: 217 91% 60%;
-    --portfolio-cash: 38 92% 50%;
-    --portfolio-crypto: 258 90% 66%;
-    --portfolio-alternatives: 170 76% 40%;
+    /* Portfolio colors - neon palette */
+    --portfolio-stocks: 142 76% 36%;    /* Neon green */
+    --portfolio-bonds: 217 91% 60%;     /* Neon blue */
+    --portfolio-cash: 38 92% 50%;       /* Neon orange */
+    --portfolio-crypto: 180 100% 50%;   /* Neon teal */
+    --portfolio-alternatives: 270 91% 65%; /* Neon purple */
     
-    /* Insights panel */
-    --insights-bg: 210 40% 98%;
+    /* Additional neon accents */
+    --accent: 180 100% 50%;             /* Neon teal #00ffff */
+    --accent-foreground: 220 13% 9%;
     
-    /* Simulation specific colors */
-    --simulation-primary: 142 76% 36%;
-    --simulation-secondary: 217 91% 60%;
-    --simulation-accent: 38 92% 50%;
-
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
-
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
-
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
-
-    --radius: 0.5rem;
-
-    --sidebar-background: 0 0% 98%;
-
-    --sidebar-foreground: 240 5.3% 26.1%;
-
-    --sidebar-primary: 240 5.9% 10%;
-
-    --sidebar-primary-foreground: 0 0% 98%;
-
-    --sidebar-accent: 240 4.8% 95.9%;
-
-    --sidebar-accent-foreground: 240 5.9% 10%;
-
-    --sidebar-border: 220 13% 91%;
-
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --muted: 220 13% 15%;               /* Muted elements */
+    --muted-foreground: 220 9% 70%;     /* Muted text */
+    
+    --destructive: 0 84% 60%;           /* Red */
+    --destructive-foreground: 220 9% 97%;
+    
+    --border: 220 13% 18%;              /* Subtle borders */
+    --input: 220 13% 15%;
+    --ring: 142 76% 36%;                /* Focus ring green */
+    --radius: 0.75rem;
+    
+    /* Sidebar - dark themed */
+    --sidebar-background: 220 13% 9%;
+    --sidebar-foreground: 220 9% 97%;
+    --sidebar-primary: 142 76% 36%;
+    --sidebar-primary-foreground: 220 9% 97%;
+    --sidebar-accent: 220 13% 15%;
+    --sidebar-accent-foreground: 220 9% 97%;
+    --sidebar-border: 220 13% 18%;
+    --sidebar-ring: 142 76% 36%;
+    
+    /* Custom neon glow variables */
+    --glow-green: 0 0 20px rgba(22, 163, 74, 0.4);
+    --glow-blue: 0 0 20px rgba(59, 130, 246, 0.4);
+    --glow-teal: 0 0 20px rgba(0, 255, 255, 0.4);
+    --glow-purple: 0 0 20px rgba(139, 92, 246, 0.4);
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    /* Dark mode - matches our primary theme */
+    --background: 220 13% 9%;
+    --foreground: 220 9% 97%;
+    --card: 220 13% 11%;
+    --card-foreground: 220 9% 97%;
+    --popover: 220 13% 11%;
+    --popover-foreground: 220 9% 97%;
+    --primary: 142 76% 36%;
+    --primary-foreground: 220 9% 97%;
+    --secondary: 217 91% 60%;
+    --secondary-foreground: 220 9% 97%;
+    --muted: 220 13% 15%;
+    --muted-foreground: 220 9% 70%;
+    --accent: 180 100% 50%;
+    --accent-foreground: 220 13% 9%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 220 9% 97%;
+    --border: 220 13% 18%;
+    --input: 220 13% 15%;
+    --ring: 142 76% 36%;
+    --sidebar-background: 220 13% 9%;
+    --sidebar-foreground: 220 9% 97%;
+    --sidebar-primary: 142 76% 36%;
+    --sidebar-primary-foreground: 220 9% 97%;
+    --sidebar-accent: 220 13% 15%;
+    --sidebar-accent-foreground: 220 9% 97%;
+    --sidebar-border: 220 13% 18%;
+    --sidebar-ring: 142 76% 36%;
   }
 }
 
@@ -137,8 +123,82 @@ All colors MUST be HSL.
   * {
     @apply border-border;
   }
-
+  
+  html {
+    @apply dark; /* Force dark mode as default */
+  }
+  
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground font-inter antialiased;
+    background: linear-gradient(135deg, hsl(var(--background)), hsl(220 13% 7%));
+    min-height: 100vh;
+  }
+}
+
+@layer components {
+  /* Custom neon card styles */
+  .neon-card {
+    @apply bg-card/50 backdrop-blur-xl border border-border/50 rounded-xl;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), 
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  .neon-card:hover {
+    @apply border-primary/30;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4),
+                0 0 0 1px rgba(22, 163, 74, 0.2),
+                0 0 20px rgba(22, 163, 74, 0.1);
+    transform: translateY(-2px);
+  }
+  
+  /* Neon button styles */
+  .neon-button-primary {
+    @apply bg-primary text-primary-foreground font-semibold px-6 py-3 rounded-lg;
+    box-shadow: 0 0 20px rgba(22, 163, 74, 0.4),
+                0 4px 15px rgba(0, 0, 0, 0.3);
+    transition: all 0.3s ease;
+  }
+  
+  .neon-button-primary:hover {
+    box-shadow: 0 0 30px rgba(22, 163, 74, 0.6),
+                0 6px 20px rgba(0, 0, 0, 0.4);
+    transform: translateY(-1px);
+  }
+  
+  .neon-button-secondary {
+    @apply border border-secondary text-secondary font-semibold px-6 py-3 rounded-lg bg-transparent;
+    box-shadow: 0 0 15px rgba(59, 130, 246, 0.2);
+    transition: all 0.3s ease;
+  }
+  
+  .neon-button-secondary:hover {
+    @apply bg-secondary/10;
+    box-shadow: 0 0 25px rgba(59, 130, 246, 0.4);
+    transform: translateY(-1px);
+  }
+  
+  /* Glow text */
+  .neon-text {
+    text-shadow: 0 0 10px currentColor;
+  }
+  
+  /* Chart glow effects */
+  .chart-glow-green {
+    filter: drop-shadow(0 0 8px rgba(22, 163, 74, 0.6));
+  }
+  
+  .chart-glow-blue {
+    filter: drop-shadow(0 0 8px rgba(59, 130, 246, 0.6));
+  }
+  
+  /* Live indicator pulse */
+  .live-pulse {
+    animation: livePulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+  
+  @keyframes livePulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
   }
 }
