@@ -10,6 +10,8 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useNavigate } from "react-router-dom";
 import { Send, Bot, User, AlertCircle, BookOpen } from "lucide-react";
 import { COMPLIANCE_DISCLAIMER, validateAIResponse } from "@/lib/compliance";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/components/ui/use-toast";
 
 interface Message {
   id: string;
@@ -22,6 +24,7 @@ interface Message {
 const Chat = () => {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState('');
   const [isTyping, setIsTyping] = useState(false);
@@ -51,31 +54,29 @@ const Chat = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  const simulateELINResponse = (userMessage: string): string => {
-    const lowerMessage = userMessage.toLowerCase();
-    
-    // Check for advice-seeking patterns
-    if (lowerMessage.includes('should i buy') || lowerMessage.includes('recommend') || lowerMessage.includes('invest in')) {
-      return "I understand you're looking for investment guidance, but I can't provide personalized investment advice. Instead, let me share some general educational considerations:\n\n**For investment decisions, consider:**\n- Your risk tolerance and time horizon\n- Diversification across asset classes\n- Fee structures and expense ratios\n- Your overall investment goals\n\n**I'd recommend:**\n- Speaking with a licensed financial advisor for personalized recommendations\n- Researching the investment fundamentals\n- Understanding the risks involved\n\nIs there a specific educational topic about investing I can help explain instead?";
+  const callELINAPI = async (userMessage: string): Promise<{ response: string; hasDisclaimer: boolean }> => {
+    try {
+      const { data, error } = await supabase.functions.invoke('chat-with-elin', {
+        body: { message: userMessage }
+      });
+
+      if (error) throw error;
+      
+      return data;
+    } catch (error) {
+      console.error('Error calling ELIN API:', error);
+      toast({
+        title: "Connection Error",
+        description: "Unable to connect to ELIN. Please try again.",
+        variant: "destructive"
+      });
+      
+      // Fallback response
+      return {
+        response: "I'm sorry, I'm having trouble connecting right now. Please try again in a moment. In the meantime, you can explore our Learn section for investment education resources.",
+        hasDisclaimer: false
+      };
     }
-    
-    // ETF questions
-    if (lowerMessage.includes('etf') || lowerMessage.includes('exchange traded fund')) {
-      return "Great question about ETFs! An Exchange Traded Fund (ETF) is an investment fund that trades on stock exchanges like individual stocks.\n\n**Key characteristics of ETFs:**\n- **Diversification**: Own many securities in one fund\n- **Lower fees**: Generally cheaper than mutual funds\n- **Liquidity**: Trade during market hours\n- **Transparency**: Holdings disclosed daily\n\n**Common types:**\n- Index ETFs (track market indices like S&P 500)\n- Sector ETFs (focus on specific industries)\n- Bond ETFs (fixed income securities)\n- International ETFs (foreign markets)\n\n**Educational considerations:**\n- Compare expense ratios between similar ETFs\n- Understand what index or strategy the ETF follows\n- Consider your asset allocation goals\n\nWould you like me to explain any specific aspect of ETFs in more detail?";
-    }
-    
-    // 10-K filing questions
-    if (lowerMessage.includes('10-k') || lowerMessage.includes('filing') || lowerMessage.includes('sec')) {
-      return "SEC filings are treasure troves of company information! A 10-K is a comprehensive annual report that public companies must file.\n\n**Key sections to focus on:**\n- **Business Overview**: What the company does\n- **Risk Factors**: Potential challenges and threats\n- **MD&A**: Management's discussion of financial performance\n- **Financial Statements**: Balance sheet, income statement, cash flow\n\n**Educational approach to reading 10-Ks:**\n1. Start with the business description\n2. Review recent risk factors\n3. Look at revenue trends over 3-5 years\n4. Check debt levels and cash position\n\n**Pro tip**: Don't try to read everything at once. Focus on sections relevant to your learning goals.\n\nWould you like me to walk you through how to find and navigate a specific company's 10-K filing?";
-    }
-    
-    // Risk tolerance questions
-    if (lowerMessage.includes('risk') && (lowerMessage.includes('tolerance') || lowerMessage.includes('profile'))) {
-      return "Understanding your risk tolerance is crucial for investment education!\n\n**Risk tolerance factors:**\n- **Time horizon**: Longer = potentially more risk capacity\n- **Financial situation**: Emergency fund, income stability\n- **Emotional comfort**: How do you react to market volatility?\n- **Investment goals**: Growth vs. income vs. preservation\n\n**Educational exercise:**\nImagine your investment drops 20% in a month. Would you:\n- Feel sick and want to sell everything?\n- Feel uncomfortable but hold steady?\n- See it as a buying opportunity?\n\nYour honest reaction helps gauge your risk tolerance.\n\n**Remember**: Risk tolerance can change over time based on life circumstances, so it's worth reassessing periodically.\n\nWould you like to explore how different asset classes typically behave during market volatility?";
-    }
-    
-    // Default educational response
-    return "That's an interesting question! I'd love to help you learn more about that topic.\n\nSome areas I can help you explore:\n- **Investment basics**: Stocks, bonds, ETFs, mutual funds\n- **Financial concepts**: Diversification, risk, compound interest\n- **SEC filings**: How to read and understand company reports\n- **Market fundamentals**: P/E ratios, market cap, sectors\n- **Fee awareness**: Expense ratios, trading costs\n\nCould you be more specific about what you'd like to learn? I'm here to help make complex investment concepts clear and understandable!";
   };
 
   const handleSendMessage = async () => {
@@ -92,22 +93,19 @@ const Chat = () => {
     setInputValue('');
     setIsTyping(true);
 
-    // Simulate AI response delay
-    setTimeout(() => {
-      const rawResponse = simulateELINResponse(userMessage.content);
-      const validation = validateAIResponse(rawResponse);
-      
-      const elinMessage: Message = {
-        id: (Date.now() + 1).toString(),
-        content: validation.modifiedResponse || rawResponse,
-        sender: 'elin',
-        timestamp: new Date(),
-        hasDisclaimer: true
-      };
+    // Get AI response
+    const aiResponse = await callELINAPI(userMessage.content);
+    
+    const elinMessage: Message = {
+      id: (Date.now() + 1).toString(),
+      content: aiResponse.response,
+      sender: 'elin',
+      timestamp: new Date(),
+      hasDisclaimer: aiResponse.hasDisclaimer
+    };
 
-      setMessages(prev => [...prev, elinMessage]);
-      setIsTyping(false);
-    }, 1000 + Math.random() * 2000);
+    setMessages(prev => [...prev, elinMessage]);
+    setIsTyping(false);
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
