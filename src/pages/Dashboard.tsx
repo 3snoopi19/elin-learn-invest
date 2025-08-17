@@ -73,19 +73,60 @@ const Dashboard = () => {
       <main className="container mx-auto px-4 py-8">
         {/* Render dashboard cards from centralized config */}
         <div className="space-y-8">
-          {dashboardCards.map((card, index) => (
-            <DashboardCardRenderer
-              key={card.key}
-              componentName={card.component}
-              gridSpan={card.gridSpan}
-              props={{
-                userName: user.user_metadata?.first_name || 'Investor',
-                hasRiskProfile: !!userProfile?.risk_profile,
-                animationDelay: index * 0.1,
-                ...card.props
-              }}
-            />
-          ))}
+          {dashboardCards.map((card, index) => {
+            console.log('Processing card:', card.key, card.component);
+            
+            // Only render the core components that we know work
+            if (card.component === 'HeroSummaryCard') {
+              return (
+                <DashboardCardRenderer
+                  key={card.key}
+                  componentName={card.component}
+                  props={{
+                    userName: user.user_metadata?.first_name || 'Investor',
+                    hasRiskProfile: !!userProfile?.risk_profile,
+                    animationDelay: index * 0.1,
+                    ...card.props
+                  }}
+                />
+              );
+            }
+            
+            if (card.component === 'PortfolioOverviewCard') {
+              return (
+                <DashboardCardRenderer
+                  key={card.key}
+                  componentName={card.component}
+                  props={{
+                    animationDelay: index * 0.1,
+                    ...card.props
+                  }}
+                />
+              );
+            }
+            
+            if (card.component === 'LiveMarketFeed') {
+              return (
+                <DashboardCardRenderer
+                  key={card.key}
+                  componentName={card.component}
+                  props={{
+                    animationDelay: index * 0.1,
+                    ...card.props
+                  }}
+                />
+              );
+            }
+            
+            // For other components, render a simple placeholder for now
+            return (
+              <div key={card.key} className="p-4 border rounded-lg bg-card">
+                <h3 className="text-lg font-semibold">{card.title}</h3>
+                <p className="text-muted-foreground">{card.subtitle}</p>
+                <p className="text-sm text-muted-foreground mt-2">Component: {card.component}</p>
+              </div>
+            );
+          })}
         </div>
       </main>
       
