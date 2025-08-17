@@ -86,10 +86,10 @@ const Index = () => {
           </p>
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center animate-fade-in">
-            <Button size="lg" onClick={() => navigate('/auth?mode=signup')} className="text-lg px-8">
+            <Button size="lg" onClick={() => navigate('/auth?mode=signup')} className="text-lg px-8 bg-primary hover:bg-primary-hover text-primary-foreground">
               Start Learning Free
             </Button>
-            <Button size="lg" variant="outline" className="text-lg px-8 gap-2" onClick={() => navigate('/risk-quiz')}>
+            <Button size="lg" variant="outline" className="text-lg px-8 gap-2 border-primary text-primary hover:bg-primary/10" onClick={() => navigate('/risk-quiz')}>
               <Play className="h-5 w-5" />
               Take Risk Quiz
             </Button>
@@ -220,7 +220,7 @@ const Index = () => {
           <p className="text-xl mb-8 opacity-90">
             Join thousands of beginners who are building their investment knowledge with ELIN
           </p>
-          <Button size="lg" variant="secondary" onClick={() => navigate('/auth?mode=signup')} className="text-lg px-8">
+          <Button size="lg" variant="secondary" onClick={() => navigate('/auth?mode=signup')} className="text-lg px-8 bg-white hover:bg-white/90 text-primary">
             Start Your Free Trial
           </Button>
         </div>

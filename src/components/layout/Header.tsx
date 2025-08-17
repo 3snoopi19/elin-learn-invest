@@ -133,10 +133,10 @@ export const Header = () => {
             </>
           ) : (
             <div className="flex items-center space-x-2">
-              <Button variant="ghost" onClick={() => navigate('/auth')}>
+              <Button variant="ghost" onClick={() => navigate('/auth')} className="text-text-body hover:text-text-heading">
                 Sign In
               </Button>
-              <Button onClick={() => navigate('/auth?mode=signup')}>
+              <Button onClick={() => navigate('/auth?mode=signup')} className="bg-primary hover:bg-primary-hover text-primary-foreground">
                 Get Started
               </Button>
             </div>

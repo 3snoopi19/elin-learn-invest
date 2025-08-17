@@ -166,12 +166,13 @@ const Learn = () => {
             <Button 
               variant="ghost" 
               onClick={() => setViewingLesson(null)}
-              className="mb-4"
+              className="mb-4 text-text-body hover:text-text-heading"
+              aria-label={`Back to ${viewingLesson.courseTitle} course overview`}
             >
               <ArrowLeft className="h-4 w-4 mr-2" />
               Back to {viewingLesson.courseTitle}
             </Button>
-            <div className="text-sm text-muted-foreground mb-2">
+            <div className="text-sm text-text-muted mb-2">
               {viewingLesson.courseTitle} • {viewingLesson.moduleTitle}
             </div>
           </div>
@@ -195,10 +196,10 @@ const Learn = () => {
           <h1 className="text-4xl font-bold mb-4 bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
             Learning Paths
           </h1>
-          <p className="text-xl text-muted-foreground mb-6 max-w-2xl mx-auto">
+          <p className="text-xl text-text-secondary mb-6 max-w-2xl mx-auto">
             Master investing with our comprehensive, structured learning paths designed for every skill level
           </p>
-          <div className="flex justify-center gap-4 text-sm text-muted-foreground">
+          <div className="flex justify-center gap-4 text-sm text-text-muted">
             <div className="flex items-center gap-2">
               <Trophy className="h-4 w-4 text-primary" />
               <span>Expert-curated content</span>
@@ -226,7 +227,7 @@ const Learn = () => {
               {learningPaths.map((path) => {
                 const IconComponent = path.icon;
                 return (
-                  <Card key={path.id} className="group hover:shadow-lg transition-all duration-300 bg-white dark:bg-card border border-border hover:border-primary/20">
+                  <Card key={path.id} className="group hover:shadow-lg transition-all duration-300 bg-card border border-border hover:border-primary/20">
                     <CardHeader className="pb-4">
                       <div className="flex items-start justify-between mb-2">
                         <div className="p-2 rounded-lg bg-primary/10 group-hover:bg-primary/20 transition-colors">
@@ -236,7 +237,7 @@ const Learn = () => {
                           {path.level}
                         </Badge>
                       </div>
-                      <CardTitle className="text-xl text-text-heading group-hover:text-primary transition-colors course-title">
+                      <CardTitle className="text-xl text-text-heading group-hover:text-primary transition-colors font-bold">
                         {path.title}
                       </CardTitle>
                       <CardDescription className="text-sm leading-relaxed text-text-secondary">
@@ -246,7 +247,7 @@ const Learn = () => {
                     
                     <CardContent className="space-y-4">
                       {/* Course Stats */}
-                      <div className="flex justify-between text-sm text-muted-foreground">
+                      <div className="flex justify-between text-sm text-text-muted">
                         <span className="flex items-center gap-1">
                           <Clock className="h-3 w-3" />
                           {path.duration}
@@ -259,19 +260,19 @@ const Learn = () => {
 
                       {/* Progress */}
                       <div className="space-y-2">
-                        <div className="flex justify-between text-sm">
+                        <div className="flex justify-between text-sm text-text-body">
                           <span>Progress</span>
-                          <span>{path.progress}%</span>
+                          <span className="text-primary font-medium">{path.progress}%</span>
                         </div>
                         <Progress value={path.progress} className="h-2" />
                       </div>
 
                       {/* Topics */}
                       <div className="space-y-2">
-                        <h4 className="text-sm font-medium">Key Topics:</h4>
+                        <h4 className="text-sm font-medium text-text-body">Key Topics:</h4>
                         <div className="flex flex-wrap gap-1">
                           {path.topics.map((topic, index) => (
-                            <Badge key={index} variant="outline" className="text-xs">
+                            <Badge key={index} variant="outline" className="text-xs bg-primary/5 text-primary border-primary/20 hover:bg-primary/10">
                               {topic}
                             </Badge>
                           ))}
@@ -279,10 +280,9 @@ const Learn = () => {
                       </div>
 
                       {/* Action Buttons */}
-                      <div className="space-y-2">
+                      <div className="space-y-2 pt-2">
                         <Button 
-                          className="w-full bg-success hover:bg-primary-hover text-white" 
-                          variant={path.progress > 0 ? "default" : "outline"}
+                          className="w-full bg-primary hover:bg-primary-hover text-primary-foreground font-medium" 
                           onClick={() => {
                             if (path.progress > 0) {
                               // Find the first incomplete lesson for "Continue Learning"
@@ -297,22 +297,25 @@ const Learn = () => {
                               }
                             }
                           }}
+                          aria-label={`${path.progress > 0 ? 'Continue' : 'Start'} ${path.title} course`}
                         >
                           {path.progress > 0 ? `Continue Learning (${path.progress}%)` : "Start Course"}
                         </Button>
                         <Button 
-                          className="w-full" 
+                          className="w-full border-primary text-primary hover:bg-primary/10" 
                           variant="outline"
                           size="sm"
                           onClick={() => setSelectedCourse(selectedCourse === path.id ? null : path.id)}
+                          aria-label={`View all lessons for ${path.title}`}
                         >
                           <BookOpen className="h-4 w-4 mr-2" />
                           View All Lessons
                         </Button>
                         <Button 
-                          className="w-full" 
+                          className="w-full border-primary text-primary hover:bg-primary/10" 
                           variant="outline"
                           size="sm"
+                          aria-label={`Download syllabus for ${path.title}`}
                         >
                           <Download className="h-4 w-4 mr-2" />
                           Download Syllabus
@@ -338,12 +341,12 @@ const Learn = () => {
                           <IconComponent className="h-5 w-5 text-primary" />
                         </div>
                         <div>
-                          <CardTitle className="text-lg">{path.title}</CardTitle>
+                          <CardTitle className="text-lg text-text-heading">{path.title}</CardTitle>
                           <div className="flex items-center gap-2 mt-1">
                             <Badge className={getLevelColor(path.level)}>
                               {path.level}
                             </Badge>
-                            <span className="text-sm text-muted-foreground">{path.duration}</span>
+                            <span className="text-sm text-text-muted">{path.duration}</span>
                           </div>
                         </div>
                       </div>
@@ -355,8 +358,8 @@ const Learn = () => {
                           <AccordionItem key={moduleIndex} value={`module-${moduleIndex}`}>
                             <AccordionTrigger className="text-left">
                               <div className="flex items-center justify-between w-full pr-4">
-                                <span className="font-medium">{module.title}</span>
-                                <span className="text-sm text-muted-foreground">
+                                <span className="font-medium text-text-heading">{module.title}</span>
+                                <span className="text-sm text-text-muted">
                                   {module.lessons.length} lessons
                                 </span>
                               </div>
@@ -376,8 +379,8 @@ const Learn = () => {
                                           )}
                                         </div>
                                         <div>
-                                          <p className="font-medium text-sm">{lesson.title}</p>
-                                          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                                          <p className="font-medium text-sm text-text-body">{lesson.title}</p>
+                                          <div className="flex items-center gap-2 text-xs text-text-muted">
                                             <span className="capitalize">{lesson.type}</span>
                                             <span>•</span>
                                             <span>{lesson.duration}</span>
@@ -387,7 +390,7 @@ const Learn = () => {
                                        <Button 
                                          size="sm" 
                                          variant={lesson.completed ? "outline" : "default"}
-                                         className="text-xs"
+                                         className={`text-xs ${lesson.completed ? 'border-primary text-primary hover:bg-primary/10' : 'bg-primary hover:bg-primary-hover'}`}
                                          onClick={() => handleLessonClick(path.id, moduleIndex, lessonIndex)}
                                        >
                                          {lesson.completed ? "Review" : "Start"}
@@ -426,7 +429,7 @@ const Learn = () => {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <Button size="lg" className="bg-primary hover:bg-primary/90">
+              <Button size="lg" className="bg-primary hover:bg-primary-hover text-primary-foreground">
                 Get Started Today
               </Button>
             </CardContent>
