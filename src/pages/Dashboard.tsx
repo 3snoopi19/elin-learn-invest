@@ -17,6 +17,8 @@ import { DashboardCard } from "@/components/DashboardCard";
 import { ProgressBar } from "@/components/ProgressBar";
 import { HeroSummaryCard } from "@/components/HeroSummaryCard";
 import { PortfolioOverviewCard } from "@/components/PortfolioOverviewCard";
+import { LiveMarketFeed } from "@/components/LiveMarketFeed";
+import { RecentActivityCard } from "@/components/RecentActivityCard";
 import { motion } from "framer-motion";
 import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
 
@@ -98,6 +100,16 @@ const Dashboard = () => {
         {/* Portfolio Overview Card */}
         <div className="mb-8">
           <PortfolioOverviewCard />
+        </div>
+
+        {/* Live Market Feed */}
+        <div className="mb-8">
+          <LiveMarketFeed />
+        </div>
+
+        {/* Recent Activity Card */}
+        <div className="mb-8">
+          <RecentActivityCard />
         </div>
 
         {/* Premium Feature Cards Grid */}
