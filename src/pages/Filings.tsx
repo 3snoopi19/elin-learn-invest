@@ -125,9 +125,9 @@ const Filings = () => {
                 onChange={(e) => setSearchTerm(e.target.value)}
                 onKeyPress={handleKeyPress}
                 placeholder="Enter ticker symbol (AAPL, TSLA, SPY...)"
-                className="flex-1"
+                className="flex-1 bg-white border-border focus:border-success focus:ring-success/20"
               />
-              <Button onClick={handleSearch} disabled={searchLoading}>
+              <Button onClick={handleSearch} disabled={searchLoading} className="bg-success hover:bg-primary-hover text-white">
                 {searchLoading ? 'Searching...' : 'Search'}
               </Button>
             </div>
@@ -203,13 +203,13 @@ const Filings = () => {
                         <div className="flex items-center justify-between">
                           <div className="space-y-1">
                             <div className="flex items-center space-x-2">
-                              <Badge variant="outline">{filing.form}</Badge>
-                              <span className="font-medium">{filing.primaryDocDescription}</span>
+                              <Badge variant="outline" className="text-education border-education/30">{filing.form}</Badge>
+                              <span className="font-bold text-text-heading">{filing.primaryDocDescription}</span>
                             </div>
-                            <p className="text-sm text-muted-foreground">
+                            <p className="text-sm text-text-muted">
                               {getFilingTypeDescription(filing.form)}
                             </p>
-                            <div className="flex items-center space-x-4 text-xs text-muted-foreground">
+                            <div className="flex items-center space-x-4 text-xs text-text-muted">
                               <div className="flex items-center space-x-1">
                                 <Calendar className="h-3 w-3" />
                                 <span>Filed: {new Date(filing.filingDate).toLocaleDateString()}</span>
@@ -219,7 +219,7 @@ const Filings = () => {
                               )}
                             </div>
                           </div>
-                          <Button variant="outline" size="sm">
+                          <Button variant="outline" size="sm" className="bg-success hover:bg-primary-hover text-white border-success">
                             View Filing
                           </Button>
                         </div>

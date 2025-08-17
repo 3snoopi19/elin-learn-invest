@@ -250,7 +250,7 @@ const Portfolio = () => {
           
           <Dialog open={addDialogOpen} onOpenChange={setAddDialogOpen}>
             <DialogTrigger asChild>
-              <Button>
+               <Button className="bg-success hover:bg-primary-hover text-white">
                 <Plus className="h-4 w-4 mr-2" />
                 Add Holding
               </Button>
@@ -343,7 +343,7 @@ const Portfolio = () => {
                     <p className="text-sm text-destructive mt-1">{validationErrors.purchase_date}</p>
                   )}
                 </div>
-                <Button onClick={handleAddHolding} className="w-full">
+                <Button onClick={handleAddHolding} className="w-full bg-success hover:bg-primary-hover text-white">
                   Add Holding
                 </Button>
               </div>
@@ -368,7 +368,7 @@ const Portfolio = () => {
               <p className="text-muted-foreground mb-4">
                 Add your first holding to begin learning about portfolio management and diversification.
               </p>
-              <Button onClick={() => setAddDialogOpen(true)}>
+               <Button onClick={() => setAddDialogOpen(true)} className="bg-success hover:bg-primary-hover text-white">
                 <Plus className="h-4 w-4 mr-2" />
                 Add Your First Holding
               </Button>
@@ -545,10 +545,10 @@ const Portfolio = () => {
                         Learn about portfolio management concepts
                       </CardDescription>
                     </CardHeader>
-                    <CardContent className="space-y-4">
+                     <CardContent className="space-y-4 bg-insights-bg">
                       <div>
-                        <h4 className="font-semibold mb-2">Diversification Basics</h4>
-                        <p className="text-sm text-muted-foreground">
+                        <h4 className="font-semibold mb-2 text-text-heading">Diversification Basics</h4>
+                        <p className="text-sm text-success">
                           Diversification means spreading investments across different asset classes, 
                           sectors, and geographic regions to reduce risk. A well-diversified portfolio 
                           typically includes stocks, bonds, and other assets.
@@ -556,8 +556,8 @@ const Portfolio = () => {
                       </div>
                       
                       <div>
-                        <h4 className="font-semibold mb-2">Cost Basis Tracking</h4>
-                        <p className="text-sm text-muted-foreground">
+                        <h4 className="font-semibold mb-2 text-text-heading">Cost Basis Tracking</h4>
+                        <p className="text-sm text-education">
                           Your cost basis is what you paid for an investment. It's important for 
                           calculating gains/losses and tax purposes. This tracker helps you understand 
                           how your investments are performing relative to what you paid.
@@ -565,8 +565,8 @@ const Portfolio = () => {
                       </div>
                       
                       <div>
-                        <h4 className="font-semibold mb-2">Performance Monitoring</h4>
-                        <p className="text-sm text-muted-foreground">
+                        <h4 className="font-semibold mb-2 text-text-heading">Performance Monitoring</h4>
+                        <p className="text-sm text-success">
                           Regular portfolio monitoring helps you understand investment performance and 
                           make informed decisions. Remember: short-term fluctuations are normal, 
                           focus on long-term trends.

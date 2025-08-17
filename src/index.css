@@ -17,26 +17,47 @@ All colors MUST be HSL.
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
 
-    /* Investment theme colors */
+    /* Brand color palette - consistent across all sections */
     --primary: 142 76% 36%;
     --primary-foreground: 210 40% 98%;
+    --primary-hover: 142 76% 30%;
     
     /* Success/financial green variations */
-    --success: 120 60% 50%;
+    --success: 134 61% 41%;
     --success-foreground: 0 0% 100%;
     
     /* Warning for risk indicators */
-    --warning: 43 96% 56%;
+    --warning: 38 92% 50%;
     --warning-foreground: 222.2 84% 4.9%;
     
     /* Educational blue accents */
     --education: 217 91% 60%;
     --education-foreground: 0 0% 100%;
     
+    /* Text hierarchy tokens */
+    --text-heading: 220 13% 9%;
+    --text-secondary: 215 28% 24%;
+    --text-muted: 215 20% 42%;
+    
+    /* Progress bar colors */
+    --progress-completed: 134 61% 41%;
+    --progress-in-progress: 217 91% 60%;
+    --progress-remaining: 220 13% 90%;
+    
+    /* Portfolio colors */
+    --portfolio-stocks: 142 76% 36%;
+    --portfolio-bonds: 217 91% 60%;
+    --portfolio-cash: 38 92% 50%;
+    --portfolio-crypto: 258 90% 66%;
+    --portfolio-alternatives: 170 76% 40%;
+    
+    /* Insights panel */
+    --insights-bg: 210 40% 98%;
+    
     /* Simulation specific colors */
     --simulation-primary: 142 76% 36%;
     --simulation-secondary: 217 91% 60%;
-    --simulation-accent: 43 96% 56%;
+    --simulation-accent: 38 92% 50%;
 
     --secondary: 210 40% 96.1%;
     --secondary-foreground: 222.2 47.4% 11.2%;

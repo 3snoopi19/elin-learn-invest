@@ -99,10 +99,10 @@ const Learn = () => {
 
   const getLevelColor = (level: string) => {
     switch (level) {
-      case "Beginner": return "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200";
-      case "Intermediate": return "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200";
-      case "Advanced": return "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200";
-      default: return "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200";
+      case "Beginner": return "bg-success/10 text-success border-success/20";
+      case "Intermediate": return "bg-education/10 text-education border-education/20";
+      case "Advanced": return "bg-warning/10 text-warning border-warning/20";
+      default: return "bg-muted text-muted-foreground border-border";
     }
   };
 
@@ -226,20 +226,20 @@ const Learn = () => {
               {learningPaths.map((path) => {
                 const IconComponent = path.icon;
                 return (
-                  <Card key={path.id} className="group hover:shadow-lg transition-all duration-300 border-2 hover:border-primary/20">
+                  <Card key={path.id} className="group hover:shadow-lg transition-all duration-300 bg-white dark:bg-card border border-border hover:border-primary/20">
                     <CardHeader className="pb-4">
                       <div className="flex items-start justify-between mb-2">
                         <div className="p-2 rounded-lg bg-primary/10 group-hover:bg-primary/20 transition-colors">
                           <IconComponent className="h-6 w-6 text-primary" />
                         </div>
-                        <Badge className={getLevelColor(path.level)}>
+                        <Badge className={`${getLevelColor(path.level)} border`}>
                           {path.level}
                         </Badge>
                       </div>
-                      <CardTitle className="text-xl group-hover:text-primary transition-colors">
+                      <CardTitle className="text-xl text-text-heading group-hover:text-primary transition-colors">
                         {path.title}
                       </CardTitle>
-                      <CardDescription className="text-sm leading-relaxed">
+                      <CardDescription className="text-sm leading-relaxed text-text-muted">
                         {path.description}
                       </CardDescription>
                     </CardHeader>
@@ -281,7 +281,7 @@ const Learn = () => {
                       {/* Action Buttons */}
                       <div className="space-y-2">
                         <Button 
-                          className="w-full" 
+                          className="w-full bg-success hover:bg-primary-hover text-white" 
                           variant={path.progress > 0 ? "default" : "outline"}
                           onClick={() => {
                             if (path.progress > 0) {
