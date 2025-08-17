@@ -6,11 +6,15 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { BookOpen, Clock, Trophy, TrendingUp, Shield, DollarSign, BarChart3, Target, Play, FileText, Download, CheckCircle, Video, PenTool } from "lucide-react";
+import { BookOpen, Clock, Trophy, TrendingUp, Shield, DollarSign, BarChart3, Target, Play, FileText, Download, CheckCircle, Video, PenTool, ArrowLeft } from "lucide-react";
 import { useState } from "react";
+import { LessonContent } from "@/components/learn/LessonContent";
+import { courseContent } from "@/data/courseContent";
 
 const Learn = () => {
   const [selectedCourse, setSelectedCourse] = useState<number | null>(null);
+  const [viewingLesson, setViewingLesson] = useState<any>(null);
+  const [completedLessons, setCompletedLessons] = useState<Set<string>>(new Set());
   
   const learningPaths = [
     {
@@ -175,6 +179,60 @@ const Learn = () => {
       default: return BookOpen;
     }
   };
+
+  const handleLessonClick = (courseId: number, moduleIndex: number, lessonIndex: number) => {
+    const course = learningPaths.find(p => p.id === courseId);
+    if (course && courseContent[courseId as keyof typeof courseContent]) {
+      const moduleData = courseContent[courseId as keyof typeof courseContent].modules[moduleIndex];
+      const lessonData = moduleData?.lessons[lessonIndex];
+      if (lessonData) {
+        setViewingLesson({
+          ...lessonData,
+          courseTitle: course.title,
+          moduleTitle: moduleData.title
+        });
+      }
+    }
+  };
+
+  const handleCompleteLesson = (lessonId: string) => {
+    setCompletedLessons(prev => new Set([...prev, lessonId]));
+  };
+
+  const handleNextLesson = () => {
+    // Logic to navigate to next lesson
+    setViewingLesson(null);
+  };
+
+  // If viewing a lesson, show the lesson content
+  if (viewingLesson) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Header />
+        <main className="container mx-auto px-4 py-8">
+          <div className="mb-6">
+            <Button 
+              variant="ghost" 
+              onClick={() => setViewingLesson(null)}
+              className="mb-4"
+            >
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Back to {viewingLesson.courseTitle}
+            </Button>
+            <div className="text-sm text-muted-foreground mb-2">
+              {viewingLesson.courseTitle} • {viewingLesson.moduleTitle}
+            </div>
+          </div>
+          <LessonContent 
+            lesson={viewingLesson}
+            onComplete={handleCompleteLesson}
+            onNext={handleNextLesson}
+          />
+        </main>
+        <Footer />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -352,13 +410,14 @@ const Learn = () => {
                                           </div>
                                         </div>
                                       </div>
-                                      <Button 
-                                        size="sm" 
-                                        variant={lesson.completed ? "outline" : "default"}
-                                        className="text-xs"
-                                      >
-                                        {lesson.completed ? "Review" : "Start"}
-                                      </Button>
+                                       <Button 
+                                         size="sm" 
+                                         variant={lesson.completed ? "outline" : "default"}
+                                         className="text-xs"
+                                         onClick={() => handleLessonClick(path.id, moduleIndex, lessonIndex)}
+                                       >
+                                         {lesson.completed ? "Review" : "Start"}
+                                       </Button>
                                     </div>
                                   );
                                 })}
