@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { ElinLogo } from "@/components/ui/ElinLogo";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { LogOut, User, Menu, BookOpen } from "lucide-react";
@@ -24,34 +25,57 @@ export const Header = () => {
 
   const NavigationLinks = () => (
     <>
-      <Button variant="ghost" onClick={() => navigate('/dashboard')}>
+      <Button 
+        variant="ghost" 
+        onClick={() => navigate('/dashboard')}
+        className="text-muted-foreground hover:text-foreground hover:bg-primary/10 transition-colors"
+      >
         Dashboard
       </Button>
-      <Button variant="ghost" onClick={() => navigate('/chat')}>
+      <Button 
+        variant="ghost" 
+        onClick={() => navigate('/chat')}
+        className="text-muted-foreground hover:text-foreground hover:bg-primary/10 transition-colors"
+      >
         ELIN Mentor
       </Button>
-      <Button variant="ghost" onClick={() => navigate('/filings')}>
+      <Button 
+        variant="ghost" 
+        onClick={() => navigate('/filings')}
+        className="text-muted-foreground hover:text-foreground hover:bg-primary/10 transition-colors"
+      >
         Filings
       </Button>
-      <Button variant="ghost" onClick={() => navigate('/portfolio')}>
+      <Button 
+        variant="ghost" 
+        onClick={() => navigate('/portfolio')}
+        className="text-muted-foreground hover:text-foreground hover:bg-primary/10 transition-colors"
+      >
         Portfolio
       </Button>
-      <Button variant="ghost" onClick={() => navigate('/learn')}>
+      <Button 
+        variant="ghost" 
+        onClick={() => navigate('/learn')}
+        className="text-muted-foreground hover:text-foreground hover:bg-primary/10 transition-colors"
+      >
         Learn
       </Button>
     </>
   );
 
   return (
-    <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <header className="border-b border-border/50 bg-background/80 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60">
       <div className="container mx-auto px-4 h-16 flex items-center justify-between">
         {/* Logo */}
-        <div className="flex items-center">
-          <img 
-            src="/lovable-uploads/012a0470-bcc4-4b7c-9319-dbcd6ab1b232.png" 
-            alt="ELIN Investment Mentor" 
-            className="h-14 w-auto cursor-pointer" 
-            onClick={() => navigate('/')}
+        <div 
+          className="flex items-center cursor-pointer" 
+          onClick={() => navigate('/')}
+        >
+          <ElinLogo 
+            size="md" 
+            showSubtitle={true}
+            glowIntensity="subtle"
+            className="transition-all duration-300 hover:scale-105"
           />
         </div>
 
