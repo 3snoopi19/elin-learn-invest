@@ -46,13 +46,26 @@ export const LessonContent = ({ lesson, onComplete, onNext }: LessonContentProps
 
   const renderVideoContent = () => (
     <div className="space-y-6">
-      <div className="aspect-video bg-gray-900 rounded-lg flex items-center justify-center">
-        <div className="text-center text-white">
-          <Play className="h-16 w-16 mx-auto mb-4 opacity-75" />
-          <p className="text-lg font-medium">{lesson.title}</p>
-          <p className="text-sm opacity-75">Duration: {lesson.duration}</p>
+      {lesson.content.videoUrl ? (
+        <div className="aspect-video rounded-lg overflow-hidden border">
+          <iframe
+            src={lesson.content.videoUrl}
+            title={lesson.title}
+            className="w-full h-full"
+            frameBorder="0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowFullScreen
+          />
         </div>
-      </div>
+      ) : (
+        <div className="aspect-video bg-gray-900 rounded-lg flex items-center justify-center">
+          <div className="text-center text-white">
+            <Play className="h-16 w-16 mx-auto mb-4 opacity-75" />
+            <p className="text-lg font-medium">{lesson.title}</p>
+            <p className="text-sm opacity-75">Duration: {lesson.duration}</p>
+          </div>
+        </div>
+      )}
       <div className="prose max-w-none">
         <h3>Video Summary</h3>
         <p>{lesson.content.summary}</p>
