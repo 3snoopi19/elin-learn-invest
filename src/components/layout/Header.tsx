@@ -48,9 +48,9 @@ export const Header = () => {
         {/* Logo */}
         <div className="flex items-center">
           <img 
-            src="/lovable-uploads/6cada02d-ba67-4343-b8ae-c10bef76a152.png" 
+            src="/lovable-uploads/ed09c417-187e-451b-9ae1-9877aaa24cba.png" 
             alt="ELIN Investment Mentor" 
-            className="h-10 w-auto cursor-pointer" 
+            className="h-12 w-auto cursor-pointer" 
             onClick={() => navigate('/')}
           />
         </div>
