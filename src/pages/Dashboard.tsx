@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { BookOpen, TrendingUp, MessageSquare, FileText, Users, Plus, Award, Star } from "lucide-react";
+import { BookOpen, TrendingUp, MessageSquare, FileText, Users, Plus, Award, Star, Brain } from "lucide-react";
 import { RiskProfileBadge } from "@/components/RiskProfileBadge";
 
 const Dashboard = () => {
@@ -92,7 +92,7 @@ const Dashboard = () => {
         </div>
 
         {/* Quick Actions Grid */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div className="grid md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
           <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => navigate('/chat')}>
             <CardHeader className="pb-3">
               <MessageSquare className="h-8 w-8 text-primary mb-2" />
@@ -137,6 +137,18 @@ const Dashboard = () => {
             <CardContent>
               <CardDescription>
                 Decode and understand company filings with AI-powered explanations
+              </CardDescription>
+            </CardContent>
+          </Card>
+
+          <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => navigate('/portfolio-simulator')}>
+            <CardHeader className="pb-3">
+              <Brain className="h-8 w-8 text-primary mb-2" />
+              <CardTitle className="text-lg">AI Portfolio Simulator</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <CardDescription>
+                Simulate portfolio performance across different market scenarios with AI analysis
               </CardDescription>
             </CardContent>
           </Card>
