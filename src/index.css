@@ -137,29 +137,56 @@ All colors MUST be HSL.
   }
 
   /* Global text contrast improvements */
-  h1, h2, h3, h4, h5, h6 {
-    @apply text-text-heading;
+  /* Improved text contrast for WCAG AA compliance */
+  h1, h2, h3, h4, h5, h6, .text-heading {
+    @apply text-text-heading !important;
     font-weight: 600;
   }
 
-  p {
-    @apply text-text-body;
+  p, .text-body {
+    @apply text-text-body !important;
+    font-weight: 400;
   }
 
-  /* Ensure card titles are visible */
+  .text-muted {
+    @apply text-muted-foreground !important;
+  }
+
+  .text-secondary {
+    @apply text-text-secondary !important;
+  }
+
+  /* Card-specific text overrides for better contrast */
   .card-title {
     @apply text-text-heading !important;
+    font-weight: 600;
   }
 
-  /* Override any low-contrast text */
-  .course-title, .card-title, [data-slot="title"] {
+  .card-description {
+    @apply text-text-secondary !important;
+    font-weight: 400;
+  }
+
+  /* Course card improvements */
+  .course-title, [data-slot="title"] {
     @apply text-text-heading !important;
     font-weight: 600 !important;
   }
 
-  /* Ensure descriptions have adequate contrast */
-  .card-description, [data-slot="description"] {
+  .course-description, [data-slot="description"] {
     @apply text-text-secondary !important;
+  }
+
+  /* Button consistency with primary brand color */
+  .btn-primary {
+    background: hsl(var(--primary));
+    color: hsl(var(--primary-foreground));
+    border: 1px solid hsl(var(--primary));
+  }
+
+  .btn-primary:hover {
+    background: hsl(var(--primary-hover));
+    color: hsl(var(--primary-foreground));
   }
 }
 

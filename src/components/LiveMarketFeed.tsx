@@ -134,16 +134,35 @@ export const LiveMarketFeed = () => {
       });
 
       if (fetchError) {
-        throw new Error(fetchError.message);
+        console.error('Market data fetch error:', fetchError);
+        throw new Error(fetchError.message || 'API request failed');
       }
 
-      if (data?.quotes) {
+      if (data?.quotes && Array.isArray(data.quotes)) {
         setMarketData(data.quotes);
         setLastUpdated(new Date());
+      } else {
+        throw new Error('Invalid data format received');
       }
     } catch (err) {
       console.error('Error fetching market data:', err);
-      setError('Live data temporarily unavailable — retrying...');
+      setError('Real-time data temporarily unavailable. Displaying educational placeholders while reconnecting...');
+      
+      // Show fallback data for educational purposes
+      const fallbackData = DEFAULT_SYMBOLS.map((symbol, index) => ({
+        symbol,
+        price: 150 + Math.random() * 300,
+        changePct: (Math.random() - 0.5) * 6,
+        changeAbs: (Math.random() - 0.5) * 10,
+        prevClose: 145 + Math.random() * 300,
+        high: 155 + Math.random() * 300,
+        low: 140 + Math.random() * 300,
+        time: Date.now() / 1000
+      }));
+      
+      if (!marketData.length) {
+        setMarketData(fallbackData);
+      }
     } finally {
       setLoading(false);
     }

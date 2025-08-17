@@ -337,11 +337,14 @@ const Portfolio = () => {
                         setValidationErrors(prev => ({ ...prev, purchase_date: '' }));
                       }
                     }}
-                    className={validationErrors.purchase_date ? 'border-destructive' : ''}
+                    className={`${validationErrors.purchase_date ? 'border-destructive' : ''} pointer-events-auto`}
                   />
                   {validationErrors.purchase_date && (
                     <p className="text-sm text-destructive mt-1">{validationErrors.purchase_date}</p>
                   )}
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Click the calendar icon or type the date directly
+                  </p>
                 </div>
                 <Button onClick={handleAddHolding} className="w-full bg-success hover:bg-primary-hover text-white">
                   Add Holding
@@ -364,11 +367,11 @@ const Portfolio = () => {
           <Card>
             <CardContent className="text-center py-12">
               <TrendingUp className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-              <h3 className="text-lg font-semibold mb-2">Start Tracking Your Investments</h3>
-              <p className="text-muted-foreground mb-4">
-                Add your first holding to begin learning about portfolio management and diversification.
+              <h3 className="text-lg font-semibold mb-2 text-text-heading">Your portfolio is empty—connect a broker or add a holding</h3>
+              <p className="text-text-secondary mb-4">
+                Add your first holding to begin learning about portfolio management and diversification. This is a safe educational environment to practice investment concepts.
               </p>
-               <Button onClick={() => setAddDialogOpen(true)} className="bg-success hover:bg-primary-hover text-white">
+              <Button onClick={() => setAddDialogOpen(true)} className="bg-primary hover:bg-primary-hover text-primary-foreground">
                 <Plus className="h-4 w-4 mr-2" />
                 Add Your First Holding
               </Button>

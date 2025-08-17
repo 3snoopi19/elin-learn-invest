@@ -6,41 +6,48 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-interface TickerItem {
+interface TickerQuote {
   symbol: string;
   price: number;
   changePct: number;
-  direction: 'up' | 'down' | 'flat';
+  direction: 'up' | 'down' | 'unchanged';
 }
 
 interface FinnhubQuote {
   c: number; // current price
   d: number; // change
   dp: number; // percent change
+  h: number; // high
+  l: number; // low
+  o: number; // open
+  pc: number; // previous close
+  t: number; // timestamp
 }
 
 // Default symbols for ticker
-const DEFAULT_SYMBOLS = ['MSFT', 'TSLA', 'AAPL', 'SPY', 'NVDA', 'GOOGL'];
+const DEFAULT_SYMBOLS = ['AAPL', 'MSFT', 'TSLA', 'SPY', 'NVDA', 'GOOGL'];
 
 // In-memory cache
-const cache = new Map<string, { data: TickerItem; expires: number }>();
-const CACHE_TTL = 30000; // 30 seconds
+const cache = new Map<string, { data: TickerQuote; expires: number }>();
+const CACHE_TTL = 60000; // 1 minute for ticker
 
-function normalizeTickerItem(symbol: string, finnhubData: FinnhubQuote): TickerItem {
-  let direction: 'up' | 'down' | 'flat' = 'flat';
-  if (finnhubData.dp > 0.1) direction = 'up';
-  else if (finnhubData.dp < -0.1) direction = 'down';
+function normalizeTickerQuote(symbol: string, finnhubData: FinnhubQuote): TickerQuote {
+  const changePct = finnhubData.dp;
+  let direction: 'up' | 'down' | 'unchanged' = 'unchanged';
+  
+  if (changePct > 0) direction = 'up';
+  else if (changePct < 0) direction = 'down';
 
   return {
     symbol: symbol.toUpperCase(),
     price: finnhubData.c,
-    changePct: finnhubData.dp,
+    changePct: changePct,
     direction
   };
 }
 
-async function fetchTickerFromFinnhub(symbol: string, apiKey: string): Promise<TickerItem> {
-  const cacheKey = symbol.toUpperCase();
+async function fetchTickerQuoteFromFinnhub(symbol: string, apiKey: string): Promise<TickerQuote> {
+  const cacheKey = `ticker_${symbol.toUpperCase()}`;
   const cached = cache.get(cacheKey);
   
   if (cached && cached.expires > Date.now()) {
@@ -56,7 +63,7 @@ async function fetchTickerFromFinnhub(symbol: string, apiKey: string): Promise<T
   }
 
   const data: FinnhubQuote = await response.json();
-  const normalized = normalizeTickerItem(symbol, data);
+  const normalized = normalizeTickerQuote(symbol, data);
   
   // Cache the result
   cache.set(cacheKey, {
@@ -74,10 +81,6 @@ serve(async (req) => {
   }
 
   try {
-    const url = new URL(req.url);
-    const customSymbols = url.searchParams.get('symbols')?.split(',');
-    const symbols = customSymbols || DEFAULT_SYMBOLS;
-
     const finnhubApiKey = Deno.env.get('FINNHUB_API_KEY');
     if (!finnhubApiKey) {
       return new Response(
@@ -89,30 +92,37 @@ serve(async (req) => {
       );
     }
 
-    // Fetch ticker data in parallel
-    const tickerPromises = symbols.map(symbol => 
-      fetchTickerFromFinnhub(symbol, finnhubApiKey).catch(error => {
-        console.error(`Error fetching ${symbol}:`, error);
-        return null;
-      })
+    // Use default symbols for ticker tape
+    const symbols = DEFAULT_SYMBOLS;
+
+    // Fetch quotes in parallel
+    const quotePromises = symbols.map(symbol => 
+      fetchTickerQuoteFromFinnhub(symbol, finnhubApiKey).catch(error => ({
+        symbol: symbol.toUpperCase(),
+        price: 0,
+        changePct: 0,
+        direction: 'unchanged' as const,
+        error: error.message
+      }))
     );
 
-    const results = await Promise.all(tickerPromises);
-    const tickers = results.filter(Boolean) as TickerItem[];
-
-    console.log(`Fetched ${tickers.length} ticker items`);
+    const results = await Promise.all(quotePromises);
+    
+    // Filter out any errors and keep only successful quotes
+    const quotes = results.filter(result => !('error' in result)) as TickerQuote[];
+    
+    console.log(`Fetched ${quotes.length} ticker quotes`);
 
     return new Response(
       JSON.stringify({ 
-        tickers,
-        timestamp: Date.now(),
-        refreshInterval: 30
+        quotes,
+        timestamp: Date.now()
       }), 
       {
         headers: { 
           ...corsHeaders, 
           'Content-Type': 'application/json',
-          'Cache-Control': 'public, max-age=30'
+          'Cache-Control': 'public, max-age=60'
         }
       }
     );

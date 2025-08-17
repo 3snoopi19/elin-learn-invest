@@ -61,20 +61,23 @@ const Chat = () => {
         body: { message: userMessage }
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error('ELIN API error details:', error);
+        throw error;
+      }
       
       return data;
     } catch (error) {
       console.error('Error calling ELIN API:', error);
       toast({
         title: "Connection Error",
-        description: "Unable to connect to ELIN. Please try again.",
+        description: "ELIN is temporarily unavailable. This might be due to API configuration. Please try again later.",
         variant: "destructive"
       });
       
-      // Fallback response
+      // Improved fallback response
       return {
-        response: "I'm sorry, I'm having trouble connecting right now. Please try again in a moment. In the meantime, you can explore our Learn section for investment education resources.",
+        response: "I'm currently experiencing connection issues. This might be due to API configuration that needs to be set up. In the meantime, you can explore our Learn section for comprehensive investment education resources, or try the Portfolio Tracker to practice with investment concepts.",
         hasDisclaimer: false
       };
     }
@@ -229,12 +232,22 @@ const Chat = () => {
               <Input
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
-                onKeyPress={handleKeyPress}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    handleSendMessage();
+                  }
+                }}
                 placeholder="Ask me about investing concepts, ETFs, risk tolerance, SEC filings..."
                 className="flex-1"
                 maxLength={2000}
+                aria-label="Type your message to ELIN"
               />
-              <Button onClick={handleSendMessage} disabled={!inputValue.trim() || isTyping}>
+              <Button 
+                onClick={handleSendMessage} 
+                disabled={!inputValue.trim() || isTyping}
+                aria-label="Send message"
+              >
                 <Send className="h-4 w-4" />
               </Button>
             </div>
