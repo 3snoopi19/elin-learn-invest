@@ -89,9 +89,9 @@ const Index = () => {
             <Button size="lg" onClick={() => navigate('/auth?mode=signup')} className="text-lg px-8">
               Start Learning Free
             </Button>
-            <Button size="lg" variant="outline" className="text-lg px-8 gap-2">
+            <Button size="lg" variant="outline" className="text-lg px-8 gap-2" onClick={() => navigate('/risk-quiz')}>
               <Play className="h-5 w-5" />
-              See ELIN in Action
+              Take Risk Quiz
             </Button>
           </div>
           

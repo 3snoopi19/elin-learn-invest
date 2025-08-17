@@ -90,6 +90,9 @@ export type Database = {
           id: string
           investment_goals: string[] | null
           last_name: string | null
+          quiz_completed_at: string | null
+          risk_profile: string | null
+          risk_score: number | null
           risk_tolerance: string | null
           time_horizon: number | null
           updated_at: string
@@ -104,6 +107,9 @@ export type Database = {
           id?: string
           investment_goals?: string[] | null
           last_name?: string | null
+          quiz_completed_at?: string | null
+          risk_profile?: string | null
+          risk_score?: number | null
           risk_tolerance?: string | null
           time_horizon?: number | null
           updated_at?: string
@@ -118,6 +124,9 @@ export type Database = {
           id?: string
           investment_goals?: string[] | null
           last_name?: string | null
+          quiz_completed_at?: string | null
+          risk_profile?: string | null
+          risk_score?: number | null
           risk_tolerance?: string | null
           time_horizon?: number | null
           updated_at?: string

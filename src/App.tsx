@@ -19,6 +19,7 @@ import Privacy from "./pages/Privacy";
 import Terms from "./pages/Terms";
 import Sources from "./pages/Sources";
 import OnboardingQuiz from "./pages/OnboardingQuiz";
+import RiskQuiz from "./pages/RiskQuiz";
 import InvestorProfile from "./pages/InvestorProfile";
 import PaymentSuccess from "./pages/PaymentSuccess";
 import NotFound from "./pages/NotFound";
@@ -48,6 +49,7 @@ const App = () => (
             <Route path="/terms" element={<Terms />} />
             <Route path="/sources" element={<Sources />} />
             <Route path="/onboarding" element={<OnboardingQuiz />} />
+            <Route path="/risk-quiz" element={<RiskQuiz />} />
             <Route path="/investor-profile" element={<InvestorProfile />} />
             <Route path="/payment-success" element={<PaymentSuccess />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
