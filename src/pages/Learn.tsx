@@ -4,9 +4,14 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { BookOpen, Clock, Trophy, TrendingUp, Shield, DollarSign, BarChart3, Target } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { BookOpen, Clock, Trophy, TrendingUp, Shield, DollarSign, BarChart3, Target, Play, FileText, Download, CheckCircle, Video, PenTool } from "lucide-react";
+import { useState } from "react";
 
 const Learn = () => {
+  const [selectedCourse, setSelectedCourse] = useState<number | null>(null);
+  
   const learningPaths = [
     {
       id: 1,
@@ -15,9 +20,27 @@ const Learn = () => {
       level: "Beginner",
       duration: "4 weeks",
       modules: 8,
-      progress: 0,
+      progress: 25,
       icon: BookOpen,
-      topics: ["Stock Market Basics", "Bond Fundamentals", "Risk & Return", "Diversification"]
+      topics: ["Stock Market Basics", "Bond Fundamentals", "Risk & Return", "Diversification"],
+      courseModules: [
+        {
+          title: "Introduction to Investing",
+          lessons: [
+            { title: "What is Investing?", type: "video", duration: "12 min", completed: true },
+            { title: "Risk vs Return Basics", type: "article", duration: "8 min", completed: true },
+            { title: "Getting Started Quiz", type: "quiz", duration: "5 min", completed: false }
+          ]
+        },
+        {
+          title: "Stock Market Fundamentals",
+          lessons: [
+            { title: "How Stock Markets Work", type: "video", duration: "15 min", completed: false },
+            { title: "Types of Stocks", type: "article", duration: "10 min", completed: false },
+            { title: "Reading Stock Quotes", type: "interactive", duration: "12 min", completed: false }
+          ]
+        }
+      ]
     },
     {
       id: 2,
@@ -28,7 +51,25 @@ const Learn = () => {
       modules: 12,
       progress: 0,
       icon: BarChart3,
-      topics: ["Income Statements", "Balance Sheets", "Cash Flow", "Ratio Analysis"]
+      topics: ["Income Statements", "Balance Sheets", "Cash Flow", "Ratio Analysis"],
+      courseModules: [
+        {
+          title: "Financial Statement Basics",
+          lessons: [
+            { title: "Three Core Financial Statements", type: "video", duration: "18 min", completed: false },
+            { title: "Understanding Annual Reports", type: "article", duration: "12 min", completed: false },
+            { title: "SEC Filing Requirements", type: "article", duration: "8 min", completed: false }
+          ]
+        },
+        {
+          title: "Income Statement Deep Dive",
+          lessons: [
+            { title: "Revenue Recognition", type: "video", duration: "14 min", completed: false },
+            { title: "Operating vs Non-Operating Income", type: "article", duration: "10 min", completed: false },
+            { title: "Earnings Per Share Analysis", type: "interactive", duration: "15 min", completed: false }
+          ]
+        }
+      ]
     },
     {
       id: 3,
@@ -37,9 +78,19 @@ const Learn = () => {
       level: "Intermediate",
       duration: "5 weeks",
       modules: 10,
-      progress: 0,
+      progress: 60,
       icon: Target,
-      topics: ["Asset Allocation", "Rebalancing", "Risk Management", "Performance Tracking"]
+      topics: ["Asset Allocation", "Rebalancing", "Risk Management", "Performance Tracking"],
+      courseModules: [
+        {
+          title: "Portfolio Theory Foundations",
+          lessons: [
+            { title: "Modern Portfolio Theory", type: "video", duration: "20 min", completed: true },
+            { title: "Diversification Benefits", type: "article", duration: "12 min", completed: true },
+            { title: "Correlation and Risk", type: "interactive", duration: "15 min", completed: true }
+          ]
+        }
+      ]
     },
     {
       id: 4,
@@ -48,9 +99,19 @@ const Learn = () => {
       level: "Advanced",
       duration: "8 weeks",
       modules: 16,
-      progress: 0,
+      progress: 10,
       icon: TrendingUp,
-      topics: ["Technical Analysis", "Options Trading", "Market Psychology", "Advanced Strategies"]
+      topics: ["Technical Analysis", "Options Trading", "Market Psychology", "Advanced Strategies"],
+      courseModules: [
+        {
+          title: "Technical Analysis Fundamentals",
+          lessons: [
+            { title: "Chart Patterns Introduction", type: "video", duration: "25 min", completed: true },
+            { title: "Support and Resistance", type: "article", duration: "15 min", completed: false },
+            { title: "Moving Averages", type: "interactive", duration: "18 min", completed: false }
+          ]
+        }
+      ]
     },
     {
       id: 5,
@@ -61,7 +122,17 @@ const Learn = () => {
       modules: 8,
       progress: 0,
       icon: Shield,
-      topics: ["Regulatory Compliance", "Risk Assessment", "Legal Frameworks", "Ethics"]
+      topics: ["Regulatory Compliance", "Risk Assessment", "Legal Frameworks", "Ethics"],
+      courseModules: [
+        {
+          title: "Investment Regulations Overview",
+          lessons: [
+            { title: "SEC and FINRA Basics", type: "video", duration: "16 min", completed: false },
+            { title: "Fiduciary Responsibility", type: "article", duration: "12 min", completed: false },
+            { title: "Compliance Case Studies", type: "article", duration: "20 min", completed: false }
+          ]
+        }
+      ]
     },
     {
       id: 6,
@@ -72,7 +143,17 @@ const Learn = () => {
       modules: 12,
       progress: 0,
       icon: DollarSign,
-      topics: ["REITs", "Commodities", "Cryptocurrency", "Private Equity"]
+      topics: ["REITs", "Commodities", "Cryptocurrency", "Private Equity"],
+      courseModules: [
+        {
+          title: "Real Estate Investment Trusts",
+          lessons: [
+            { title: "REIT Basics and Types", type: "video", duration: "18 min", completed: false },
+            { title: "REIT Analysis Metrics", type: "article", duration: "14 min", completed: false },
+            { title: "Commercial vs Residential REITs", type: "interactive", duration: "12 min", completed: false }
+          ]
+        }
+      ]
     }
   ];
 
@@ -82,6 +163,16 @@ const Learn = () => {
       case "Intermediate": return "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200";
       case "Advanced": return "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200";
       default: return "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200";
+    }
+  };
+
+  const getContentTypeIcon = (type: string) => {
+    switch (type) {
+      case "video": return Video;
+      case "article": return FileText;
+      case "quiz": return PenTool;
+      case "interactive": return Target;
+      default: return BookOpen;
     }
   };
 
@@ -113,75 +204,176 @@ const Learn = () => {
           </div>
         </div>
 
-        {/* Learning Paths Grid */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {learningPaths.map((path) => {
-            const IconComponent = path.icon;
-            return (
-              <Card key={path.id} className="group hover:shadow-lg transition-all duration-300 border-2 hover:border-primary/20">
-                <CardHeader className="pb-4">
-                  <div className="flex items-start justify-between mb-2">
-                    <div className="p-2 rounded-lg bg-primary/10 group-hover:bg-primary/20 transition-colors">
-                      <IconComponent className="h-6 w-6 text-primary" />
-                    </div>
-                    <Badge className={getLevelColor(path.level)}>
-                      {path.level}
-                    </Badge>
-                  </div>
-                  <CardTitle className="text-xl group-hover:text-primary transition-colors">
-                    {path.title}
-                  </CardTitle>
-                  <CardDescription className="text-sm leading-relaxed">
-                    {path.description}
-                  </CardDescription>
-                </CardHeader>
-                
-                <CardContent className="space-y-4">
-                  {/* Course Stats */}
-                  <div className="flex justify-between text-sm text-muted-foreground">
-                    <span className="flex items-center gap-1">
-                      <Clock className="h-3 w-3" />
-                      {path.duration}
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <BookOpen className="h-3 w-3" />
-                      {path.modules} modules
-                    </span>
-                  </div>
+        <Tabs defaultValue="overview" className="space-y-8">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="overview">Course Overview</TabsTrigger>
+            <TabsTrigger value="materials">Study Materials</TabsTrigger>
+          </TabsList>
 
-                  {/* Progress */}
-                  <div className="space-y-2">
-                    <div className="flex justify-between text-sm">
-                      <span>Progress</span>
-                      <span>{path.progress}%</span>
-                    </div>
-                    <Progress value={path.progress} className="h-2" />
-                  </div>
-
-                  {/* Topics */}
-                  <div className="space-y-2">
-                    <h4 className="text-sm font-medium">Key Topics:</h4>
-                    <div className="flex flex-wrap gap-1">
-                      {path.topics.map((topic, index) => (
-                        <Badge key={index} variant="outline" className="text-xs">
-                          {topic}
+          <TabsContent value="overview" className="space-y-6">
+            {/* Learning Paths Grid */}
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {learningPaths.map((path) => {
+                const IconComponent = path.icon;
+                return (
+                  <Card key={path.id} className="group hover:shadow-lg transition-all duration-300 border-2 hover:border-primary/20">
+                    <CardHeader className="pb-4">
+                      <div className="flex items-start justify-between mb-2">
+                        <div className="p-2 rounded-lg bg-primary/10 group-hover:bg-primary/20 transition-colors">
+                          <IconComponent className="h-6 w-6 text-primary" />
+                        </div>
+                        <Badge className={getLevelColor(path.level)}>
+                          {path.level}
                         </Badge>
-                      ))}
-                    </div>
-                  </div>
+                      </div>
+                      <CardTitle className="text-xl group-hover:text-primary transition-colors">
+                        {path.title}
+                      </CardTitle>
+                      <CardDescription className="text-sm leading-relaxed">
+                        {path.description}
+                      </CardDescription>
+                    </CardHeader>
+                    
+                    <CardContent className="space-y-4">
+                      {/* Course Stats */}
+                      <div className="flex justify-between text-sm text-muted-foreground">
+                        <span className="flex items-center gap-1">
+                          <Clock className="h-3 w-3" />
+                          {path.duration}
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <BookOpen className="h-3 w-3" />
+                          {path.modules} modules
+                        </span>
+                      </div>
 
-                  {/* Action Button */}
-                  <Button 
-                    className="w-full mt-4 group-hover:bg-primary group-hover:text-primary-foreground transition-all" 
-                    variant={path.progress > 0 ? "default" : "outline"}
-                  >
-                    {path.progress > 0 ? "Continue Learning" : "Start Course"}
-                  </Button>
-                </CardContent>
-              </Card>
-            );
-          })}
-        </div>
+                      {/* Progress */}
+                      <div className="space-y-2">
+                        <div className="flex justify-between text-sm">
+                          <span>Progress</span>
+                          <span>{path.progress}%</span>
+                        </div>
+                        <Progress value={path.progress} className="h-2" />
+                      </div>
+
+                      {/* Topics */}
+                      <div className="space-y-2">
+                        <h4 className="text-sm font-medium">Key Topics:</h4>
+                        <div className="flex flex-wrap gap-1">
+                          {path.topics.map((topic, index) => (
+                            <Badge key={index} variant="outline" className="text-xs">
+                              {topic}
+                            </Badge>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Action Buttons */}
+                      <div className="space-y-2">
+                        <Button 
+                          className="w-full" 
+                          variant={path.progress > 0 ? "default" : "outline"}
+                          onClick={() => setSelectedCourse(selectedCourse === path.id ? null : path.id)}
+                        >
+                          {path.progress > 0 ? "Continue Learning" : "View Course Content"}
+                        </Button>
+                        <Button 
+                          className="w-full" 
+                          variant="outline"
+                          size="sm"
+                        >
+                          <Download className="h-4 w-4 mr-2" />
+                          Download Syllabus
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                );
+              })}
+            </div>
+          </TabsContent>
+
+          <TabsContent value="materials" className="space-y-6">
+            {/* Detailed Course Materials */}
+            <div className="grid lg:grid-cols-2 gap-6">
+              {learningPaths.map((path) => {
+                const IconComponent = path.icon;
+                return (
+                  <Card key={`material-${path.id}`} className="border-2">
+                    <CardHeader>
+                      <div className="flex items-center gap-3">
+                        <div className="p-2 rounded-lg bg-primary/10">
+                          <IconComponent className="h-5 w-5 text-primary" />
+                        </div>
+                        <div>
+                          <CardTitle className="text-lg">{path.title}</CardTitle>
+                          <div className="flex items-center gap-2 mt-1">
+                            <Badge className={getLevelColor(path.level)}>
+                              {path.level}
+                            </Badge>
+                            <span className="text-sm text-muted-foreground">{path.duration}</span>
+                          </div>
+                        </div>
+                      </div>
+                    </CardHeader>
+                    
+                    <CardContent>
+                      <Accordion type="single" collapsible className="w-full">
+                        {path.courseModules?.map((module, moduleIndex) => (
+                          <AccordionItem key={moduleIndex} value={`module-${moduleIndex}`}>
+                            <AccordionTrigger className="text-left">
+                              <div className="flex items-center justify-between w-full pr-4">
+                                <span className="font-medium">{module.title}</span>
+                                <span className="text-sm text-muted-foreground">
+                                  {module.lessons.length} lessons
+                                </span>
+                              </div>
+                            </AccordionTrigger>
+                            <AccordionContent>
+                              <div className="space-y-3 pt-2">
+                                {module.lessons.map((lesson, lessonIndex) => {
+                                  const IconComponent = getContentTypeIcon(lesson.type);
+                                  return (
+                                    <div key={lessonIndex} className="flex items-center justify-between p-3 rounded-lg border bg-muted/50 hover:bg-muted/80 transition-colors">
+                                      <div className="flex items-center gap-3">
+                                        <div className="flex items-center gap-2">
+                                          {lesson.completed ? (
+                                            <CheckCircle className="h-4 w-4 text-green-600" />
+                                          ) : (
+                                            <IconComponent className="h-4 w-4 text-muted-foreground" />
+                                          )}
+                                        </div>
+                                        <div>
+                                          <p className="font-medium text-sm">{lesson.title}</p>
+                                          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                                            <span className="capitalize">{lesson.type}</span>
+                                            <span>•</span>
+                                            <span>{lesson.duration}</span>
+                                          </div>
+                                        </div>
+                                      </div>
+                                      <Button 
+                                        size="sm" 
+                                        variant={lesson.completed ? "outline" : "default"}
+                                        className="text-xs"
+                                      >
+                                        {lesson.completed ? "Review" : "Start"}
+                                      </Button>
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                            </AccordionContent>
+                          </AccordionItem>
+                        ))}
+                      </Accordion>
+                    </CardContent>
+                  </Card>
+                );
+              })}
+            </div>
+          </TabsContent>
+        </Tabs>
 
         {/* Call to Action */}
         <div className="mt-16 text-center">
