@@ -3,8 +3,47 @@ import { Footer } from "@/components/layout/Footer";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { CheckCircle } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
+import { useState } from "react";
+import { useToast } from "@/components/ui/use-toast";
 
 const Pricing = () => {
+  const { user } = useAuth();
+  const { toast } = useToast();
+  const [isProcessing, setIsProcessing] = useState(false);
+
+  const handlePurchase = async () => {
+    if (!user) {
+      toast({
+        title: "Sign in required",
+        description: "Please sign in to purchase premium access.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsProcessing(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('create-payment');
+      
+      if (error) throw error;
+      
+      if (data?.url) {
+        // Open Stripe checkout in a new tab
+        window.open(data.url, '_blank');
+      }
+    } catch (error) {
+      console.error('Payment error:', error);
+      toast({
+        title: "Payment Error",
+        description: "There was an issue processing your payment. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsProcessing(false);
+    }
+  };
   return (
     <div className="min-h-screen bg-background">
       <Header />
@@ -43,8 +82,8 @@ const Pricing = () => {
           <Card className="border-primary">
             <CardHeader>
               <CardTitle>Premium</CardTitle>
-              <CardDescription>For serious learners</CardDescription>
-              <div className="text-3xl font-bold">$19<span className="text-sm font-normal">/month</span></div>
+              <CardDescription>One-time payment for lifetime access</CardDescription>
+              <div className="text-3xl font-bold">$29.99<span className="text-sm font-normal"> once</span></div>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
@@ -65,7 +104,13 @@ const Pricing = () => {
                   <span className="text-sm">Advanced learning paths</span>
                 </div>
               </div>
-              <Button className="w-full">Start 7-Day Free Trial</Button>
+              <Button 
+                className="w-full" 
+                onClick={handlePurchase}
+                disabled={isProcessing}
+              >
+                {isProcessing ? "Processing..." : "Purchase Premium - $29.99"}
+              </Button>
             </CardContent>
           </Card>
         </div>

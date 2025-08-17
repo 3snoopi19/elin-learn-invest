@@ -20,6 +20,7 @@ import Terms from "./pages/Terms";
 import Sources from "./pages/Sources";
 import OnboardingQuiz from "./pages/OnboardingQuiz";
 import InvestorProfile from "./pages/InvestorProfile";
+import PaymentSuccess from "./pages/PaymentSuccess";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -48,6 +49,7 @@ const App = () => (
             <Route path="/sources" element={<Sources />} />
             <Route path="/onboarding" element={<OnboardingQuiz />} />
             <Route path="/investor-profile" element={<InvestorProfile />} />
+            <Route path="/payment-success" element={<PaymentSuccess />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
