@@ -15,6 +15,8 @@ import { RiskProfileBadge } from "@/components/RiskProfileBadge";
 import { PortfolioSparkline } from "@/components/PortfolioSparkline";
 import { DashboardCard } from "@/components/DashboardCard";
 import { ProgressBar } from "@/components/ProgressBar";
+import { HeroSummaryCard } from "@/components/HeroSummaryCard";
+import { PortfolioOverviewCard } from "@/components/PortfolioOverviewCard";
 import { motion } from "framer-motion";
 import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
 
@@ -85,24 +87,17 @@ const Dashboard = () => {
       <Header />
       
       <main className="container mx-auto px-4 py-8">
-        {/* Welcome Header */}
-        <div className="flex items-center justify-between mb-8">
-          <div>
-            <h1 className="text-3xl font-bold mb-2">
-              Welcome back, {user.user_metadata?.first_name || 'Investor'}! 
-            </h1>
-            <div className="flex items-center gap-4">
-              <p className="text-muted-foreground">Continue your investment education journey</p>
-              <RiskProfileBadge riskProfile={userProfile?.risk_profile} />
-            </div>
-          </div>
-          
-          {!userProfile?.risk_profile && (
-            <Button onClick={() => navigate('/risk-quiz')} className="gap-2">
-              <Award className="h-4 w-4" />
-              Take Risk Quiz
-            </Button>
-          )}
+        {/* Hero Summary Card */}
+        <div className="mb-8">
+          <HeroSummaryCard 
+            userName={user.user_metadata?.first_name || 'Investor'}
+            hasRiskProfile={!!userProfile?.risk_profile}
+          />
+        </div>
+
+        {/* Portfolio Overview Card */}
+        <div className="mb-8">
+          <PortfolioOverviewCard />
         </div>
 
         {/* Premium Feature Cards Grid */}

@@ -21,13 +21,16 @@ const mockData = [
 
 interface PortfolioSparklineProps {
   className?: string;
+  data?: Array<{ date?: string; value: number }>;
+  color?: string;
 }
 
-export const PortfolioSparkline = ({ className = "" }: PortfolioSparklineProps) => {
+export const PortfolioSparkline = ({ className = "", data, color = "rgb(52, 211, 153)" }: PortfolioSparklineProps) => {
+  const chartData = data || mockData;
   return (
     <div className={`relative ${className}`}>
       <ResponsiveContainer width="100%" height="100%">
-        <AreaChart data={mockData} margin={{ top: 0, right: 0, left: 0, bottom: 0 }}>
+        <AreaChart data={chartData} margin={{ top: 0, right: 0, left: 0, bottom: 0 }}>
           <defs>
             <linearGradient id="sparklineGradient" x1="0" y1="0" x2="0" y2="1">
               <stop offset="0%" stopColor="rgb(52, 211, 153)" stopOpacity={0.4} />
@@ -65,7 +68,7 @@ export const PortfolioSparkline = ({ className = "" }: PortfolioSparklineProps) 
           <Area
             type="monotone"
             dataKey="value"
-            stroke="rgb(52, 211, 153)"
+            stroke={color}
             strokeWidth={1.5}
             fill="url(#sparklineGradient)"
             dot={false}
