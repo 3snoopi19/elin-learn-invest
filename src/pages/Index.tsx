@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
-import { BookOpen, Shield, TrendingUp, Users, CheckCircle, Star } from "lucide-react";
+import { BookOpen, Shield, TrendingUp, Users, CheckCircle, Star, Brain, PieChart, Settings, MessageSquare, Play, Award } from "lucide-react";
 
 const Index = () => {
   const { user } = useAuth();
@@ -19,27 +19,51 @@ const Index = () => {
     }
   }, [user, navigate]);
 
-  const features = [
+  const visualFeatures = [
     {
-      icon: BookOpen,
-      title: "ELIN AI Mentor",
-      description: "Your empathetic AI guide that explains complex investing concepts in simple terms",
+      icon: Brain,
+      title: "AI-Powered Learning Paths",
+      description: "Lessons adapt as you progress",
     },
     {
-      icon: Shield,
-      title: "SEC Filing Reader",
-      description: "Decode 10-K, 10-Q, and 8-K filings with AI-powered explanations and summaries",
+      icon: PieChart,
+      title: "Portfolio Snapshot",
+      description: "Instant diversification & risk health check",
     },
     {
-      icon: TrendingUp,
-      title: "Portfolio Tracker",
-      description: "Track your investments and understand diversification with educational insights",
+      icon: Settings,
+      title: "Scenario Builder",
+      description: "Test \"what-if\" investment scenarios",
     },
     {
-      icon: Users,
-      title: "Learning Paths",
-      description: "Structured courses from beginner basics to advanced investment strategies",
+      icon: MessageSquare,
+      title: "Daily Journal + AI Feedback",
+      description: "Reflect daily with ELIN's coaching",
     },
+  ];
+
+  const testimonials = [
+    {
+      name: "Sarah M.",
+      role: "New Investor",
+      content: "ELIN's portfolio check gave me instant clarity about my risk exposure. I finally understand diversification!",
+      rating: 5,
+      avatar: "👩‍💼"
+    },
+    {
+      name: "Mike R.",
+      role: "Career Changer", 
+      content: "The scenario builder helped me test different investment strategies before committing real money.",
+      rating: 5,
+      avatar: "👨‍💻"
+    },
+    {
+      name: "Jennifer L.",
+      role: "College Graduate",
+      content: "The daily journal feature with AI feedback keeps me accountable and learning every day.",
+      rating: 5,
+      avatar: "👩‍🎓"
+    }
   ];
 
   return (
@@ -49,29 +73,29 @@ const Index = () => {
       {/* Hero Section */}
       <section className="py-20 px-4 bg-gradient-to-br from-background via-primary/5 to-education/5">
         <div className="container mx-auto text-center">
-          <Badge variant="secondary" className="mb-4">
+          <Badge variant="secondary" className="mb-4 animate-fade-in">
             🎉 Now with SEC Filing Integration
           </Badge>
           
-          <h1 className="text-4xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-primary to-education bg-clip-text text-transparent">
-            Learn Investing with Confidence
+          <h1 className="text-4xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-primary to-education bg-clip-text text-transparent animate-fade-in">
+            Meet ELIN — Your Personal AI Investing Coach
           </h1>
           
-          <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
-            ELIN is your empathetic AI investment mentor that breaks down complex financial concepts 
-            into easy-to-understand educational guidance. No jargon, no pressure, just learning.
+          <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto animate-fade-in">
+            Learn smarter, invest confidently, and grow your wealth with AI.
           </p>
           
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <div className="flex flex-col sm:flex-row gap-4 justify-center animate-fade-in">
             <Button size="lg" onClick={() => navigate('/auth?mode=signup')} className="text-lg px-8">
               Start Learning Free
             </Button>
-            <Button size="lg" variant="outline" onClick={() => navigate('/pricing')} className="text-lg px-8">
-              View Pricing
+            <Button size="lg" variant="outline" className="text-lg px-8 gap-2">
+              <Play className="h-5 w-5" />
+              See ELIN in Action
             </Button>
           </div>
           
-          <div className="mt-8 flex items-center justify-center space-x-4 text-sm text-muted-foreground">
+          <div className="mt-8 flex flex-wrap items-center justify-center gap-4 text-sm text-muted-foreground animate-fade-in">
             <div className="flex items-center">
               <CheckCircle className="h-4 w-4 mr-1 text-success" />
               7-day free trial
@@ -88,22 +112,23 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Features Section */}
+      {/* Visual Features Section */}
       <section className="py-20 px-4">
         <div className="container mx-auto">
           <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold mb-4">Everything You Need to Learn Investing</h2>
+            <h2 className="text-3xl font-bold mb-4">Powerful Tools for Smart Investing</h2>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              From understanding basic concepts to reading SEC filings, ELIN guides you through 
-              your educational investment journey.
+              AI-powered features that adapt to your learning style and help you make informed decisions.
             </p>
           </div>
           
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {features.map((feature, index) => (
-              <Card key={index} className="text-center hover:shadow-lg transition-shadow">
+            {visualFeatures.map((feature, index) => (
+              <Card key={index} className="text-center hover:shadow-lg transition-all duration-300 hover-scale group">
                 <CardHeader>
-                  <feature.icon className="h-12 w-12 mx-auto text-primary mb-4" />
+                  <div className="bg-primary/10 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-primary/20 transition-colors">
+                    <feature.icon className="h-8 w-8 text-primary" />
+                  </div>
                   <CardTitle className="text-xl">{feature.title}</CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -138,46 +163,52 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Social Proof */}
-      <section className="py-16 px-4">
+      {/* Social Proof & Metrics */}
+      <section className="py-16 px-4 bg-muted/30">
         <div className="container mx-auto text-center">
-          <h2 className="text-3xl font-bold mb-12">Trusted by Beginner Investors</h2>
+          <h2 className="text-3xl font-bold mb-4">Trusted by 1,000+ new investors building confidence in the markets</h2>
+          <p className="text-lg text-muted-foreground mb-12">Real feedback from real learners</p>
+          
           <div className="grid md:grid-cols-3 gap-8">
-            {[
-              {
-                name: "Sarah M.",
-                role: "New Investor",
-                content: "ELIN helped me understand what I was actually buying when I invested in my first ETF. The explanations are so clear!",
-                rating: 5
-              },
-              {
-                name: "Mike R.",
-                role: "Career Changer",
-                content: "I finally understand what all those numbers in 10-K filings mean. The AI explanations are incredibly helpful.",
-                rating: 5
-              },
-              {
-                name: "Jennifer L.",
-                role: "College Graduate",
-                content: "The learning paths are perfect for building knowledge step by step. I feel so much more confident now.",
-                rating: 5
-              }
-            ].map((testimonial, index) => (
-              <Card key={index}>
+            {testimonials.map((testimonial, index) => (
+              <Card key={index} className="hover:shadow-lg transition-shadow">
                 <CardContent className="pt-6">
+                  <div className="flex items-center mb-4 gap-3">
+                    <div className="text-2xl">{testimonial.avatar}</div>
+                    <div className="text-left">
+                      <p className="font-semibold">{testimonial.name}</p>
+                      <p className="text-sm text-muted-foreground">{testimonial.role}</p>
+                    </div>
+                  </div>
                   <div className="flex mb-4">
                     {[...Array(testimonial.rating)].map((_, i) => (
-                      <Star key={i} className="h-5 w-5 fill-warning text-warning" />
+                      <Star key={i} className="h-4 w-4 fill-warning text-warning" />
                     ))}
                   </div>
-                  <p className="mb-4 italic">"{testimonial.content}"</p>
-                  <div>
-                    <p className="font-semibold">{testimonial.name}</p>
-                    <p className="text-sm text-muted-foreground">{testimonial.role}</p>
-                  </div>
+                  <p className="text-left italic">"{testimonial.content}"</p>
                 </CardContent>
               </Card>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Trust Boosters */}
+      <section className="py-12 px-4">
+        <div className="container mx-auto">
+          <div className="flex flex-wrap items-center justify-center gap-8 text-sm text-muted-foreground">
+            <div className="flex items-center gap-2">
+              <Shield className="h-5 w-5 text-success" />
+              <span>SSL Encrypted</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Award className="h-5 w-5 text-success" />
+              <span>SEC-EDGAR data</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <CheckCircle className="h-5 w-5 text-success" />
+              <span>Cancel anytime</span>
+            </div>
           </div>
         </div>
       </section>
