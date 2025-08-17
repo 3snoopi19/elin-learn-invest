@@ -19,6 +19,8 @@ import { HeroSummaryCard } from "@/components/HeroSummaryCard";
 import { PortfolioOverviewCard } from "@/components/PortfolioOverviewCard";
 import { LiveMarketFeed } from "@/components/LiveMarketFeed";
 import { RecentActivityCard } from "@/components/RecentActivityCard";
+import { AIInsightsCard } from "@/components/AIInsightsCard";
+import { LearningPathsCard } from "@/components/LearningPathsCard";
 import { motion } from "framer-motion";
 import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
 
@@ -110,6 +112,12 @@ const Dashboard = () => {
         {/* Recent Activity Card */}
         <div className="mb-8">
           <RecentActivityCard />
+        </div>
+
+        {/* AI Insights and Learning Paths Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+          <AIInsightsCard />
+          <LearningPathsCard />
         </div>
 
         {/* Premium Feature Cards Grid */}
