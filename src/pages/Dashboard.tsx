@@ -21,6 +21,7 @@ import { LiveMarketFeed } from "@/components/LiveMarketFeed";
 import { RecentActivityCard } from "@/components/RecentActivityCard";
 import { AIInsightsCard } from "@/components/AIInsightsCard";
 import { LearningPathsCard } from "@/components/LearningPathsCard";
+import { SECFilingsExplorer } from "@/components/SECFilingsExplorer";
 import { motion } from "framer-motion";
 import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
 
@@ -118,6 +119,11 @@ const Dashboard = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
           <AIInsightsCard />
           <LearningPathsCard />
+        </div>
+
+        {/* SEC Filings Explorer */}
+        <div className="mb-8">
+          <SECFilingsExplorer />
         </div>
 
         {/* Premium Feature Cards Grid */}
