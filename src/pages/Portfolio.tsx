@@ -14,6 +14,8 @@ import { useNavigate } from "react-router-dom";
 import { Plus, TrendingUp, PieChart, AlertCircle, DollarSign, Percent } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { marketDataProvider } from "@/services/marketDataProvider";
+import { validateTicker, validateShares, validateCostBasis, validatePurchaseDate } from "@/lib/validation";
+import { useToast } from "@/hooks/use-toast";
 
 interface Holding {
   id: string;
@@ -41,6 +43,15 @@ const Portfolio = () => {
     cost_basis: '',
     purchase_date: ''
   });
+  
+  const [validationErrors, setValidationErrors] = useState({
+    ticker: '',
+    shares: '',
+    cost_basis: '',
+    purchase_date: ''
+  });
+  
+  const { toast } = useToast();
 
   useEffect(() => {
     if (!loading && !user) {
@@ -96,8 +107,55 @@ const Portfolio = () => {
     }
   };
 
+  const validateForm = () => {
+    const errors = {
+      ticker: '',
+      shares: '',
+      cost_basis: '',
+      purchase_date: ''
+    };
+    
+    let isValid = true;
+    
+    // Validate ticker
+    const tickerValidation = validateTicker(newHolding.ticker);
+    if (!tickerValidation.isValid) {
+      errors.ticker = tickerValidation.error || '';
+      isValid = false;
+    }
+    
+    // Validate shares
+    const sharesValidation = validateShares(newHolding.shares);
+    if (!sharesValidation.isValid) {
+      errors.shares = sharesValidation.error || '';
+      isValid = false;
+    }
+    
+    // Validate cost basis
+    const costBasisValidation = validateCostBasis(newHolding.cost_basis);
+    if (!costBasisValidation.isValid) {
+      errors.cost_basis = costBasisValidation.error || '';
+      isValid = false;
+    }
+    
+    // Validate purchase date
+    const dateValidation = validatePurchaseDate(newHolding.purchase_date);
+    if (!dateValidation.isValid) {
+      errors.purchase_date = dateValidation.error || '';
+      isValid = false;
+    }
+    
+    setValidationErrors(errors);
+    return isValid;
+  };
+
   const handleAddHolding = async () => {
-    if (!newHolding.ticker || !newHolding.shares || !newHolding.cost_basis || !newHolding.purchase_date) {
+    if (!validateForm()) {
+      toast({
+        title: "Validation Error",
+        description: "Please fix the errors below and try again.",
+        variant: "destructive"
+      });
       return;
     }
 
@@ -115,10 +173,21 @@ const Portfolio = () => {
       if (error) throw error;
 
       setNewHolding({ ticker: '', shares: '', cost_basis: '', purchase_date: '' });
+      setValidationErrors({ ticker: '', shares: '', cost_basis: '', purchase_date: '' });
       setAddDialogOpen(false);
       fetchHoldings();
+      
+      toast({
+        title: "Success",
+        description: "Holding added successfully!"
+      });
     } catch (error) {
       console.error('Error adding holding:', error);
+      toast({
+        title: "Error",
+        description: "Failed to add holding. Please try again.",
+        variant: "destructive"
+      });
     }
   };
 
@@ -196,9 +265,20 @@ const Portfolio = () => {
                   <Input
                     id="ticker"
                     value={newHolding.ticker}
-                    onChange={(e) => setNewHolding(prev => ({ ...prev, ticker: e.target.value.toUpperCase() }))}
-                    placeholder="AAPL"
+                    onChange={(e) => {
+                      const value = e.target.value.toUpperCase();
+                      setNewHolding(prev => ({ ...prev, ticker: value }));
+                      // Clear error when user starts typing
+                      if (validationErrors.ticker) {
+                        setValidationErrors(prev => ({ ...prev, ticker: '' }));
+                      }
+                    }}
+                    placeholder="AAPL, SPY, MSFT..."
+                    className={validationErrors.ticker ? 'border-destructive' : ''}
                   />
+                  {validationErrors.ticker && (
+                    <p className="text-sm text-destructive mt-1">{validationErrors.ticker}</p>
+                  )}
                 </div>
                 <div>
                   <Label htmlFor="shares">Number of Shares</Label>
@@ -206,10 +286,21 @@ const Portfolio = () => {
                     id="shares"
                     type="number"
                     step="0.000001"
+                    min="0"
+                    max="1000000"
                     value={newHolding.shares}
-                    onChange={(e) => setNewHolding(prev => ({ ...prev, shares: e.target.value }))}
+                    onChange={(e) => {
+                      setNewHolding(prev => ({ ...prev, shares: e.target.value }));
+                      if (validationErrors.shares) {
+                        setValidationErrors(prev => ({ ...prev, shares: '' }));
+                      }
+                    }}
                     placeholder="10"
+                    className={validationErrors.shares ? 'border-destructive' : ''}
                   />
+                  {validationErrors.shares && (
+                    <p className="text-sm text-destructive mt-1">{validationErrors.shares}</p>
+                  )}
                 </div>
                 <div>
                   <Label htmlFor="cost_basis">Cost Basis (per share)</Label>
@@ -217,19 +308,40 @@ const Portfolio = () => {
                     id="cost_basis"
                     type="number"
                     step="0.01"
+                    min="0"
+                    max="100000"
                     value={newHolding.cost_basis}
-                    onChange={(e) => setNewHolding(prev => ({ ...prev, cost_basis: e.target.value }))}
+                    onChange={(e) => {
+                      setNewHolding(prev => ({ ...prev, cost_basis: e.target.value }));
+                      if (validationErrors.cost_basis) {
+                        setValidationErrors(prev => ({ ...prev, cost_basis: '' }));
+                      }
+                    }}
                     placeholder="150.00"
+                    className={validationErrors.cost_basis ? 'border-destructive' : ''}
                   />
+                  {validationErrors.cost_basis && (
+                    <p className="text-sm text-destructive mt-1">{validationErrors.cost_basis}</p>
+                  )}
                 </div>
                 <div>
                   <Label htmlFor="purchase_date">Purchase Date</Label>
                   <Input
                     id="purchase_date"
                     type="date"
+                    max={new Date().toISOString().split('T')[0]}
                     value={newHolding.purchase_date}
-                    onChange={(e) => setNewHolding(prev => ({ ...prev, purchase_date: e.target.value }))}
+                    onChange={(e) => {
+                      setNewHolding(prev => ({ ...prev, purchase_date: e.target.value }));
+                      if (validationErrors.purchase_date) {
+                        setValidationErrors(prev => ({ ...prev, purchase_date: '' }));
+                      }
+                    }}
+                    className={validationErrors.purchase_date ? 'border-destructive' : ''}
                   />
+                  {validationErrors.purchase_date && (
+                    <p className="text-sm text-destructive mt-1">{validationErrors.purchase_date}</p>
+                  )}
                 </div>
                 <Button onClick={handleAddHolding} className="w-full">
                   Add Holding

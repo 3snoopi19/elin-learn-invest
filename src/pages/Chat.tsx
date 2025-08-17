@@ -12,6 +12,7 @@ import { Send, Bot, User, AlertCircle, BookOpen } from "lucide-react";
 import { COMPLIANCE_DISCLAIMER, validateAIResponse } from "@/lib/compliance";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
+import { sanitizeChatInput } from "@/lib/validation";
 
 interface Message {
   id: string;
@@ -82,9 +83,21 @@ const Chat = () => {
   const handleSendMessage = async () => {
     if (!inputValue.trim()) return;
 
+    // Sanitize input to prevent injection attempts
+    const sanitizedInput = sanitizeChatInput(inputValue.trim());
+    
+    if (!sanitizedInput) {
+      toast({
+        title: "Invalid Input",
+        description: "Please enter a valid message.",
+        variant: "destructive"
+      });
+      return;
+    }
+
     const userMessage: Message = {
       id: Date.now().toString(),
-      content: inputValue.trim(),
+      content: sanitizedInput,
       sender: 'user',
       timestamp: new Date()
     };
@@ -94,7 +107,7 @@ const Chat = () => {
     setIsTyping(true);
 
     // Get AI response
-    const aiResponse = await callELINAPI(userMessage.content);
+    const aiResponse = await callELINAPI(sanitizedInput);
     
     const elinMessage: Message = {
       id: (Date.now() + 1).toString(),
@@ -219,6 +232,7 @@ const Chat = () => {
                 onKeyPress={handleKeyPress}
                 placeholder="Ask me about investing concepts, ETFs, risk tolerance, SEC filings..."
                 className="flex-1"
+                maxLength={2000}
               />
               <Button onClick={handleSendMessage} disabled={!inputValue.trim() || isTyping}>
                 <Send className="h-4 w-4" />
