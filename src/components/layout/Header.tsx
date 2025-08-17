@@ -46,10 +46,13 @@ export const Header = () => {
     <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container mx-auto px-4 h-16 flex items-center justify-between">
         {/* Logo */}
-        <div className="flex items-center space-x-2">
-          <BookOpen className="h-6 w-6 text-primary" />
-          <span className="font-bold text-xl">ELIN</span>
-          <span className="text-sm text-muted-foreground hidden sm:block">Investment Mentor</span>
+        <div className="flex items-center">
+          <img 
+            src="/lovable-uploads/6cada02d-ba67-4343-b8ae-c10bef76a152.png" 
+            alt="ELIN Investment Mentor" 
+            className="h-10 w-auto cursor-pointer" 
+            onClick={() => navigate('/')}
+          />
         </div>
 
         {/* Desktop Navigation */}
