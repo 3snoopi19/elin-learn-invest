@@ -10,6 +10,7 @@ import Dashboard from "./pages/Dashboard";
 import Chat from "./pages/Chat";
 import Filings from "./pages/Filings";
 import Portfolio from "./pages/Portfolio";
+import PortfolioSimulator from "./pages/PortfolioSimulator";
 import Learn from "./pages/Learn";
 import Settings from "./pages/Settings";
 import Pricing from "./pages/Pricing";
@@ -40,6 +41,7 @@ const App = () => (
             <Route path="/chat" element={<Chat />} />
             <Route path="/filings" element={<Filings />} />
             <Route path="/portfolio" element={<Portfolio />} />
+            <Route path="/portfolio-simulator" element={<PortfolioSimulator />} />
             <Route path="/learn" element={<Learn />} />
             <Route path="/settings" element={<Settings />} />
             <Route path="/pricing" element={<Pricing />} />

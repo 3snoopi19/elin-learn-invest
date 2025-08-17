@@ -32,6 +32,11 @@ All colors MUST be HSL.
     /* Educational blue accents */
     --education: 217 91% 60%;
     --education-foreground: 0 0% 100%;
+    
+    /* Simulation specific colors */
+    --simulation-primary: 142 76% 36%;
+    --simulation-secondary: 217 91% 60%;
+    --simulation-accent: 43 96% 56%;
 
     --secondary: 210 40% 96.1%;
     --secondary-foreground: 222.2 47.4% 11.2%;
