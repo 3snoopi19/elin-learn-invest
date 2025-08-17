@@ -116,6 +116,22 @@ const Learn = () => {
     }
   };
 
+  const findFirstIncompleteLesson = (courseId: number) => {
+    const course = courseContent[courseId as keyof typeof courseContent];
+    if (!course) return null;
+    
+    for (let moduleIndex = 0; moduleIndex < course.modules.length; moduleIndex++) {
+      const module = course.modules[moduleIndex];
+      for (let lessonIndex = 0; lessonIndex < module.lessons.length; lessonIndex++) {
+        const lesson = module.lessons[lessonIndex];
+        if (!lesson.completed) {
+          return { moduleIndex, lessonIndex };
+        }
+      }
+    }
+    return null;
+  };
+
   const handleLessonClick = (courseId: number, moduleIndex: number, lessonIndex: number) => {
     const course = learningPaths.find(p => p.id === courseId);
     if (course && courseContent[courseId as keyof typeof courseContent]) {
@@ -267,9 +283,31 @@ const Learn = () => {
                         <Button 
                           className="w-full" 
                           variant={path.progress > 0 ? "default" : "outline"}
+                          onClick={() => {
+                            if (path.progress > 0) {
+                              // Find the first incomplete lesson for "Continue Learning"
+                              const firstIncompleteLesson = findFirstIncompleteLesson(path.id);
+                              if (firstIncompleteLesson) {
+                                handleLessonClick(path.id, firstIncompleteLesson.moduleIndex, firstIncompleteLesson.lessonIndex);
+                              }
+                            } else {
+                              // Start from the beginning
+                              if (courseContent[path.id as keyof typeof courseContent]?.modules?.[0]?.lessons?.[0]) {
+                                handleLessonClick(path.id, 0, 0);
+                              }
+                            }
+                          }}
+                        >
+                          {path.progress > 0 ? `Continue Learning (${path.progress}%)` : "Start Course"}
+                        </Button>
+                        <Button 
+                          className="w-full" 
+                          variant="outline"
+                          size="sm"
                           onClick={() => setSelectedCourse(selectedCourse === path.id ? null : path.id)}
                         >
-                          {path.progress > 0 ? "Continue Learning" : "View Course Content"}
+                          <BookOpen className="h-4 w-4 mr-2" />
+                          View All Lessons
                         </Button>
                         <Button 
                           className="w-full" 

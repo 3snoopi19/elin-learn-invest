@@ -8,7 +8,7 @@ export const courseContent = {
             id: "intro-1",
             title: "What is Investing?",
             type: "video" as const,
-            duration: "12 min",
+            duration: "8 min",
             completed: true,
             content: {
               videoUrl: "https://www.youtube.com/embed/lNdOtlpmH5U",
@@ -90,7 +90,7 @@ export const courseContent = {
             id: "stock-1",
             title: "How Stock Markets Work",
             type: "video" as const,
-            duration: "15 min",
+            duration: "11 min",
             completed: false,
             content: {
               videoUrl: "https://www.youtube.com/embed/bb6_M_srMBk",
@@ -180,7 +180,7 @@ export const courseContent = {
             id: "fs-1",
             title: "Three Core Financial Statements",
             type: "video" as const,
-            duration: "18 min",
+            duration: "13 min",
             completed: false,
             content: {
               videoUrl: "https://www.youtube.com/embed/Fi1wkUczuyk",
@@ -224,7 +224,7 @@ export const courseContent = {
             id: "fs-3",
             title: "Income Statement Deep Dive",
             type: "video" as const,
-            duration: "14 min",
+            duration: "16 min",
             completed: false,
             content: {
               videoUrl: "https://www.youtube.com/embed/pVsHmg2hz90",
@@ -251,7 +251,7 @@ export const courseContent = {
             id: "port-1",
             title: "Modern Portfolio Theory",
             type: "video" as const,
-            duration: "20 min",
+            duration: "17 min",
             completed: true,
             content: {
               videoUrl: "https://www.youtube.com/embed/YtrMGKLRtwA",
@@ -269,7 +269,7 @@ export const courseContent = {
             id: "port-2",
             title: "Asset Allocation Strategies",
             type: "video" as const,
-            duration: "16 min",
+            duration: "12 min",
             completed: false,
             content: {
               videoUrl: "https://www.youtube.com/embed/6rHvC-D9cnQ",
@@ -296,7 +296,7 @@ export const courseContent = {
             id: "tech-1",
             title: "Technical Analysis Fundamentals",
             type: "video" as const,
-            duration: "25 min",
+            duration: "19 min",
             completed: false,
             content: {
               videoUrl: "https://www.youtube.com/embed/hAfZhYPn9I4",
@@ -314,7 +314,7 @@ export const courseContent = {
             id: "opt-1", 
             title: "Options Trading Basics",
             type: "video" as const,
-            duration: "22 min",
+            duration: "18 min",
             completed: false,
             content: {
               videoUrl: "https://www.youtube.com/embed/CeOr9jc4YI4",
@@ -341,7 +341,7 @@ export const courseContent = {
             id: "reg-1",
             title: "Investment Regulations Overview",
             type: "video" as const,
-            duration: "16 min",
+            duration: "14 min",
             completed: false,
             content: {
               videoUrl: "https://www.youtube.com/embed/ZsY5dFY0PHw",
@@ -359,7 +359,7 @@ export const courseContent = {
             id: "risk-1",
             title: "Risk Assessment Techniques", 
             type: "video" as const,
-            duration: "18 min",
+            duration: "15 min",
             completed: false,
             content: {
               videoUrl: "https://www.youtube.com/embed/JToZq9F4iEE",
@@ -386,7 +386,7 @@ export const courseContent = {
             id: "reit-1",
             title: "Real Estate Investment Trusts (REITs)",
             type: "video" as const,
-            duration: "18 min", 
+            duration: "16 min",
             completed: false,
             content: {
               videoUrl: "https://www.youtube.com/embed/25TNJZnEbXM",
@@ -404,7 +404,7 @@ export const courseContent = {
             id: "crypto-1",
             title: "Cryptocurrency Fundamentals",
             type: "video" as const,
-            duration: "20 min",
+            duration: "22 min",
             completed: false,
             content: {
               videoUrl: "https://www.youtube.com/embed/SSo_EIwHSd4",
