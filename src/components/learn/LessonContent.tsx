@@ -47,32 +47,55 @@ export const LessonContent = ({ lesson, onComplete, onNext }: LessonContentProps
   const renderVideoContent = () => (
     <div className="space-y-6">
       {lesson.content.videoUrl ? (
-        <div className="aspect-video rounded-lg overflow-hidden border">
-          <iframe
-            src={lesson.content.videoUrl}
-            title={lesson.title}
-            className="w-full h-full"
-            frameBorder="0"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            allowFullScreen
-          />
+        <div className="space-y-4">
+          <div className="aspect-video rounded-lg overflow-hidden border bg-black">
+            <iframe
+              src={lesson.content.videoUrl}
+              title={lesson.title}
+              className="w-full h-full"
+              frameBorder="0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              referrerPolicy="strict-origin-when-cross-origin"
+              allowFullScreen
+              onError={() => console.log('Video failed to load')}
+            />
+          </div>
+          <div className="text-center">
+            <p className="text-sm text-muted-foreground">
+              Having trouble viewing the video? 
+              <a 
+                href={lesson.content.videoUrl.replace('/embed/', '/watch?v=')} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="ml-1 text-primary hover:underline"
+              >
+                Watch on YouTube
+              </a>
+            </p>
+          </div>
         </div>
       ) : (
-        <div className="aspect-video bg-gray-900 rounded-lg flex items-center justify-center">
-          <div className="text-center text-white">
-            <Play className="h-16 w-16 mx-auto mb-4 opacity-75" />
-            <p className="text-lg font-medium">{lesson.title}</p>
-            <p className="text-sm opacity-75">Duration: {lesson.duration}</p>
+        <div className="aspect-video bg-gradient-to-br from-primary/10 to-primary/5 rounded-lg flex items-center justify-center border-2 border-dashed border-primary/20">
+          <div className="text-center">
+            <Play className="h-16 w-16 mx-auto mb-4 text-primary/60" />
+            <p className="text-lg font-medium text-primary">Video Content</p>
+            <p className="text-sm text-muted-foreground mt-2">Duration: {lesson.duration}</p>
+            <p className="text-xs text-muted-foreground mt-2 max-w-sm">
+              Video content will be available soon. For now, please review the summary and key points below.
+            </p>
           </div>
         </div>
       )}
       <div className="prose max-w-none">
-        <h3>Video Summary</h3>
-        <p>{lesson.content.summary}</p>
-        <h4>Key Learning Points:</h4>
-        <ul>
+        <h3 className="text-xl font-semibold mb-3">Video Summary</h3>
+        <p className="text-muted-foreground mb-4">{lesson.content.summary}</p>
+        <h4 className="text-lg font-medium mb-3">Key Learning Points:</h4>
+        <ul className="space-y-2">
           {lesson.content.keyPoints?.map((point: string, index: number) => (
-            <li key={index}>{point}</li>
+            <li key={index} className="flex items-start gap-2">
+              <CheckCircle className="h-4 w-4 text-green-600 mt-0.5 flex-shrink-0" />
+              <span>{point}</span>
+            </li>
           ))}
         </ul>
       </div>

@@ -11,7 +11,7 @@ export const courseContent = {
             duration: "12 min",
             completed: true,
             content: {
-              videoUrl: "https://www.youtube.com/embed/hFOXsWdTBIE",
+              videoUrl: "https://www.youtube.com/embed/TY3jOWYiiNs",
               summary: "Learn the fundamental concepts of investing and how it differs from saving. Understand the basic principles that drive investment returns and the importance of starting early.",
               keyPoints: [
                 "Investing is putting money to work to generate returns over time",
@@ -93,7 +93,7 @@ export const courseContent = {
             duration: "15 min",
             completed: false,
             content: {
-              videoUrl: "https://www.youtube.com/embed/p7HKvqRI_Bo",
+              videoUrl: "https://www.youtube.com/embed/F3QpgXBtDeo",
               summary: "Explore how stock markets function, from order matching to price discovery. Learn about different types of orders, market makers, and the role of exchanges.",
               keyPoints: [
                 "Stock exchanges facilitate buying and selling of shares",
@@ -183,7 +183,7 @@ export const courseContent = {
             duration: "18 min",
             completed: false,
             content: {
-              videoUrl: "https://www.youtube.com/embed/WEDIj9JBTC8",
+              videoUrl: "https://www.youtube.com/embed/PhJUQP0jk28",
               summary: "Master the three fundamental financial statements that every investor must understand: Income Statement, Balance Sheet, and Cash Flow Statement.",
               keyPoints: [
                 "Income Statement shows profitability over a period",
@@ -236,7 +236,7 @@ export const courseContent = {
             duration: "20 min",
             completed: true,
             content: {
-              videoUrl: "https://www.youtube.com/embed/JvdwJSb-8Do",
+              videoUrl: "https://www.youtube.com/embed/WjCxcEGWpXs",
               summary: "Learn Harry Markowitz's Nobel Prize-winning theory on optimal portfolio construction through diversification and risk management.",
               keyPoints: [
                 "Efficient frontier concept and optimal portfolios",
