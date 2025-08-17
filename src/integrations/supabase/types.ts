@@ -14,7 +14,174 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      ai_response_logs: {
+        Row: {
+          contains_disclaimer: boolean | null
+          id: string
+          prompt_hash: string
+          response_hash: string
+          response_type: string
+          session_id: string | null
+          timestamp: string
+          user_id: string | null
+        }
+        Insert: {
+          contains_disclaimer?: boolean | null
+          id?: string
+          prompt_hash: string
+          response_hash: string
+          response_type: string
+          session_id?: string | null
+          timestamp?: string
+          user_id?: string | null
+        }
+        Update: {
+          contains_disclaimer?: boolean | null
+          id?: string
+          prompt_hash?: string
+          response_hash?: string
+          response_type?: string
+          session_id?: string | null
+          timestamp?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      holdings: {
+        Row: {
+          cost_basis: number
+          created_at: string
+          id: string
+          purchase_date: string
+          shares: number
+          ticker: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          cost_basis: number
+          created_at?: string
+          id?: string
+          purchase_date: string
+          shares: number
+          ticker: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          cost_basis?: number
+          created_at?: string
+          id?: string
+          purchase_date?: string
+          shares?: number
+          ticker?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          completed_onboarding: boolean | null
+          created_at: string
+          email: string
+          experience_level: string | null
+          first_name: string | null
+          id: string
+          investment_goals: string[] | null
+          last_name: string | null
+          risk_tolerance: string | null
+          time_horizon: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          completed_onboarding?: boolean | null
+          created_at?: string
+          email: string
+          experience_level?: string | null
+          first_name?: string | null
+          id?: string
+          investment_goals?: string[] | null
+          last_name?: string | null
+          risk_tolerance?: string | null
+          time_horizon?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          completed_onboarding?: boolean | null
+          created_at?: string
+          email?: string
+          experience_level?: string | null
+          first_name?: string | null
+          id?: string
+          investment_goals?: string[] | null
+          last_name?: string | null
+          risk_tolerance?: string | null
+          time_horizon?: number | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      subscribers: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          stripe_customer_id: string | null
+          subscribed: boolean
+          subscription_end: string | null
+          subscription_tier: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          stripe_customer_id?: string | null
+          subscribed?: boolean
+          subscription_end?: string | null
+          subscription_tier?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          stripe_customer_id?: string | null
+          subscribed?: boolean
+          subscription_end?: string | null
+          subscription_tier?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      watchlist: {
+        Row: {
+          added_at: string
+          id: string
+          ticker: string
+          user_id: string
+        }
+        Insert: {
+          added_at?: string
+          id?: string
+          ticker: string
+          user_id: string
+        }
+        Update: {
+          added_at?: string
+          id?: string
+          ticker?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
