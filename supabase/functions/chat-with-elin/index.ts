@@ -2,6 +2,7 @@ import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
 const openAIApiKey = Deno.env.get('OpenAI');
+console.log('OpenAI API Key available:', !!openAIApiKey);
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -52,13 +53,14 @@ Response style:
             content: message
           }
         ],
-        max_tokens: 500,
-        temperature: 0.7,
+        max_completion_tokens: 500,
       }),
     });
 
     if (!response.ok) {
-      throw new Error(`OpenAI API error: ${response.status}`);
+      const errorText = await response.text();
+      console.error('OpenAI API error response:', errorText);
+      throw new Error(`OpenAI API error: ${response.status} - ${errorText}`);
     }
 
     const data = await response.json();
