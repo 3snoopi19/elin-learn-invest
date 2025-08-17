@@ -54,10 +54,10 @@ export const HeroSummaryCard = ({
         <CardContent className="relative p-8">
           {/* Header Section */}
           <div className="mb-6">
-            <h2 className="text-3xl font-bold text-white mb-2">
+            <h2 className="text-3xl font-bold text-text-heading mb-2">
               Welcome back, {userName}!
             </h2>
-            <p className="text-slate-400">Here's your portfolio summary</p>
+            <p className="text-text-secondary">Here's your portfolio summary</p>
           </div>
 
           {/* Portfolio Value Section */}

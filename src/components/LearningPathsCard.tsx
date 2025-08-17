@@ -142,8 +142,8 @@ export const LearningPathsCard = () => {
                 <BookOpen className="w-6 h-6 text-emerald-400" />
               </div>
               <div>
-                <CardTitle className="text-2xl font-bold text-white">Learning Paths</CardTitle>
-                <p className="text-slate-400 text-sm">Structured courses to boost your investment knowledge</p>
+                <CardTitle className="text-2xl font-bold text-text-heading">Learning Paths</CardTitle>
+                <p className="text-text-secondary text-sm">Structured courses to boost your investment knowledge</p>
               </div>
             </div>
             

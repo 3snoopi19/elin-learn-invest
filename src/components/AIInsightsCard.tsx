@@ -102,8 +102,8 @@ export const AIInsightsCard = () => {
               <div className="absolute inset-0 bg-cyan-400/20 rounded-lg animate-ping" />
             </div>
             <div className="flex-1">
-              <CardTitle className="text-2xl font-bold text-white">AI Insights</CardTitle>
-              <p className="text-slate-400 text-sm">Personalized recommendations powered by ELIN</p>
+              <CardTitle className="text-2xl font-bold text-text-heading">AI Insights</CardTitle>
+              <p className="text-text-secondary text-sm">Personalized recommendations powered by ELIN</p>
             </div>
             <div className="flex items-center gap-2">
               <div className="w-2 h-2 bg-cyan-400 rounded-full animate-pulse" />
@@ -136,7 +136,7 @@ export const AIInsightsCard = () => {
                       
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-2">
-                          <h4 className="text-white font-semibold text-sm group-hover:text-blue-100 transition-colors">
+                          <h4 className="text-text-heading font-semibold text-sm group-hover:text-primary transition-colors">
                             {insight.title}
                           </h4>
                           <Badge 
@@ -146,7 +146,7 @@ export const AIInsightsCard = () => {
                             {insight.priority}
                           </Badge>
                         </div>
-                        <p className="text-slate-400 text-sm leading-relaxed">
+                        <p className="text-text-secondary text-sm leading-relaxed">
                           {insight.description}
                         </p>
                       </div>

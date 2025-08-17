@@ -236,10 +236,10 @@ const Learn = () => {
                           {path.level}
                         </Badge>
                       </div>
-                      <CardTitle className="text-xl text-text-heading group-hover:text-primary transition-colors">
+                      <CardTitle className="text-xl text-text-heading group-hover:text-primary transition-colors course-title">
                         {path.title}
                       </CardTitle>
-                      <CardDescription className="text-sm leading-relaxed text-text-muted">
+                      <CardDescription className="text-sm leading-relaxed text-text-secondary">
                         {path.description}
                       </CardDescription>
                     </CardHeader>

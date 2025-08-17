@@ -74,7 +74,7 @@ export const PortfolioOverviewCard = ({
         
         <CardHeader className="relative pb-4">
           <div className="flex items-center justify-between">
-            <CardTitle className="text-2xl font-bold text-white">Portfolio Overview</CardTitle>
+            <CardTitle className="text-2xl font-bold text-text-heading">Portfolio Overview</CardTitle>
             
             {/* View Mode Toggle */}
             <div className="flex bg-slate-800/50 rounded-lg p-1">

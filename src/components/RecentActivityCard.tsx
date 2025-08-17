@@ -123,7 +123,7 @@ export const RecentActivityCard = () => {
               <div className="p-2 bg-violet-500/20 rounded-lg">
                 <Clock className="w-5 h-5 text-violet-400" />
               </div>
-              <CardTitle className="text-xl font-bold text-white">Recent Activity</CardTitle>
+              <CardTitle className="text-xl font-bold text-text-heading">Recent Activity</CardTitle>
             </div>
             
             <div className="flex items-center gap-2">

@@ -118,7 +118,7 @@ export const LiveMarketFeed = () => {
             <div className="p-2 bg-cyan-500/20 rounded-lg">
               <Activity className="w-5 h-5 text-cyan-400" />
             </div>
-            <CardTitle className="text-xl font-bold text-white">Live Market Feed</CardTitle>
+            <CardTitle className="text-xl font-bold text-text-heading">Live Market Feed</CardTitle>
             <div className="flex items-center gap-2 ml-auto">
               <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></div>
               <span className="text-emerald-400 text-sm font-medium">Live</span>

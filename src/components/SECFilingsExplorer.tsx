@@ -152,8 +152,8 @@ export const SECFilingsExplorer = () => {
               <FileText className="w-6 h-6 text-blue-400" />
             </div>
             <div className="flex-1">
-              <CardTitle className="text-2xl font-bold text-white">SEC Filings Explorer</CardTitle>
-              <p className="text-slate-400 text-sm">AI-powered financial document analysis</p>
+              <CardTitle className="text-2xl font-bold text-text-heading">SEC Filings Explorer</CardTitle>
+              <p className="text-text-secondary text-sm">AI-powered financial document analysis</p>
             </div>
             <div className="flex items-center gap-2">
               <div className="w-2 h-2 bg-blue-400 rounded-full animate-pulse" />
