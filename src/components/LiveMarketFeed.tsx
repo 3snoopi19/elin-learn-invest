@@ -1,21 +1,27 @@
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { TrendingUp, TrendingDown, Activity } from "lucide-react";
+import { TrendingUp, TrendingDown, Activity, AlertCircle } from "lucide-react";
 import { motion } from "framer-motion";
+import { supabase } from "@/integrations/supabase/client";
+import { getSymbolInfo, DEFAULT_SYMBOLS } from "@/lib/market/symbols";
+import { Skeleton } from "@/components/ui/skeleton";
 
-// Mock market data
-const marketData = [
-  { symbol: "AAPL", name: "Apple Inc.", price: 192.53, change: 2.45, changePercent: 1.29 },
-  { symbol: "GOOGL", name: "Alphabet Inc.", price: 140.07, change: -1.23, changePercent: -0.87 },
-  { symbol: "MSFT", name: "Microsoft Corp.", price: 378.85, change: 4.32, changePercent: 1.15 },
-  { symbol: "TSLA", name: "Tesla Inc.", price: 248.50, change: -3.67, changePercent: -1.45 },
-  { symbol: "AMZN", name: "Amazon.com Inc.", price: 153.40, change: 1.85, changePercent: 1.22 },
-  { symbol: "NVDA", name: "NVIDIA Corp.", price: 735.20, change: 12.45, changePercent: 1.72 },
-  { symbol: "BTC", name: "Bitcoin", price: 43250.00, change: 850.30, changePercent: 2.01 },
-  { symbol: "ETH", name: "Ethereum", price: 2650.75, change: -45.25, changePercent: -1.68 },
-  { symbol: "META", name: "Meta Platforms", price: 486.91, change: 8.23, changePercent: 1.72 },
-  { symbol: "NFLX", name: "Netflix Inc.", price: 485.30, change: -2.15, changePercent: -0.44 }
-];
+interface MarketQuote {
+  symbol: string;
+  price: number;
+  changePct: number;
+  changeAbs: number;
+  prevClose: number;
+  high: number;
+  low: number;
+  time: number;
+}
+
+interface MarketFeedData {
+  quotes: MarketQuote[];
+  errors?: any[];
+  timestamp: number;
+}
 
 // Mini sparkline component
 const MiniSparkline = ({ isPositive }: { isPositive: boolean }) => {
@@ -37,9 +43,10 @@ const MiniSparkline = ({ isPositive }: { isPositive: boolean }) => {
 };
 
 // Individual ticker item
-const TickerItem = ({ data, index }: { data: typeof marketData[0], index: number }) => {
-  const isPositive = data.change >= 0;
-  const isUnchanged = data.change === 0;
+const TickerItem = ({ data, index }: { data: MarketQuote, index: number }) => {
+  const isPositive = data.changeAbs >= 0;
+  const isUnchanged = data.changeAbs === 0;
+  const symbolInfo = getSymbolInfo(data.symbol);
   
   return (
     <motion.div
@@ -62,11 +69,11 @@ const TickerItem = ({ data, index }: { data: typeof marketData[0], index: number
                 : 'bg-red-500/20 text-red-400'
             }`}>
               {!isUnchanged && (isPositive ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />)}
-              {isPositive ? '+' : ''}{data.changePercent}%
+              {isPositive ? '+' : ''}{data.changePct.toFixed(2)}%
             </div>
           </div>
           
-          <div className="text-slate-400 text-sm mb-2 truncate">{data.name}</div>
+          <div className="text-slate-400 text-sm mb-2 truncate">{symbolInfo.displayName}</div>
           
           <div className="flex items-center justify-between">
             <div>
@@ -76,7 +83,7 @@ const TickerItem = ({ data, index }: { data: typeof marketData[0], index: number
               <div className={`text-sm ${
                 isPositive ? 'text-emerald-400' : isUnchanged ? 'text-slate-400' : 'text-red-400'
               }`}>
-                {isPositive ? '+' : ''}{data.change.toFixed(2)}
+                {isPositive ? '+' : ''}{data.changeAbs.toFixed(2)}
               </div>
             </div>
             
@@ -90,17 +97,76 @@ const TickerItem = ({ data, index }: { data: typeof marketData[0], index: number
   );
 };
 
+// Loading skeleton for ticker items
+const TickerSkeleton = () => (
+  <div className="flex-shrink-0 bg-slate-800/40 backdrop-blur-sm rounded-lg p-4 border border-slate-700/30 min-w-[280px] mx-2">
+    <div className="flex items-center justify-between">
+      <div className="flex-1">
+        <div className="flex items-center gap-3 mb-2">
+          <Skeleton className="h-6 w-16 bg-slate-700" />
+          <Skeleton className="h-6 w-20 bg-slate-700" />
+        </div>
+        <Skeleton className="h-4 w-32 mb-2 bg-slate-700" />
+        <div className="flex items-center justify-between">
+          <div>
+            <Skeleton className="h-6 w-24 mb-1 bg-slate-700" />
+            <Skeleton className="h-4 w-16 bg-slate-700" />
+          </div>
+          <Skeleton className="h-5 w-15 bg-slate-700" />
+        </div>
+      </div>
+    </div>
+  </div>
+);
+
 export const LiveMarketFeed = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [marketData, setMarketData] = useState<MarketQuote[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
+
+  const fetchMarketData = async () => {
+    try {
+      setError(null);
+      const { data, error: fetchError } = await supabase.functions.invoke('market-quotes', {
+        body: { symbols: DEFAULT_SYMBOLS.join(',') }
+      });
+
+      if (fetchError) {
+        throw new Error(fetchError.message);
+      }
+
+      if (data?.quotes) {
+        setMarketData(data.quotes);
+        setLastUpdated(new Date());
+      }
+    } catch (err) {
+      console.error('Error fetching market data:', err);
+      setError('Live data temporarily unavailable — retrying...');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Initial fetch and periodic updates
+  useEffect(() => {
+    fetchMarketData();
+    
+    const interval = setInterval(fetchMarketData, 30000); // 30 seconds
+    return () => clearInterval(interval);
+  }, []);
 
   // Auto-scroll effect
   useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentIndex((prev) => (prev + 1) % (marketData.length - 2));
-    }, 3000);
+    if (marketData.length > 0) {
+      const interval = setInterval(() => {
+        setCurrentIndex((prev) => (prev + 1) % Math.max(1, marketData.length - 2));
+      }, 3000);
 
-    return () => clearInterval(interval);
-  }, []);
+      return () => clearInterval(interval);
+    }
+  }, [marketData.length]);
 
   return (
     <motion.div
@@ -120,23 +186,57 @@ export const LiveMarketFeed = () => {
             </div>
             <CardTitle className="text-xl font-bold text-text-heading">Live Market Feed</CardTitle>
             <div className="flex items-center gap-2 ml-auto">
-              <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></div>
-              <span className="text-emerald-400 text-sm font-medium">Live</span>
+              {error ? (
+                <>
+                  <AlertCircle className="w-4 h-4 text-yellow-400" />
+                  <span className="text-yellow-400 text-sm font-medium">Reconnecting...</span>
+                </>
+              ) : (
+                <>
+                  <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></div>
+                  <span className="text-emerald-400 text-sm font-medium">Live</span>
+                </>
+              )}
             </div>
           </div>
+          {lastUpdated && (
+            <div className="text-slate-400 text-xs mt-2">
+              Last updated: {lastUpdated.toLocaleTimeString()}
+            </div>
+          )}
         </CardHeader>
 
         <CardContent className="relative">
+          {error && (
+            <div className="bg-yellow-500/10 border border-yellow-500/20 rounded-lg p-3 mb-4 text-center">
+              <span className="text-yellow-400 text-sm">{error}</span>
+            </div>
+          )}
+          
           {/* Scrolling ticker */}
           <div className="relative overflow-hidden">
             <motion.div
               className="flex"
-              animate={{ x: -currentIndex * 300 }}
+              animate={{ x: loading ? 0 : -currentIndex * 300 }}
               transition={{ duration: 0.8, ease: "easeInOut" }}
+              aria-live="polite"
+              aria-label="Live market data feed"
             >
-              {marketData.map((item, index) => (
-                <TickerItem key={item.symbol} data={item} index={index} />
-              ))}
+              {loading ? (
+                // Show loading skeletons
+                Array.from({ length: 4 }).map((_, index) => (
+                  <TickerSkeleton key={`skeleton-${index}`} />
+                ))
+              ) : marketData.length > 0 ? (
+                marketData.map((item, index) => (
+                  <TickerItem key={item.symbol} data={item} index={index} />
+                ))
+              ) : (
+                <div className="flex-shrink-0 bg-slate-800/40 backdrop-blur-sm rounded-lg p-8 border border-slate-700/30 min-w-[280px] mx-2 text-center">
+                  <AlertCircle className="w-8 h-8 text-slate-400 mx-auto mb-2" />
+                  <div className="text-slate-400">No market data available</div>
+                </div>
+              )}
             </motion.div>
           </div>
 
