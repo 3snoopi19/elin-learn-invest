@@ -46,28 +46,57 @@ export const LessonContent = ({ lesson, onComplete, onNext }: LessonContentProps
 
   const renderVideoContent = () => (
     <div className="space-y-6">
-      <div className="aspect-video bg-gradient-to-br from-primary/20 via-primary/10 to-primary/5 rounded-lg flex items-center justify-center border-2 border-primary/30 relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent animate-pulse" />
-        <div className="text-center z-10">
-          <div className="relative mb-4">
-            <div className="w-20 h-20 bg-primary/20 rounded-full flex items-center justify-center animate-bounce">
-              <Play className="h-10 w-10 text-primary ml-1" />
-            </div>
-            <div className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 rounded-full flex items-center justify-center animate-pulse">
-              <div className="w-2 h-2 bg-white rounded-full" />
-            </div>
+      {lesson.content.videoUrl ? (
+        <div className="space-y-4">
+          <div className="aspect-video rounded-lg overflow-hidden border bg-black">
+            <iframe
+              src={lesson.content.videoUrl}
+              title={lesson.title}
+              className="w-full h-full"
+              frameBorder="0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              referrerPolicy="strict-origin-when-cross-origin"
+              allowFullScreen
+            />
           </div>
-          <h3 className="text-xl font-bold text-primary mb-2">{lesson.title}</h3>
-          <div className="flex items-center justify-center gap-2 text-primary/70 mb-3">
-            <Clock className="h-4 w-4" />
-            <span className="font-medium">{lesson.duration}</span>
-          </div>
-          <div className="text-sm text-muted-foreground max-w-md mx-auto">
-            <p className="mb-2">🎥 Professional video content</p>
-            <p className="text-xs">High-quality educational material coming soon</p>
+          <div className="text-center">
+            <p className="text-sm text-muted-foreground">
+              Having trouble viewing the video? 
+              <a 
+                href={lesson.content.videoUrl.replace('/embed/', '/watch?v=')} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="ml-1 text-primary hover:underline"
+              >
+                Watch on YouTube
+              </a>
+            </p>
           </div>
         </div>
-      </div>
+      ) : (
+        <div className="aspect-video bg-gradient-to-br from-primary/20 via-primary/10 to-primary/5 rounded-lg flex items-center justify-center border-2 border-primary/30 relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent animate-pulse" />
+          <div className="text-center z-10">
+            <div className="relative mb-4">
+              <div className="w-20 h-20 bg-primary/20 rounded-full flex items-center justify-center animate-bounce">
+                <Play className="h-10 w-10 text-primary ml-1" />
+              </div>
+              <div className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 rounded-full flex items-center justify-center animate-pulse">
+                <div className="w-2 h-2 bg-white rounded-full" />
+              </div>
+            </div>
+            <h3 className="text-xl font-bold text-primary mb-2">{lesson.title}</h3>
+            <div className="flex items-center justify-center gap-2 text-primary/70 mb-3">
+              <Clock className="h-4 w-4" />
+              <span className="font-medium">{lesson.duration}</span>
+            </div>
+            <div className="text-sm text-muted-foreground max-w-md mx-auto">
+              <p className="mb-2">🎥 Professional video content</p>
+              <p className="text-xs">High-quality educational material coming soon</p>
+            </div>
+          </div>
+        </div>
+      )}
       
       <div className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-950/20 dark:to-purple-950/20 p-6 rounded-lg border border-blue-200 dark:border-blue-800">
         <h3 className="text-xl font-semibold mb-4 text-blue-900 dark:text-blue-100">📚 Course Content</h3>

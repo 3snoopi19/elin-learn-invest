@@ -11,7 +11,7 @@ export const courseContent = {
             duration: "12 min",
             completed: true,
             content: {
-              videoUrl: null, // Will use rich content placeholder
+              videoUrl: "https://www.youtube.com/embed/lNdOtlpmH5U",
               summary: "Learn the fundamental concepts of investing and how it differs from saving. Understand the basic principles that drive investment returns and the importance of starting early.",
               keyPoints: [
                 "Investing is putting money to work to generate returns over time",
@@ -93,7 +93,7 @@ export const courseContent = {
             duration: "15 min",
             completed: false,
             content: {
-              videoUrl: null, // Will use rich content placeholder
+              videoUrl: "https://www.youtube.com/embed/bb6_M_srMBk",
               summary: "Explore how stock markets function, from order matching to price discovery. Learn about different types of orders, market makers, and the role of exchanges.",
               keyPoints: [
                 "Stock exchanges facilitate buying and selling of shares",
@@ -183,7 +183,7 @@ export const courseContent = {
             duration: "18 min",
             completed: false,
             content: {
-              videoUrl: null, // Will use rich content placeholder
+              videoUrl: "https://www.youtube.com/embed/Fi1wkUczuyk",
               summary: "Master the three fundamental financial statements that every investor must understand: Income Statement, Balance Sheet, and Cash Flow Statement.",
               keyPoints: [
                 "Income Statement shows profitability over a period",
@@ -219,6 +219,24 @@ export const courseContent = {
                 }
               ]
             }
+          },
+          {
+            id: "fs-3",
+            title: "Income Statement Deep Dive",
+            type: "video" as const,
+            duration: "14 min",
+            completed: false,
+            content: {
+              videoUrl: "https://www.youtube.com/embed/pVsHmg2hz90",
+              summary: "Deep dive into income statements to understand revenue recognition, operating vs non-operating income, and earnings analysis.",
+              keyPoints: [
+                "Revenue recognition principles and timing",
+                "Operating income vs total income differences",
+                "Earnings per share calculations and significance",
+                "Non-recurring items and their impact",
+                "Quality of earnings assessment"
+              ]
+            }
           }
         ]
       }
@@ -236,7 +254,7 @@ export const courseContent = {
             duration: "20 min",
             completed: true,
             content: {
-              videoUrl: null, // Will use rich content placeholder
+              videoUrl: "https://www.youtube.com/embed/YtrMGKLRtwA",
               summary: "Learn Harry Markowitz's Nobel Prize-winning theory on optimal portfolio construction through diversification and risk management.",
               keyPoints: [
                 "Efficient frontier concept and optimal portfolios",
@@ -250,37 +268,153 @@ export const courseContent = {
           {
             id: "port-2",
             title: "Asset Allocation Strategies",
-            type: "interactive" as const,
-            duration: "15 min",
+            type: "video" as const,
+            duration: "16 min",
             completed: false,
             content: {
-              exerciseTitle: "Build Your Portfolio",
-              description: "Create a diversified portfolio based on your risk tolerance and investment timeline.",
-              steps: [
-                {
-                  title: "Determine Risk Tolerance",
-                  instruction: "Rate your comfort with portfolio volatility on a scale of 1-10, where 1 is very conservative and 10 is very aggressive.",
-                  input: {
-                    label: "Risk tolerance (1-10)",
-                    placeholder: "5"
-                  }
-                },
-                {
-                  title: "Set Investment Timeline",
-                  instruction: "How many years until you need this money? Longer timelines allow for more growth-oriented investments.",
-                  input: {
-                    label: "Years until needed",
-                    placeholder: "20"
-                  }
-                },
-                {
-                  title: "Allocate Asset Classes",
-                  instruction: "Based on your inputs, allocate percentages to stocks, bonds, and other assets. Total should equal 100%.",
-                  input: {
-                    label: "Stock allocation (%)",
-                    placeholder: "70"
-                  }
-                }
+              videoUrl: "https://www.youtube.com/embed/6rHvC-D9cnQ",
+              summary: "Master different asset allocation strategies based on age, risk tolerance, and investment goals.",
+              keyPoints: [
+                "Age-based asset allocation rules",
+                "Risk tolerance assessment methods",
+                "Strategic vs tactical asset allocation",
+                "Rebalancing strategies and timing",
+                "Global diversification benefits"
+              ]
+            }
+          }
+        ]
+      }
+    ]
+  },
+  4: { // Advanced Trading Strategies
+    modules: [
+      {
+        title: "Technical Analysis Fundamentals",
+        lessons: [
+          {
+            id: "tech-1",
+            title: "Technical Analysis Fundamentals",
+            type: "video" as const,
+            duration: "25 min",
+            completed: false,
+            content: {
+              videoUrl: "https://www.youtube.com/embed/hAfZhYPn9I4",
+              summary: "Learn the fundamentals of technical analysis including chart patterns, trend analysis, and key indicators.",
+              keyPoints: [
+                "Chart pattern recognition and significance",
+                "Support and resistance level identification",
+                "Trend analysis and moving averages",
+                "Volume analysis and confirmation signals",
+                "Technical indicator interpretation"
+              ]
+            }
+          },
+          {
+            id: "opt-1", 
+            title: "Options Trading Basics",
+            type: "video" as const,
+            duration: "22 min",
+            completed: false,
+            content: {
+              videoUrl: "https://www.youtube.com/embed/CeOr9jc4YI4",
+              summary: "Introduction to options trading covering calls, puts, basic strategies, and risk management.",
+              keyPoints: [
+                "Call and put options fundamentals",
+                "Options pricing and the Greeks",
+                "Basic trading strategies (covered calls, protective puts)",
+                "Risk management in options trading",
+                "When and why to use options"
+              ]
+            }
+          }
+        ]
+      }
+    ]
+  },
+  5: { // Risk Management & Compliance
+    modules: [
+      {
+        title: "Investment Regulations and Risk",
+        lessons: [
+          {
+            id: "reg-1",
+            title: "Investment Regulations Overview",
+            type: "video" as const,
+            duration: "16 min",
+            completed: false,
+            content: {
+              videoUrl: "https://www.youtube.com/embed/ZsY5dFY0PHw",
+              summary: "Understand the regulatory landscape governing investments including SEC, FINRA, and fiduciary responsibilities.",
+              keyPoints: [
+                "SEC and FINRA roles and responsibilities", 
+                "Fiduciary duty and investment advice standards",
+                "Disclosure requirements and investor protection",
+                "Registration and licensing requirements",
+                "Compliance monitoring and enforcement"
+              ]
+            }
+          },
+          {
+            id: "risk-1",
+            title: "Risk Assessment Techniques", 
+            type: "video" as const,
+            duration: "18 min",
+            completed: false,
+            content: {
+              videoUrl: "https://www.youtube.com/embed/JToZq9F4iEE",
+              summary: "Learn systematic approaches to identifying, measuring, and managing investment risks.",
+              keyPoints: [
+                "Types of investment risk and their sources",
+                "Quantitative risk measurement techniques",
+                "Value at Risk (VaR) and stress testing",
+                "Risk mitigation strategies and hedging",
+                "Portfolio risk monitoring and reporting"
+              ]
+            }
+          }
+        ]
+      }
+    ]
+  },
+  6: { // Alternative Investments
+    modules: [
+      {
+        title: "Alternative Investment Options",
+        lessons: [
+          {
+            id: "reit-1",
+            title: "Real Estate Investment Trusts (REITs)",
+            type: "video" as const,
+            duration: "18 min", 
+            completed: false,
+            content: {
+              videoUrl: "https://www.youtube.com/embed/25TNJZnEbXM",
+              summary: "Comprehensive guide to REIT investing including types, analysis metrics, and portfolio integration.",
+              keyPoints: [
+                "REIT structure and different types (equity, mortgage, hybrid)",
+                "Key REIT metrics (FFO, AFFO, NAV)",
+                "Commercial vs residential real estate exposure",
+                "REIT dividend analysis and sustainability",
+                "REITs role in portfolio diversification"
+              ]
+            }
+          },
+          {
+            id: "crypto-1",
+            title: "Cryptocurrency Fundamentals",
+            type: "video" as const,
+            duration: "20 min",
+            completed: false,
+            content: {
+              videoUrl: "https://www.youtube.com/embed/SSo_EIwHSd4",
+              summary: "Introduction to cryptocurrency investing covering blockchain technology, major cryptocurrencies, and risk considerations.",
+              keyPoints: [
+                "Blockchain technology and decentralization principles",
+                "Bitcoin, Ethereum, and major cryptocurrency differences",
+                "Cryptocurrency wallet security and custody",
+                "Volatility and regulatory risks in crypto investing",
+                "Cryptocurrency's role in modern portfolios"
               ]
             }
           }
