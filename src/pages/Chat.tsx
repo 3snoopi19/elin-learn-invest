@@ -5,30 +5,38 @@ import { Footer } from "@/components/layout/Footer";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useNavigate } from "react-router-dom";
-import { Send, Bot, User, AlertCircle, BookOpen } from "lucide-react";
-import { COMPLIANCE_DISCLAIMER, validateAIResponse } from "@/lib/compliance";
+import { Send, Bot, AlertCircle, BookOpen, Sparkles, Settings2 } from "lucide-react";
+import { COMPLIANCE_DISCLAIMER } from "@/lib/compliance";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
 import { sanitizeChatInput } from "@/lib/validation";
 
-interface Message {
-  id: string;
-  content: string;
-  sender: 'user' | 'elin';
-  timestamp: Date;
-  hasDisclaimer?: boolean;
-}
+// Enhanced chat components
+import { ChatMessage } from "@/components/chat/ChatMessage";
+import { QuickReplyButtons } from "@/components/chat/QuickReplyButtons";
+import { LearningModeSelector } from "@/components/chat/LearningModeSelector";
+import { ProgressTracker } from "@/components/chat/ProgressTracker";
+import { PersonalizationPanel } from "@/components/chat/PersonalizationPanel";
+
+// Types and hooks
+import { Message, ChartData, QuizQuestion } from "@/types/chat";
+import { useLearningProgress } from "@/hooks/useLearningProgress";
 
 const Chat = () => {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { progress, settings, updateProgress, updateSettings, incrementProgress, updateStreak } = useLearningProgress();
+  
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState('');
   const [isTyping, setIsTyping] = useState(false);
+  const [currentMode, setCurrentMode] = useState<string>('ask-anything');
+  const [showQuickReplies, setShowQuickReplies] = useState(true);
+  const [showProgress, setShowProgress] = useState(false);
+  const [showPersonalization, setShowPersonalization] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -42,23 +50,49 @@ const Chat = () => {
     if (user && messages.length === 0) {
       const greeting: Message = {
         id: '1',
-        content: `Hi ${user.user_metadata?.first_name || 'there'}! I'm ELIN, your empathetic AI investment mentor. I'm here to help you learn about investing concepts, understand financial terms, and explore SEC filings.\n\n**Important:** I provide educational information only and cannot give personalized investment advice. For specific investment recommendations, please consult with a licensed financial advisor.\n\nWhat would you like to learn about today?`,
+        content: `Hi ${user.user_metadata?.first_name || 'there'}! 👋 I'm ELIN, your Enhanced Learning Investment Navigator.\n\nI'm here to provide you with an interactive, personalized learning experience about investing. Whether you're a complete beginner or looking to deepen your knowledge, I can adapt to your learning style and pace.\n\n🎯 **What I can help you with:**\n• Answer any finance questions with clear explanations\n• Guide you through structured lessons\n• Create interactive quizzes and scenarios\n• Show visual charts and examples\n• Track your learning progress\n\n**Important:** I provide educational information only and cannot give personalized investment advice. For specific investment recommendations, please consult with a licensed financial advisor.\n\nChoose a learning mode below or just ask me anything!`,
         sender: 'elin',
         timestamp: new Date(),
         hasDisclaimer: true
       };
       setMessages([greeting]);
+      
+      // Update activity streak
+      updateStreak();
     }
-  }, [user, messages.length]);
+  }, [user, messages.length, updateStreak]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  const callELINAPI = async (userMessage: string): Promise<{ response: string; hasDisclaimer: boolean }> => {
+  const callELINAPI = async (userMessage: string, messageType?: string): Promise<{ 
+    response: string; 
+    hasDisclaimer: boolean;
+    chartData?: ChartData;
+    chartTitle?: string;
+    quiz?: QuizQuestion;
+  }> => {
     try {
+      // Enhanced prompt with context
+      const enhancedPrompt = `
+        User Level: ${settings.level}
+        Explanation Style: ${settings.explanationStyle}
+        Learning Mode: ${currentMode}
+        Message Type: ${messageType || 'question'}
+        Preferred Topics: ${settings.preferredTopics.join(', ')}
+        
+        User Message: ${userMessage}
+        
+        Please respond according to the user's preferences. 
+        ${settings.explanationStyle === 'simple' ? 'Use simple, easy-to-understand language.' : ''}
+        ${settings.explanationStyle === 'technical' ? 'Include technical details and precise terminology.' : ''}
+        ${messageType === 'quiz' ? 'Create an interactive quiz question about the topic.' : ''}
+        ${messageType === 'visual' ? 'Explain how this could be visualized in a chart or graph.' : ''}
+      `;
+
       const { data, error } = await supabase.functions.invoke('chat-with-elin', {
-        body: { message: userMessage }
+        body: { message: enhancedPrompt }
       });
 
       if (error) {
@@ -66,28 +100,69 @@ const Chat = () => {
         throw error;
       }
       
-      return data;
+      // Check if we should generate additional content based on message type
+      let additionalContent = {};
+      
+      if (messageType === 'visual' && userMessage.toLowerCase().includes('chart')) {
+        // Generate sample chart data for demonstration
+        additionalContent = {
+          chartData: {
+            type: 'line' as const,
+            data: [
+              { month: 'Jan', value: 100 },
+              { month: 'Feb', value: 120 },
+              { month: 'Mar', value: 110 },
+              { month: 'Apr', value: 140 },
+              { month: 'May', value: 160 },
+              { month: 'Jun', value: 180 }
+            ],
+            xKey: 'month',
+            yKey: 'value'
+          },
+          chartTitle: 'Sample Investment Growth Over Time'
+        };
+      }
+      
+      if (messageType === 'quiz') {
+        // Generate a sample quiz
+        additionalContent = {
+          quiz: {
+            id: `quiz-${Date.now()}`,
+            question: "What is the main benefit of diversification in a portfolio?",
+            options: [
+              "Higher guaranteed returns",
+              "Reduced overall risk through spreading investments",
+              "Lower fees and taxes",
+              "Faster portfolio growth"
+            ],
+            correctAnswer: 1,
+            explanation: "Diversification helps reduce risk by spreading investments across different assets, sectors, or regions, so that poor performance in one area doesn't significantly impact the entire portfolio."
+          }
+        };
+      }
+      
+      return { ...data, ...additionalContent };
     } catch (error) {
       console.error('Error calling ELIN API:', error);
       toast({
         title: "Connection Error",
-        description: "ELIN is temporarily unavailable. This might be due to API configuration. Please try again later.",
+        description: "ELIN is temporarily unavailable. Please try again later.",
         variant: "destructive"
       });
       
-      // Improved fallback response
       return {
-        response: "I'm currently experiencing connection issues. This might be due to API configuration that needs to be set up. In the meantime, you can explore our Learn section for comprehensive investment education resources, or try the Portfolio Tracker to practice with investment concepts.",
+        response: "I'm currently experiencing connection issues. In the meantime, you can explore our Learn section for comprehensive investment education resources, or try the Portfolio Tracker to practice with investment concepts.",
         hasDisclaimer: false
       };
     }
   };
 
-  const handleSendMessage = async () => {
-    if (!inputValue.trim()) return;
+  const handleSendMessage = async (messageText?: string, messageType?: string) => {
+    const textToSend = messageText || inputValue.trim();
+    if (!textToSend) return;
 
     // Sanitize input to prevent injection attempts
-    const sanitizedInput = sanitizeChatInput(inputValue.trim());
+    const sanitizedInput = sanitizeChatInput(textToSend);
     
     if (!sanitizedInput) {
       toast({
@@ -108,20 +183,31 @@ const Chat = () => {
     setMessages(prev => [...prev, userMessage]);
     setInputValue('');
     setIsTyping(true);
+    setShowQuickReplies(false);
 
-    // Get AI response
-    const aiResponse = await callELINAPI(sanitizedInput);
+    // Get AI response with enhanced context
+    const aiResponse = await callELINAPI(sanitizedInput, messageType);
     
     const elinMessage: Message = {
       id: (Date.now() + 1).toString(),
       content: aiResponse.response,
       sender: 'elin',
       timestamp: new Date(),
-      hasDisclaimer: aiResponse.hasDisclaimer
+      hasDisclaimer: aiResponse.hasDisclaimer,
+      type: messageType === 'quiz' ? 'quiz' : 'message',
+      chartData: aiResponse.chartData,
+      chartTitle: aiResponse.chartTitle,
+      quiz: aiResponse.quiz
     };
 
     setMessages(prev => [...prev, elinMessage]);
     setIsTyping(false);
+    setShowQuickReplies(true);
+    
+    // Update learning progress
+    if (messageType === 'lesson') incrementProgress('lessons');
+    if (messageType === 'quiz') incrementProgress('quizzes');
+    if (messageType === 'scenario') incrementProgress('scenarios');
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -129,6 +215,25 @@ const Chat = () => {
       e.preventDefault();
       handleSendMessage();
     }
+  };
+
+  const handleModeSelect = (mode: string, prompt: string) => {
+    setCurrentMode(mode);
+    handleSendMessage(prompt, 'lesson');
+  };
+
+  const handleQuickReply = (message: string, type?: string) => {
+    handleSendMessage(message, type);
+  };
+
+  const handleQuizAnswer = (questionId: string, answer: string) => {
+    // Track quiz completion
+    incrementProgress('quizzes');
+    
+    toast({
+      title: "Answer Recorded",
+      description: "Great job! Keep learning.",
+    });
   };
 
   if (loading) {
@@ -143,116 +248,161 @@ const Chat = () => {
     <div className="min-h-screen bg-background flex flex-col">
       <Header />
       
-      <main className="flex-1 container mx-auto px-4 py-8 max-w-4xl">
+      <main className="flex-1 container mx-auto px-4 py-8 max-w-6xl">
         {/* Header */}
         <div className="mb-6">
-          <div className="flex items-center space-x-3 mb-2">
-            <Bot className="h-8 w-8 text-primary" />
-            <h1 className="text-3xl font-bold">Chat with ELIN</h1>
-          </div>
-          <p className="text-muted-foreground">
-            Your empathetic AI investment mentor - here to help you learn, not to give advice
-          </p>
-        </div>
-
-        {/* Compliance Notice */}
-        <Alert className="mb-6 border-warning/20 bg-warning/5">
-          <AlertCircle className="h-4 w-4 text-warning" />
-          <AlertDescription>
-            <strong>Educational Only:</strong> {COMPLIANCE_DISCLAIMER}
-          </AlertDescription>
-        </Alert>
-
-        {/* Chat Container */}
-        <Card className="flex-1 mb-4">
-          <CardHeader>
-            <CardTitle className="flex items-center space-x-2">
-              <BookOpen className="h-5 w-5" />
-              <span>Investment Learning Chat</span>
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            {/* Messages */}
-            <div className="h-96 overflow-y-auto space-y-4 mb-4 p-4 bg-muted/20 rounded-lg">
-              {messages.map((message) => (
-                <div
-                  key={message.id}
-                  className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
-                >
-                  <div className={`flex space-x-2 max-w-[80%] ${message.sender === 'user' ? 'flex-row-reverse space-x-reverse' : ''}`}>
-                    <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                      message.sender === 'user' ? 'bg-primary' : 'bg-education'
-                    }`}>
-                      {message.sender === 'user' ? (
-                        <User className="h-4 w-4 text-primary-foreground" />
-                      ) : (
-                        <Bot className="h-4 w-4 text-white" />
-                      )}
-                    </div>
-                    <div className={`rounded-lg p-3 ${
-                      message.sender === 'user'
-                        ? 'bg-primary text-primary-foreground'
-                        : 'bg-card border'
-                    }`}>
-                      <div className="whitespace-pre-wrap text-sm">{message.content}</div>
-                      <div className="text-xs opacity-70 mt-2">
-                        {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                      </div>
-                      {message.hasDisclaimer && message.sender === 'elin' && (
-                        <Badge variant="outline" className="mt-2 text-xs">
-                          Educational Content
-                        </Badge>
-                      )}
-                    </div>
-                  </div>
+          <div className="flex items-center justify-between">
+            <div>
+              <div className="flex items-center space-x-3 mb-2">
+                <div className="relative">
+                  <Bot className="h-8 w-8 text-education" />
+                  <Sparkles className="h-4 w-4 text-education absolute -top-1 -right-1" />
                 </div>
-              ))}
-              
-              {isTyping && (
-                <div className="flex justify-start">
-                  <div className="flex space-x-2 max-w-[80%]">
-                    <div className="w-8 h-8 rounded-full bg-education flex items-center justify-center">
-                      <Bot className="h-4 w-4 text-white" />
-                    </div>
-                    <div className="bg-card border rounded-lg p-3">
-                      <div className="flex space-x-1">
-                        <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce"></div>
-                        <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-                        <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
-                      </div>
-                    </div>
-                  </div>
+                <div>
+                  <h1 className="text-3xl font-bold bg-gradient-to-r from-education to-primary bg-clip-text text-transparent">
+                    ELIN Learning Assistant
+                  </h1>
+                  <p className="text-sm text-muted-foreground">
+                    Enhanced Learning Investment Navigator • AI-Powered Education
+                  </p>
                 </div>
-              )}
-              <div ref={messagesEndRef} />
+              </div>
             </div>
-
-            {/* Input */}
-            <div className="flex space-x-2">
-              <Input
-                value={inputValue}
-                onChange={(e) => setInputValue(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' && !e.shiftKey) {
-                    e.preventDefault();
-                    handleSendMessage();
-                  }
-                }}
-                placeholder="Ask me about investing concepts, ETFs, risk tolerance, SEC filings..."
-                className="flex-1"
-                maxLength={2000}
-                aria-label="Type your message to ELIN"
-              />
+            <div className="flex gap-2">
               <Button 
-                onClick={handleSendMessage} 
-                disabled={!inputValue.trim() || isTyping}
-                aria-label="Send message"
+                variant="outline" 
+                size="sm"
+                onClick={() => setShowProgress(!showProgress)}
+                className="gap-2"
               >
-                <Send className="h-4 w-4" />
+                <BookOpen className="w-4 h-4" />
+                Progress
+              </Button>
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => setShowPersonalization(!showPersonalization)}
+                className="gap-2"
+              >
+                <Settings2 className="w-4 h-4" />
+                Settings
               </Button>
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+          {/* Sidebar */}
+          <div className="lg:col-span-1 space-y-4">
+            {/* Progress Tracker */}
+            <ProgressTracker 
+              progress={progress}
+              isVisible={showProgress}
+              onToggle={() => setShowProgress(!showProgress)}
+            />
+            
+            {/* Personalization Panel */}
+            <PersonalizationPanel 
+              settings={settings}
+              onSettingsUpdate={updateSettings}
+              isVisible={showPersonalization}
+              onToggle={() => setShowPersonalization(!showPersonalization)}
+            />
+
+            {/* Compliance Notice */}
+            <Alert className="border-warning/20 bg-warning/5">
+              <AlertCircle className="h-4 w-4 text-warning" />
+              <AlertDescription className="text-xs">
+                <strong>Educational Only:</strong> {COMPLIANCE_DISCLAIMER}
+              </AlertDescription>
+            </Alert>
+          </div>
+
+          {/* Main Chat Area */}
+          <div className="lg:col-span-3">
+            {/* Learning Mode Selector */}
+            {messages.length <= 1 && (
+              <div className="mb-6">
+                <h3 className="text-lg font-medium mb-4">Choose Your Learning Mode</h3>
+                <LearningModeSelector 
+                  onModeSelect={handleModeSelect}
+                  currentMode={currentMode}
+                />
+              </div>
+            )}
+
+            {/* Chat Container */}
+            <Card className="flex-1">
+              <CardHeader className="pb-4">
+                <CardTitle className="flex items-center justify-between">
+                  <div className="flex items-center space-x-2">
+                    <BookOpen className="h-5 w-5 text-education" />
+                    <span>Interactive Learning Chat</span>
+                  </div>
+                  <div className="text-xs text-muted-foreground">
+                    Mode: <span className="capitalize text-education font-medium">{currentMode.replace('-', ' ')}</span>
+                  </div>
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {/* Messages */}
+                <div className="min-h-[500px] max-h-[600px] overflow-y-auto space-y-6 p-4 bg-gradient-to-b from-muted/10 to-muted/5 rounded-lg">
+                  {messages.map((message) => (
+                    <ChatMessage 
+                      key={message.id} 
+                      message={message} 
+                      onQuizAnswer={handleQuizAnswer}
+                    />
+                  ))}
+                  
+                  {isTyping && (
+                    <div className="flex gap-3 max-w-[85%]">
+                      <div className="w-8 h-8 rounded-full bg-gradient-to-br from-education to-education/80 flex items-center justify-center">
+                        <Bot className="w-4 h-4 text-white" />
+                      </div>
+                      <div className="bg-card border border-border/50 rounded-2xl rounded-bl-sm p-4 shadow-sm">
+                        <div className="flex space-x-1">
+                          <div className="w-2 h-2 bg-education rounded-full animate-bounce"></div>
+                          <div className="w-2 h-2 bg-education rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+                          <div className="w-2 h-2 bg-education rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                        </div>
+                        <div className="text-xs text-muted-foreground mt-2">ELIN is thinking...</div>
+                      </div>
+                    </div>
+                  )}
+                  <div ref={messagesEndRef} />
+                </div>
+
+                {/* Quick Reply Buttons */}
+                <QuickReplyButtons 
+                  onQuickReply={handleQuickReply}
+                  isVisible={showQuickReplies && !isTyping && messages.length > 1}
+                />
+
+                {/* Input */}
+                <div className="flex space-x-2">
+                  <Input
+                    value={inputValue}
+                    onChange={(e) => setInputValue(e.target.value)}
+                    onKeyDown={handleKeyPress}
+                    placeholder="Ask about investing, request a lesson, or try 'Show me a chart about portfolio diversification'..."
+                    className="flex-1 bg-background border-border/50 focus:border-education focus:ring-education"
+                    maxLength={2000}
+                    aria-label="Type your message to ELIN"
+                  />
+                  <Button 
+                    onClick={() => handleSendMessage()} 
+                    disabled={!inputValue.trim() || isTyping}
+                    aria-label="Send message"
+                    className="bg-education hover:bg-education/90"
+                  >
+                    <Send className="h-4 w-4" />
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
       </main>
       
       <Footer />
