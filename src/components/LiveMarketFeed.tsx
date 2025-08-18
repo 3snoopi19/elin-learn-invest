@@ -1,10 +1,11 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { TrendingUp, TrendingDown, Activity, AlertCircle } from "lucide-react";
+import { TrendingUp, TrendingDown, Activity, AlertCircle, RefreshCw } from "lucide-react";
 import { motion } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
-import { getSymbolInfo, DEFAULT_SYMBOLS } from "@/lib/market/symbols";
+import { getSymbolInfo } from "@/lib/market/symbols";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Button } from "@/components/ui/button";
 
 interface MarketQuote {
   symbol: string;
@@ -12,16 +13,13 @@ interface MarketQuote {
   changePct: number;
   changeAbs: number;
   prevClose: number;
-  high: number;
-  low: number;
   time: number;
 }
 
-interface MarketFeedData {
-  quotes: MarketQuote[];
-  errors?: any[];
-  timestamp: number;
-}
+// Environment configuration
+const ENABLE_MARKET_WS = false; // Disabled as per requirements
+const MARKET_FEED_REFRESH_SEC = 30;
+const MARKET_FEED_SYMBOLS = ['MSFT', 'TSLA', 'AAPL', 'SPY'];
 
 // Mini sparkline component
 const MiniSparkline = ({ isPositive }: { isPositive: boolean }) => {
@@ -48,11 +46,20 @@ const TickerItem = ({ data, index }: { data: MarketQuote, index: number }) => {
   const isUnchanged = data.changeAbs === 0;
   const symbolInfo = getSymbolInfo(data.symbol);
   
+  // Use specified colors: green (#16a34a) for up, red (#dc2626) for down
+  const positiveColor = '#16a34a';
+  const negativeColor = '#dc2626';
+  
   return (
     <motion.div
-      className={`flex-shrink-0 bg-slate-800/40 backdrop-blur-sm rounded-lg p-4 border border-slate-700/30 min-w-[280px] mx-2 ${
-        isPositive ? 'shadow-emerald-500/10' : isUnchanged ? 'shadow-slate-500/10' : 'shadow-red-500/10'
-      } shadow-lg hover:scale-105 transition-transform duration-200`}
+      className={`flex-shrink-0 bg-slate-800/40 backdrop-blur-sm rounded-lg p-4 border border-slate-700/30 min-w-[280px] mx-2 shadow-lg hover:scale-105 transition-transform duration-200`}
+      style={{
+        boxShadow: isPositive 
+          ? `0 4px 6px -1px ${positiveColor}10` 
+          : isUnchanged 
+          ? '0 4px 6px -1px rgba(71, 85, 105, 0.1)' 
+          : `0 4px 6px -1px ${negativeColor}10`
+      }}
       initial={{ opacity: 0, x: 50 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ delay: index * 0.1 }}
@@ -61,13 +68,21 @@ const TickerItem = ({ data, index }: { data: MarketQuote, index: number }) => {
         <div className="flex-1">
           <div className="flex items-center gap-3 mb-2">
             <span className="font-bold text-white text-lg">{data.symbol}</span>
-            <div className={`flex items-center gap-1 px-2 py-1 rounded text-xs font-medium ${
-              isPositive 
-                ? 'bg-emerald-500/20 text-emerald-400' 
-                : isUnchanged 
-                ? 'bg-slate-500/20 text-slate-400'
-                : 'bg-red-500/20 text-red-400'
-            }`}>
+            <div 
+              className="flex items-center gap-1 px-2 py-1 rounded text-xs font-medium"
+              style={{
+                backgroundColor: isPositive 
+                  ? `${positiveColor}20` 
+                  : isUnchanged 
+                  ? 'rgba(71, 85, 105, 0.2)'
+                  : `${negativeColor}20`,
+                color: isPositive 
+                  ? positiveColor 
+                  : isUnchanged 
+                  ? 'rgb(148, 163, 184)'
+                  : negativeColor
+              }}
+            >
               {!isUnchanged && (isPositive ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />)}
               {isPositive ? '+' : ''}{data.changePct.toFixed(2)}%
             </div>
@@ -80,9 +95,16 @@ const TickerItem = ({ data, index }: { data: MarketQuote, index: number }) => {
               <div className="text-white text-xl font-semibold">
                 ${data.price.toLocaleString('en-US', { minimumFractionDigits: 2 })}
               </div>
-              <div className={`text-sm ${
-                isPositive ? 'text-emerald-400' : isUnchanged ? 'text-slate-400' : 'text-red-400'
-              }`}>
+              <div 
+                className="text-sm"
+                style={{
+                  color: isPositive 
+                    ? positiveColor 
+                    : isUnchanged 
+                    ? 'rgb(148, 163, 184)'
+                    : negativeColor
+                }}
+              >
                 {isPositive ? '+' : ''}{data.changeAbs.toFixed(2)}
               </div>
             </div>
@@ -125,56 +147,85 @@ export const LiveMarketFeed = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
+  const [nextRetryIn, setNextRetryIn] = useState<number>(0);
 
-  const fetchMarketData = async () => {
+  const fetchMarketData = useCallback(async () => {
     try {
       setError(null);
+      
+      // Diagnostic logging for preview env
+      if (process.env.NODE_ENV === 'development') {
+        console.log('Fetching market data for symbols:', MARKET_FEED_SYMBOLS.join(','));
+      }
+      
       const { data, error: fetchError } = await supabase.functions.invoke('market-quotes', {
-        body: { symbols: DEFAULT_SYMBOLS.join(',') }
+        body: { symbols: MARKET_FEED_SYMBOLS.join(',') }
       });
+
+      // Diagnostic logging
+      if (process.env.NODE_ENV === 'development') {
+        console.log('Market data response status:', fetchError ? 'error' : 'success');
+        console.log('Response preview:', JSON.stringify(data).substring(0, 20) + '...');
+      }
 
       if (fetchError) {
         console.error('Market data fetch error:', fetchError);
         throw new Error(fetchError.message || 'API request failed');
       }
 
-      if (data?.quotes && Array.isArray(data.quotes)) {
-        setMarketData(data.quotes);
+      if (data && Array.isArray(data)) {
+        setMarketData(data);
         setLastUpdated(new Date());
+        setNextRetryIn(0);
       } else {
         throw new Error('Invalid data format received');
       }
     } catch (err) {
       console.error('Error fetching market data:', err);
-      setError('Real-time data temporarily unavailable. Displaying educational placeholders while reconnecting...');
+      setError('Live data unavailable — retrying in 30s');
       
-      // Show fallback data for educational purposes
-      const fallbackData = DEFAULT_SYMBOLS.map((symbol, index) => ({
-        symbol,
-        price: 150 + Math.random() * 300,
-        changePct: (Math.random() - 0.5) * 6,
-        changeAbs: (Math.random() - 0.5) * 10,
-        prevClose: 145 + Math.random() * 300,
-        high: 155 + Math.random() * 300,
-        low: 140 + Math.random() * 300,
-        time: Date.now() / 1000
-      }));
+      // Start countdown for next retry
+      setNextRetryIn(MARKET_FEED_REFRESH_SEC);
       
+      // Show fallback data for educational purposes only if no data exists
       if (!marketData.length) {
+        const fallbackData = MARKET_FEED_SYMBOLS.map((symbol) => ({
+          symbol,
+          price: 150 + Math.random() * 300,
+          changePct: (Math.random() - 0.5) * 6,
+          changeAbs: (Math.random() - 0.5) * 10,
+          prevClose: 145 + Math.random() * 300,
+          time: Date.now() / 1000
+        }));
         setMarketData(fallbackData);
       }
     } finally {
       setLoading(false);
     }
-  };
+  }, [marketData.length]);
 
-  // Initial fetch and periodic updates
+  // Countdown timer for retry
   useEffect(() => {
-    fetchMarketData();
-    
-    const interval = setInterval(fetchMarketData, 30000); // 30 seconds
-    return () => clearInterval(interval);
-  }, []);
+    if (nextRetryIn > 0) {
+      const timer = setTimeout(() => {
+        setNextRetryIn(prev => prev - 1);
+      }, 1000);
+      return () => clearTimeout(timer);
+    } else if (nextRetryIn === 0 && error) {
+      // Auto retry when countdown reaches 0
+      fetchMarketData();
+    }
+  }, [nextRetryIn, error, fetchMarketData]);
+
+  // Initial fetch and periodic updates (REST polling)
+  useEffect(() => {
+    if (!ENABLE_MARKET_WS) {
+      fetchMarketData();
+      
+      const interval = setInterval(fetchMarketData, MARKET_FEED_REFRESH_SEC * 1000);
+      return () => clearInterval(interval);
+    }
+  }, [fetchMarketData]);
 
   // Auto-scroll effect
   useEffect(() => {
@@ -186,6 +237,11 @@ export const LiveMarketFeed = () => {
       return () => clearInterval(interval);
     }
   }, [marketData.length]);
+
+  const handleRefreshNow = () => {
+    setNextRetryIn(0);
+    fetchMarketData();
+  };
 
   return (
     <motion.div
@@ -208,7 +264,9 @@ export const LiveMarketFeed = () => {
               {error ? (
                 <>
                   <AlertCircle className="w-4 h-4 text-yellow-400" />
-                  <span className="text-yellow-400 text-sm font-medium">Reconnecting...</span>
+                  <span className="text-yellow-400 text-sm font-medium">
+                    Error {nextRetryIn > 0 ? `(${nextRetryIn}s)` : ''}
+                  </span>
                 </>
               ) : (
                 <>
@@ -227,8 +285,31 @@ export const LiveMarketFeed = () => {
 
         <CardContent className="relative">
           {error && (
-            <div className="bg-yellow-500/10 border border-yellow-500/20 rounded-lg p-3 mb-4 text-center">
-              <span className="text-yellow-400 text-sm">{error}</span>
+            <div className="bg-yellow-500/10 border border-yellow-500/20 rounded-lg p-3 mb-4">
+              <div className="flex items-center justify-between">
+                <span className="text-yellow-400 text-sm">{error}</span>
+                <Button 
+                  onClick={handleRefreshNow}
+                  size="sm"
+                  variant="outline"
+                  className="h-7 px-3 text-xs border-yellow-500/20 text-yellow-400 hover:bg-yellow-500/10"
+                >
+                  <RefreshCw className="w-3 h-3 mr-1" />
+                  Refresh now
+                </Button>
+              </div>
+            </div>
+          )}
+          
+          {/* FINNHUB_API_KEY missing warning for preview builds */}
+          {process.env.NODE_ENV === 'development' && (
+            <div className="bg-orange-500/10 border border-orange-500/20 rounded-lg p-3 mb-4">
+              <div className="flex items-center gap-2">
+                <AlertCircle className="w-4 h-4 text-orange-400" />
+                <span className="text-orange-400 text-sm">
+                  Preview mode: Using sample data. FINNHUB_API_KEY required for live data.
+                </span>
+              </div>
             </div>
           )}
           

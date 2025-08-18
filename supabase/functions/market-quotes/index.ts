@@ -80,51 +80,40 @@ serve(async (req) => {
   }
 
   try {
+    // Parse query parameters or body
     const url = new URL(req.url);
-    const symbols = url.searchParams.get('symbols')?.split(',') || [];
+    const symbolsParam = url.searchParams.get('symbols') || (await req.json().catch(() => ({})))?.symbols;
     
-    if (symbols.length === 0) {
-      return new Response(
-        JSON.stringify({ error: 'No symbols provided' }), 
-        { 
-          status: 400,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-        }
-      );
-    }
-
-    // Validate symbols (alphanumeric, hyphen, dot only)
-    const validSymbols = symbols.filter(symbol => 
-      /^[A-Za-z0-9.-]+$/.test(symbol) && symbol.length <= 10
-    );
-
-    if (validSymbols.length === 0) {
-      return new Response(
-        JSON.stringify({ error: 'No valid symbols provided' }), 
-        { 
-          status: 400,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-        }
-      );
-    }
+    // Filter symbols to exclude crypto symbols with '-' unless crypto endpoint is implemented
+    const rawSymbols = symbolsParam?.split(',').map((s: string) => s.trim().toUpperCase()) || ['MSFT', 'TSLA', 'AAPL', 'SPY'];
+    const symbols = rawSymbols.filter(symbol => !symbol.includes('-')).slice(0, 10);
+    
+    console.log(`Fetching quotes for symbols: ${symbols.join(', ')}`);
 
     const finnhubApiKey = Deno.env.get('FINNHUB_API_KEY');
     if (!finnhubApiKey) {
+      console.error('FINNHUB_API_KEY not configured');
       return new Response(
-        JSON.stringify({ error: 'API key not configured' }), 
+        JSON.stringify({ 
+          error: 'API key not configured',
+          provider: 'finnhub'
+        }), 
         { 
-          status: 500,
+          status: 502,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' }
         }
       );
     }
 
-    // Fetch quotes in parallel
-    const quotePromises = validSymbols.map(symbol => 
-      fetchQuoteFromFinnhub(symbol, finnhubApiKey).catch(error => ({
-        symbol: symbol.toUpperCase(),
-        error: error.message
-      }))
+    // Fetch quotes in parallel with error handling
+    const quotePromises = symbols.map(symbol => 
+      fetchQuoteFromFinnhub(symbol, finnhubApiKey).catch(error => {
+        console.error(`Error fetching ${symbol}:`, error.message);
+        return {
+          symbol,
+          error: error.message
+        };
+      })
     );
 
     const results = await Promise.all(quotePromises);
@@ -132,15 +121,21 @@ serve(async (req) => {
     // Separate successful quotes from errors
     const quotes = results.filter(result => !('error' in result)) as NormalizedQuote[];
     const errors = results.filter(result => 'error' in result);
+    
+    console.log(`Successfully fetched ${quotes.length} quotes, ${errors.length} errors`);
 
-    console.log(`Fetched ${quotes.length} quotes, ${errors.length} errors`);
+    // Return market quote format as specified
+    const formattedQuotes = quotes.map(quote => ({
+      symbol: quote.symbol,
+      price: quote.price,
+      changePct: quote.changePct,
+      changeAbs: quote.changeAbs,
+      prevClose: quote.prevClose,
+      time: quote.time
+    }));
 
     return new Response(
-      JSON.stringify({ 
-        quotes,
-        errors: errors.length > 0 ? errors : undefined,
-        timestamp: Date.now()
-      }), 
+      JSON.stringify(formattedQuotes), 
       {
         headers: { 
           ...corsHeaders, 
@@ -155,10 +150,11 @@ serve(async (req) => {
     return new Response(
       JSON.stringify({ 
         error: 'Internal server error',
+        provider: 'finnhub',
         message: error.message 
       }), 
       {
-        status: 500,
+        status: 502,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       }
     );
