@@ -4,7 +4,8 @@ import {
   BarChart3, Activity, Clock, PieChart as PieChartIcon,
   Search, Eye, Play, Trophy, HelpCircle, Sparkles, 
   ShieldCheck, Calendar, Building2, Filter, Download,
-  ExternalLink, Star, Upload, Settings, History, PlusCircle
+  ExternalLink, Star, Upload, Settings, History, PlusCircle,
+  CreditCard
 } from 'lucide-react';
 import { HeroSummaryCard } from '@/components/HeroSummaryCard';
 import { PortfolioOverviewCard } from '@/components/PortfolioOverviewCard';
@@ -13,6 +14,7 @@ import { RecentActivityCard } from '@/components/RecentActivityCard';
 import { AIInsightsCard } from '@/components/AIInsightsCard';
 import { LearningPathsCard } from '@/components/LearningPathsCard';
 import { SECFilingsExplorer } from '@/components/SECFilingsExplorer';
+import { CreditCardHelperCard } from '@/components/CreditCardHelperCard';
 import { DashboardCard } from '@/components/DashboardCard';
 import { motion } from 'framer-motion';
 
@@ -43,7 +45,8 @@ export const ICON_MAP: Record<string, React.ComponentType<any>> = {
   'Upload': Upload,
   'Settings': Settings,
   'History': History,
-  'PlusCircle': PlusCircle
+  'PlusCircle': PlusCircle,
+  'CreditCard': CreditCard
 };
 
 // Component mapping for dynamic rendering
@@ -55,6 +58,7 @@ export const COMPONENT_MAP: Record<string, React.ComponentType<any>> = {
   'AIInsightsCard': AIInsightsCard,
   'LearningPathsCard': LearningPathsCard,
   'SECFilingsExplorer': SECFilingsExplorer,
+  'CreditCardHelperCard': CreditCardHelperCard,
   'ChatCard': DashboardCard, // Fallback for cards not yet converted
   'AIPortfolioSimulatorCard': DashboardCard // Will be removed in cleanup
 };

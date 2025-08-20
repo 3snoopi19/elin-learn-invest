@@ -50,7 +50,7 @@ const Chat = () => {
     if (user && messages.length === 0) {
       const greeting: Message = {
         id: '1',
-        content: `Hi ${user.user_metadata?.first_name || 'there'}! 👋 I'm ELIN, your Enhanced Learning Investment Navigator.\n\nI'm here to provide you with an interactive, personalized learning experience about investing. Whether you're a complete beginner or looking to deepen your knowledge, I can adapt to your learning style and pace.\n\n🎯 **What I can help you with:**\n• Answer any finance questions with clear explanations\n• Guide you through structured lessons\n• Create interactive quizzes and scenarios\n• Show visual charts and examples\n• Track your learning progress\n\n**Important:** I provide educational information only and cannot give personalized investment advice. For specific investment recommendations, please consult with a licensed financial advisor.\n\nChoose a learning mode below or just ask me anything!`,
+        content: `Hi ${user.user_metadata?.first_name || 'there'}! 👋 I'm ELIN, your Enhanced Learning Investment Navigator.\n\nI'm here to provide you with an interactive, personalized learning experience about investing. Whether you're a complete beginner or looking to deepen your knowledge, I can adapt to your learning style and pace.\n\n🎯 **What I can help you with:**\n• Answer any finance questions with clear explanations\n• Guide you through structured lessons\n• Create interactive quizzes and scenarios\n• Show visual charts and examples\n• Track your learning progress\n• **Credit card payment optimization** - Ask me "How much should I pay to avoid interest?"\n\n**Important:** I provide educational information only and cannot give personalized investment advice. For specific investment recommendations, please consult with a licensed financial advisor.\n\nChoose a learning mode below or just ask me anything!`,
         sender: 'elin',
         timestamp: new Date(),
         hasDisclaimer: true
@@ -66,6 +66,61 @@ const Chat = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
+  // Helper function to generate credit card payment responses
+  const generateCreditCardResponse = (userMessage: string): { 
+    response: string; 
+    hasDisclaimer: boolean;
+    chartData?: ChartData;
+    chartTitle?: string;
+    quiz?: QuizQuestion;
+  } => {
+    const mockCardData = {
+      cardName: "Chase Sapphire Reserve",
+      currentBalance: 2847.32,
+      minimumPayment: 75.00,
+      statementBalance: 2650.00,
+      dueDate: "2025-01-15",
+      interestRate: 22.99
+    };
+
+    const interestCharges = mockCardData.statementBalance * (mockCardData.interestRate / 100 / 12);
+    
+    let response = "";
+    
+    if (userMessage.toLowerCase().includes('avoid interest')) {
+      response = `💳 **To avoid interest charges, you should pay:** $${mockCardData.statementBalance.toFixed(2)} (your statement balance)\n\n`;
+      response += `📊 **Your Credit Card Breakdown:**\n`;
+      response += `• Current Balance: $${mockCardData.currentBalance.toFixed(2)}\n`;
+      response += `• Statement Balance: $${mockCardData.statementBalance.toFixed(2)}\n`;
+      response += `• Minimum Payment: $${mockCardData.minimumPayment.toFixed(2)}\n`;
+      response += `• Due Date: ${new Date(mockCardData.dueDate).toLocaleDateString()}\n\n`;
+      response += `💡 **AI recommendation:** Pay the full statement balance of $${mockCardData.statementBalance.toFixed(2)} to avoid the $${interestCharges.toFixed(2)} interest charge and maintain good credit health.\n\n`;
+      response += `⚠️ **Important:** Paying only the minimum ($${mockCardData.minimumPayment.toFixed(2)}) will result in interest charges and extend your payoff time significantly.`;
+    } else if (userMessage.toLowerCase().includes('minimum payment')) {
+      response = `📋 **Your minimum payment is:** $${mockCardData.minimumPayment.toFixed(2)}\n\n`;
+      response += `⚠️ **Risk Warning:** Paying only the minimum will cost you $${interestCharges.toFixed(2)} in interest this month and significantly extend your payoff time.\n\n`;
+      response += `✅ **Better Options:**\n`;
+      response += `• Pay statement balance ($${mockCardData.statementBalance.toFixed(2)}) = No interest\n`;
+      response += `• Pay more than minimum = Save on interest & improve credit score\n`;
+      response += `• Set up autopay for statement balance = Never miss payments`;
+    } else {
+      // General credit card guidance
+      response = `💳 **Credit Card Payment Strategy:**\n\n`;
+      response += `🎯 **Always aim to pay your statement balance** ($${mockCardData.statementBalance.toFixed(2)}) to avoid interest charges.\n\n`;
+      response += `📈 **Payment Priority:**\n`;
+      response += `1. **Best:** Statement balance = $${mockCardData.statementBalance.toFixed(2)} (no interest)\n`;
+      response += `2. **Good:** More than minimum payment\n`;
+      response += `3. **Minimum:** $${mockCardData.minimumPayment.toFixed(2)} (avoid late fees but pay interest)\n\n`;
+      response += `💰 **This month's interest cost if you pay minimum:** $${interestCharges.toFixed(2)}\n\n`;
+      response += `📱 **Pro tip:** Set up autopay for the statement balance to never worry about interest or late fees!`;
+    }
+
+    return {
+      response: response,
+      hasDisclaimer: false
+    };
+  };
+
   const callELINAPI = async (userMessage: string, messageType?: string): Promise<{ 
     response: string; 
     hasDisclaimer: boolean;
@@ -74,6 +129,17 @@ const Chat = () => {
     quiz?: QuizQuestion;
   }> => {
     try {
+      // Check for credit card payment questions
+      const creditCardKeywords = ['credit card', 'payment', 'minimum payment', 'avoid interest', 'card balance', 'pay off card', 'statement balance'];
+      const isCreditCardQuery = creditCardKeywords.some(keyword => 
+        userMessage.toLowerCase().includes(keyword.toLowerCase())
+      );
+
+      if (isCreditCardQuery) {
+        // Provide credit card payment guidance
+        return generateCreditCardResponse(userMessage);
+      }
+
       // Enhanced prompt with context
       const enhancedPrompt = `
         User Level: ${settings.level}

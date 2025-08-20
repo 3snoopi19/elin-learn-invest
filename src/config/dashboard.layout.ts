@@ -82,6 +82,26 @@ export const DASHBOARD_CARDS: CardConfig[] = [
     ariaLabel: "Live market data and ticker information"
   },
   {
+    key: "credit-card-helper",
+    title: "Credit Card AI Helper",
+    subtitle: "Smart payment recommendations",
+    description: "AI-powered credit card payment optimization",
+    route: "/cards",
+    position: 22,
+    component: "CreditCardHelperCard",
+    ctas: [
+      { label: "Connect Cards", href: "/cards/connect", variant: "primary", icon: "CreditCard", analytics: "cards_connect_click" },
+      { label: "View History", href: "/cards/history", variant: "outline", analytics: "cards_history_click" }
+    ],
+    badges: [
+      { label: "AI Powered", variant: "default", icon: "Brain" }
+    ],
+    analyticsTags: ["card_view", "open_click"],
+    gridSpan: { default: 1, lg: 1 },
+    lastUpdated: "2024-01-15T00:00:00Z",
+    ariaLabel: "AI-powered credit card payment recommendations"
+  },
+  {
     key: "recent-activity",
     title: "Recent Activity",
     subtitle: "Your latest actions and insights",

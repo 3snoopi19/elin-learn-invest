@@ -145,8 +145,8 @@ const Dashboard = () => {
           </div>
         </div>
 
-        {/* Secondary Row - Live Feed & Activity */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+        {/* Secondary Row - Live Feed, Activity & Credit Card Helper */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
           <DashboardCardRenderer
             componentName="LiveMarketFeed"
             props={{
@@ -161,6 +161,13 @@ const Dashboard = () => {
               ...dashboardCards.find(c => c.component === 'RecentActivityCard')?.props
             }}
           />
+          <DashboardCardRenderer
+            componentName="CreditCardHelperCard"
+            props={{
+              animationDelay: 0.4,
+              ...dashboardCards.find(c => c.component === 'CreditCardHelperCard')?.props
+            }}
+          />
         </div>
 
         {/* Learning & Tools Row */}
@@ -168,14 +175,14 @@ const Dashboard = () => {
           <DashboardCardRenderer
             componentName="LearningPathsCard"
             props={{
-              animationDelay: 0.4,
+              animationDelay: 0.5,
               ...dashboardCards.find(c => c.component === 'LearningPathsCard')?.props
             }}
           />
           <DashboardCardRenderer
             componentName="SECFilingsExplorer"
             props={{
-              animationDelay: 0.5,
+              animationDelay: 0.6,
               ...dashboardCards.find(c => c.component === 'SECFilingsExplorer')?.props
             }}
           />
@@ -221,7 +228,7 @@ const Dashboard = () => {
               key={action.title}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3, delay: 0.6 + index * 0.1 }}
+              transition={{ duration: 0.3, delay: 0.7 + index * 0.1 }}
               onClick={() => navigate(action.route)}
               className={`neon-card p-6 cursor-pointer bg-gradient-to-br ${action.gradient} ${action.hover} group`}
             >
