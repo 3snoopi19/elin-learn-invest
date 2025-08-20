@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { CreditCard, AlertTriangle, CheckCircle, DollarSign, Calendar, TrendingUp } from 'lucide-react';
+import { Slider } from "@/components/ui/slider";
+import { CreditCard, AlertTriangle, CheckCircle, DollarSign, Calendar, TrendingUp, Calculator } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 interface CreditCardData {
@@ -27,6 +28,8 @@ export const CreditCardHelperCard = () => {
   const [creditCards, setCreditCards] = useState<CreditCardData[]>([]);
   const [selectedCard, setSelectedCard] = useState<CreditCardData | null>(null);
   const [strategies, setStrategies] = useState<PaymentStrategy[]>([]);
+  const [paymentAmount, setPaymentAmount] = useState<number>(0);
+  const [selectedStrategy, setSelectedStrategy] = useState<PaymentStrategy | null>(null);
 
   // Mock data - in real implementation, this would come from Plaid API
   useEffect(() => {
@@ -86,25 +89,87 @@ export const CreditCardHelperCard = () => {
       ];
     };
 
-    setStrategies(calculateStrategies());
+    const newStrategies = calculateStrategies();
+    setStrategies(newStrategies);
+    setPaymentAmount(newStrategies[1].amount); // Default to statement balance
+    setSelectedStrategy(newStrategies[1]);
   }, [selectedCard]);
 
-  const getRiskColor = (riskLevel: string) => {
-    switch (riskLevel) {
-      case 'safe': return 'text-success bg-success/10 border-success/20';
-      case 'warning': return 'text-warning bg-warning/10 border-warning/20';
-      case 'danger': return 'text-destructive bg-destructive/10 border-destructive/20';
-      default: return 'text-muted-foreground bg-muted border-border';
+  // Update selected strategy based on payment amount
+  useEffect(() => {
+    if (!selectedCard || strategies.length === 0) return;
+    
+    let currentStrategy = strategies[0]; // default to minimum
+    
+    if (paymentAmount >= selectedCard.statementBalance) {
+      currentStrategy = strategies[1]; // statement balance
     }
+    if (paymentAmount >= strategies[2]?.amount) {
+      currentStrategy = strategies[2]; // optimal
+    }
+    
+    setSelectedStrategy(currentStrategy);
+  }, [paymentAmount, strategies, selectedCard]);
+
+  const getProgressColor = () => {
+    if (!selectedStrategy || !selectedCard) return '#dc2626';
+    
+    if (paymentAmount >= selectedCard.statementBalance) return '#16a34a'; // green
+    if (paymentAmount >= selectedCard.minimumPayment * 2) return '#f59e0b'; // yellow
+    return '#dc2626'; // red
   };
 
-  const getRiskIcon = (riskLevel: string) => {
-    switch (riskLevel) {
-      case 'safe': return <CheckCircle className="w-4 h-4" />;
-      case 'warning': return <AlertTriangle className="w-4 h-4" />;
-      case 'danger': return <AlertTriangle className="w-4 h-4" />;
-      default: return null;
-    }
+  const getProgressPercentage = () => {
+    if (!selectedCard) return 0;
+    return Math.min((paymentAmount / selectedCard.currentBalance) * 100, 100);
+  };
+
+  const CircularProgress = ({ percentage, color }: { percentage: number; color: string }) => {
+    const radius = 120;
+    const strokeWidth = 12;
+    const normalizedRadius = radius - strokeWidth * 2;
+    const circumference = normalizedRadius * 2 * Math.PI;
+    const strokeDasharray = `${(percentage / 100) * circumference} ${circumference}`;
+
+    return (
+      <div className="relative">
+        <svg
+          height={radius * 2}
+          width={radius * 2}
+          className="transform -rotate-90"
+        >
+          <circle
+            stroke="hsl(var(--muted))"
+            fill="transparent"
+            strokeWidth={strokeWidth}
+            r={normalizedRadius}
+            cx={radius}
+            cy={radius}
+          />
+          <motion.circle
+            stroke={color}
+            fill="transparent"
+            strokeWidth={strokeWidth}
+            strokeDasharray={strokeDasharray}
+            strokeLinecap="round"
+            r={normalizedRadius}
+            cx={radius}
+            cy={radius}
+            initial={{ strokeDasharray: `0 ${circumference}` }}
+            animate={{ strokeDasharray }}
+            transition={{ duration: 0.5, ease: "easeInOut" }}
+          />
+        </svg>
+        <div className="absolute inset-0 flex flex-col items-center justify-center">
+          <div className="text-4xl font-bold text-center">
+            {formatCurrency(paymentAmount)}
+          </div>
+          <div className="text-sm text-muted-foreground mt-1">
+            Payment Amount
+          </div>
+        </div>
+      </div>
+    );
   };
 
   const formatCurrency = (amount: number) => {
@@ -135,7 +200,7 @@ export const CreditCardHelperCard = () => {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <CreditCard className="w-5 h-5" />
-            Credit Card Helper
+            Credit Card AI Helper
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -159,8 +224,8 @@ export const CreditCardHelperCard = () => {
       <CardHeader>
         <div className="flex items-center justify-between">
           <CardTitle className="flex items-center gap-2">
-            <CreditCard className="w-5 h-5" />
-            Credit Card AI Helper
+            <Calculator className="w-5 h-5" />
+            Choose Payment Amount
           </CardTitle>
           {creditCards.length > 1 && (
             <select 
@@ -176,78 +241,100 @@ export const CreditCardHelperCard = () => {
             </select>
           )}
         </div>
+        <p className="text-sm text-muted-foreground mt-1">
+          Make payments by March 15
+        </p>
       </CardHeader>
       <CardContent className="space-y-6">
-        {/* Card Overview */}
-        <div className="grid grid-cols-2 gap-4">
-          <div className="space-y-2">
-            <div className="flex items-center gap-2">
-              <DollarSign className="w-4 h-4 text-muted-foreground" />
-              <span className="text-sm text-muted-foreground">Current Balance</span>
+        {/* Circular Payment Selector */}
+        <div className="flex flex-col items-center space-y-6">
+          <CircularProgress 
+            percentage={getProgressPercentage()} 
+            color={getProgressColor()} 
+          />
+          
+          {/* Payment Amount Slider */}
+          <div className="w-full max-w-sm space-y-4">
+            <Slider
+              value={[paymentAmount]}
+              onValueChange={(value) => setPaymentAmount(value[0])}
+              max={selectedCard.currentBalance}
+              min={selectedCard.minimumPayment}
+              step={25}
+              className="w-full"
+            />
+            <div className="flex justify-between text-xs text-muted-foreground">
+              <span>Min: {formatCurrency(selectedCard.minimumPayment)}</span>
+              <span>Max: {formatCurrency(selectedCard.currentBalance)}</span>
             </div>
-            <p className="text-2xl font-bold">{formatCurrency(selectedCard.currentBalance)}</p>
-            <p className="text-xs text-muted-foreground">
-              {utilizationRate.toFixed(1)}% of {formatCurrency(selectedCard.creditLimit)} limit
-            </p>
           </div>
-          <div className="space-y-2">
-            <div className="flex items-center gap-2">
-              <Calendar className="w-4 h-4 text-muted-foreground" />
-              <span className="text-sm text-muted-foreground">Due Date</span>
-            </div>
-            <p className="text-2xl font-bold">
-              {formatDate(selectedCard.dueDate)}
-            </p>
-            <p className={`text-xs ${daysUntilDue <= 3 ? 'text-destructive' : daysUntilDue <= 7 ? 'text-warning' : 'text-muted-foreground'}`}>
-              {daysUntilDue} days remaining
-            </p>
-          </div>
-        </div>
 
-        {/* Payment Strategies */}
-        <div className="space-y-3">
-          <h4 className="font-semibold flex items-center gap-2">
-            <TrendingUp className="w-4 h-4" />
-            Payment Strategies
-          </h4>
-          <div className="space-y-3">
-            {strategies.map((strategy, index) => (
-              <motion.div
-                key={strategy.type}
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: index * 0.1 }}
-                className={`p-4 rounded-lg border ${getRiskColor(strategy.riskLevel)}`}
+          {/* Current Strategy Info */}
+          {selectedStrategy && (
+            <motion.div
+              key={selectedStrategy.type}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="text-center space-y-2"
+            >
+              <Badge 
+                variant={selectedStrategy.riskLevel === 'safe' ? 'default' : selectedStrategy.riskLevel === 'warning' ? 'secondary' : 'destructive'}
+                className="text-sm"
               >
-                <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center gap-2">
-                    {getRiskIcon(strategy.riskLevel)}
-                    <Badge variant={strategy.riskLevel === 'safe' ? 'default' : strategy.riskLevel === 'warning' ? 'secondary' : 'destructive'}>
-                      {strategy.type === 'minimum' ? 'Minimum' : strategy.type === 'statement' ? 'Full Balance' : 'AI Optimal'}
-                    </Badge>
-                  </div>
-                  <span className="text-xl font-bold">
-                    {formatCurrency(strategy.amount)}
-                  </span>
-                </div>
-                <p className="text-sm opacity-90 mb-2">{strategy.description}</p>
-                {strategy.savings && (
-                  <p className="text-xs font-medium">
-                    💰 Saves {formatCurrency(strategy.savings)} in interest
-                  </p>
-                )}
-              </motion.div>
-            ))}
+                {selectedStrategy.riskLevel === 'safe' && <CheckCircle className="w-3 h-3 mr-1" />}
+                {selectedStrategy.riskLevel === 'danger' && <AlertTriangle className="w-3 h-3 mr-1" />}
+                {selectedStrategy.description}
+              </Badge>
+              {selectedStrategy.savings && (
+                <p className="text-sm font-medium text-success">
+                  💰 Saves {formatCurrency(selectedStrategy.savings)} in interest charges
+                </p>
+              )}
+            </motion.div>
+          )}
+        </div>
+
+        {/* Quick Payment Options */}
+        <div className="grid grid-cols-3 gap-2">
+          {strategies.map((strategy) => (
+            <Button
+              key={strategy.type}
+              variant={paymentAmount === strategy.amount ? "default" : "outline"}
+              size="sm"
+              onClick={() => setPaymentAmount(strategy.amount)}
+              className="text-xs p-2 h-auto flex flex-col"
+            >
+              <span className="font-semibold">
+                {strategy.type === 'minimum' ? 'Min' : strategy.type === 'statement' ? 'Full' : 'AI'}
+              </span>
+              <span className="opacity-75">
+                {formatCurrency(strategy.amount)}
+              </span>
+            </Button>
+          ))}
+        </div>
+
+        {/* Card Info */}
+        <div className="grid grid-cols-2 gap-4 pt-4 border-t">
+          <div className="text-center">
+            <p className="text-xs text-muted-foreground">Balance</p>
+            <p className="font-semibold">{formatCurrency(selectedCard.currentBalance)}</p>
+          </div>
+          <div className="text-center">
+            <p className="text-xs text-muted-foreground">Due</p>
+            <p className={`font-semibold ${daysUntilDue <= 3 ? 'text-destructive' : ''}`}>
+              {formatDate(selectedCard.dueDate)} ({daysUntilDue}d)
+            </p>
           </div>
         </div>
 
-        {/* Quick Actions */}
-        <div className="flex gap-2">
-          <Button size="sm" className="flex-1">
-            Make Payment
+        {/* Action Buttons */}
+        <div className="grid grid-cols-2 gap-3">
+          <Button size="lg" className="h-12">
+            Pay Now
           </Button>
-          <Button size="sm" variant="outline" className="flex-1">
-            Set Autopay
+          <Button size="lg" variant="outline" className="h-12">
+            Pay Later
           </Button>
         </div>
       </CardContent>
