@@ -65,7 +65,7 @@ export const DashboardCard = ({
   };
 
   const baseCardClasses = cn(
-    "group relative rounded-2xl p-5 md:p-6 border border-zinc-100 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 backdrop-blur shadow-[0_10px_30px_rgba(0,0,0,0.06)] hover:shadow-[0_20px_40px_rgba(0,0,0,0.08)] transition-shadow cursor-pointer focus:outline-none focus:ring-2 focus:ring-emerald-400/70",
+    "group relative rounded-2xl p-5 md:p-6 border border-border bg-card/80 backdrop-blur-sm shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer focus:outline-none focus:ring-2 focus:ring-ring hover:-translate-y-1 hover:border-primary/20",
     className
   );
 
@@ -87,14 +87,14 @@ export const DashboardCard = ({
       >
         {/* Gradient Header Strip for Learning Journey */}
         {gradientHeader && (
-          <div className="absolute top-0 left-0 right-0 h-16 rounded-t-2xl bg-gradient-to-tr from-emerald-500 via-teal-500 to-indigo-500 opacity-15 dark:opacity-10" />
+          <div className="absolute top-0 left-0 right-0 h-16 rounded-t-2xl bg-gradient-to-tr from-primary via-accent to-education opacity-20" />
         )}
 
         {/* Header */}
         <div className="flex items-start justify-between mb-4 relative z-10">
           <div className="flex items-center gap-3">
             {/* Icon Chip */}
-            <div className="rounded-xl bg-zinc-900/5 dark:bg-white/10 p-2 backdrop-blur">
+            <div className="rounded-xl bg-muted/50 p-3 backdrop-blur border border-border/50 group-hover:border-primary/20 transition-colors">
               {icon}
             </div>
             <div>
@@ -161,7 +161,7 @@ export const DashboardCard = ({
                 </Button>
                 {/* Count Badge */}
                 {secondaryAction.count !== undefined && secondaryAction.count > 0 && (
-                  <Badge className="absolute -top-2 -right-2 bg-emerald-600 text-white dark:bg-emerald-500 text-xs min-w-[1.25rem] h-5 flex items-center justify-center">
+                  <Badge className="absolute -top-2 -right-2 bg-primary text-primary-foreground text-xs min-w-[1.25rem] h-5 flex items-center justify-center border border-background shadow-md">
                     {secondaryAction.count}
                   </Badge>
                 )}

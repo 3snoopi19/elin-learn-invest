@@ -71,28 +71,28 @@ const learningPaths = [
 
 const getDifficultyColor = (difficulty: string) => {
   switch (difficulty) {
-    case "Beginner": return "bg-emerald-500/20 text-emerald-400 border-emerald-500/30";
-    case "Intermediate": return "bg-yellow-500/20 text-yellow-400 border-yellow-500/30";
-    case "Advanced": return "bg-red-500/20 text-red-400 border-red-500/30";
-    default: return "bg-slate-500/20 text-slate-400 border-slate-500/30";
+    case "Beginner": return "bg-success/20 text-success border-success/30";
+    case "Intermediate": return "bg-warning/20 text-warning border-warning/30";
+    case "Advanced": return "bg-destructive/20 text-destructive border-destructive/30";
+    default: return "bg-muted text-muted-foreground border-border";
   }
 };
 
 // Neon progress bar component
 const NeonProgressBar = ({ progress }: { progress: number }) => {
   return (
-    <div className="relative w-full h-2 bg-slate-800 rounded-full overflow-hidden">
+    <div className="relative w-full h-2 bg-muted rounded-full overflow-hidden">
       {/* Background glow */}
-      <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/20 to-cyan-500/20 rounded-full" />
+      <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-accent/20 rounded-full" />
       
       {/* Progress fill with animated gradient */}
       <motion.div
         className="absolute top-0 left-0 h-full rounded-full"
         style={{
-          background: "linear-gradient(90deg, #16a34a, #06b6d4, #16a34a)",
+          background: `linear-gradient(90deg, hsl(var(--primary)), hsl(var(--accent)), hsl(var(--primary)))`,
           backgroundSize: "200% 100%",
           width: `${progress}%`,
-          boxShadow: "0 0 10px rgba(22, 163, 74, 0.5)"
+          boxShadow: `0 0 10px hsl(var(--primary) / 0.5)`
         }}
         initial={{ width: 0 }}
         animate={{ width: `${progress}%` }}
@@ -112,7 +112,7 @@ const NeonProgressBar = ({ progress }: { progress: number }) => {
       <div 
         className="absolute top-0 left-0 h-full rounded-full blur-sm"
         style={{
-          background: "linear-gradient(90deg, #16a34a, #06b6d4)",
+          background: `linear-gradient(90deg, hsl(var(--primary)), hsl(var(--accent)))`,
           width: `${progress}%`,
           opacity: 0.6
         }}
@@ -130,16 +130,16 @@ export const LearningPathsCard = () => {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, delay: 0.5 }}
     >
-      <Card className="relative overflow-hidden border-0 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 shadow-2xl">
+      <Card className="relative overflow-hidden border-0 neon-card">
         {/* Neon glow border */}
-        <div className="absolute inset-0 bg-gradient-to-r from-emerald-400/20 via-cyan-400/20 to-emerald-400/20 rounded-lg blur-sm" />
-        <div className="absolute inset-[1px] bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 rounded-lg" />
+        <div className="absolute inset-0 bg-gradient-to-r from-primary/20 via-accent/20 to-primary/20 rounded-lg blur-sm" />
+        <div className="absolute inset-[1px] bg-card rounded-lg" />
         
         <CardHeader className="relative pb-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-emerald-500/20 rounded-lg">
-                <BookOpen className="w-6 h-6 text-emerald-400" />
+              <div className="p-2 bg-primary/20 rounded-lg">
+                <BookOpen className="w-6 h-6 text-primary" />
               </div>
               <div>
                 <CardTitle className="text-2xl font-bold text-text-heading">Learning Paths</CardTitle>
@@ -148,8 +148,8 @@ export const LearningPathsCard = () => {
             </div>
             
             <div className="flex items-center gap-2">
-              <Trophy className="w-5 h-5 text-yellow-400" />
-              <span className="text-yellow-400 font-semibold">Level 7</span>
+              <Trophy className="w-5 h-5 text-warning" />
+              <span className="text-warning font-semibold">Level 7</span>
             </div>
           </div>
         </CardHeader>
@@ -161,19 +161,19 @@ export const LearningPathsCard = () => {
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: index * 0.1 }}
-              className="group relative p-5 rounded-lg bg-slate-800/40 border border-slate-700/30 hover:border-emerald-500/30 hover:bg-slate-700/40 transition-all duration-300 cursor-pointer"
+              className="group relative p-5 rounded-lg bg-card/50 border border-border/50 hover:border-primary/30 hover:bg-card/70 transition-all duration-300 cursor-pointer glass-effect"
               onMouseEnter={() => setHoveredPath(path.id)}
               onMouseLeave={() => setHoveredPath(null)}
             >
               {/* Hover glow effect */}
-              <div className={`absolute inset-0 rounded-lg bg-gradient-to-r from-emerald-500/10 via-transparent to-cyan-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300`} />
+              <div className={`absolute inset-0 rounded-lg bg-gradient-to-r from-primary/10 via-transparent to-accent/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300`} />
               
               <div className="relative">
                 {/* Header */}
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex-1">
                     <div className="flex items-center gap-3 mb-2">
-                      <h4 className="text-white font-bold text-lg group-hover:text-emerald-100 transition-colors">
+                      <h4 className="text-foreground font-bold text-lg group-hover:text-primary transition-colors">
                         {path.title}
                       </h4>
                       <Badge 
@@ -183,21 +183,21 @@ export const LearningPathsCard = () => {
                         {path.difficulty}
                       </Badge>
                     </div>
-                    <p className="text-slate-400 text-sm mb-3">
+                    <p className="text-muted-foreground text-sm mb-3">
                       {path.description}
                     </p>
                   </div>
 
                   {/* Completion status */}
                   {path.progress === 100 ? (
-                    <div className="flex items-center gap-2 text-emerald-400">
+                    <div className="flex items-center gap-2 text-success">
                       <CheckCircle className="w-5 h-5" />
                       <span className="text-sm font-medium">Complete</span>
                     </div>
                   ) : (
                     <div className="text-right">
-                      <div className="text-emerald-400 font-bold text-xl">{path.progress}%</div>
-                      <div className="text-slate-500 text-xs">complete</div>
+                      <div className="text-primary font-bold text-xl">{path.progress}%</div>
+                      <div className="text-muted-foreground text-xs">complete</div>
                     </div>
                   )}
                 </div>
@@ -205,10 +205,10 @@ export const LearningPathsCard = () => {
                 {/* Progress Bar */}
                 <div className="mb-4">
                   <div className="flex justify-between items-center mb-2">
-                    <span className="text-slate-400 text-sm">
+                    <span className="text-muted-foreground text-sm">
                       {path.completedLessons}/{path.totalLessons} lessons
                     </span>
-                    <span className="text-slate-400 text-sm flex items-center gap-1">
+                    <span className="text-muted-foreground text-sm flex items-center gap-1">
                       <Clock className="w-3 h-3" />
                       {path.estimatedTime} remaining
                     </span>
@@ -219,11 +219,11 @@ export const LearningPathsCard = () => {
                 {/* Next Lesson & Actions */}
                 <div className="flex items-center justify-between">
                   <div className="flex-1">
-                    <p className="text-slate-300 text-sm">
-                      <span className="text-slate-500">Next: </span>
+                    <p className="text-text-secondary text-sm">
+                      <span className="text-muted-foreground">Next: </span>
                       {path.nextLesson}
                     </p>
-                    <p className="text-slate-500 text-xs mt-1">
+                    <p className="text-muted-foreground text-xs mt-1">
                       Last accessed {path.lastAccessed}
                     </p>
                   </div>
@@ -231,7 +231,7 @@ export const LearningPathsCard = () => {
                   <div className="flex gap-2 ml-4">
                     <Button 
                       size="sm"
-                      className="bg-emerald-500 hover:bg-emerald-600 text-white border-0 shadow-lg shadow-emerald-500/25 group-hover:shadow-emerald-500/40 transition-all"
+                      variant="success"
                     >
                       <Play className="w-3 h-3 mr-1" />
                       Continue Learning
@@ -245,9 +245,9 @@ export const LearningPathsCard = () => {
                   <motion.div
                     initial={{ scale: 0 }}
                     animate={{ scale: 1 }}
-                    className="absolute -top-2 -right-2 w-6 h-6 bg-yellow-500 rounded-full flex items-center justify-center"
+                    className="absolute -top-2 -right-2 w-6 h-6 bg-warning rounded-full flex items-center justify-center shadow-lg"
                   >
-                    <Star className="w-3 h-3 text-yellow-900" />
+                    <Star className="w-3 h-3 text-warning-foreground" />
                   </motion.div>
                 )}
               </div>
@@ -255,19 +255,19 @@ export const LearningPathsCard = () => {
           ))}
 
           {/* Footer Stats */}
-          <div className="mt-6 pt-4 border-t border-slate-700/30">
+          <div className="mt-6 pt-4 border-t border-border/30">
             <div className="grid grid-cols-3 gap-4 text-center">
               <div>
-                <div className="text-emerald-400 text-2xl font-bold">24</div>
-                <div className="text-slate-400 text-sm">Lessons Completed</div>
+                <div className="text-success text-2xl font-bold">24</div>
+                <div className="text-muted-foreground text-sm">Lessons Completed</div>
               </div>
               <div>
-                <div className="text-cyan-400 text-2xl font-bold">8.5h</div>
-                <div className="text-slate-400 text-sm">Learning Time</div>
+                <div className="text-accent text-2xl font-bold">8.5h</div>
+                <div className="text-muted-foreground text-sm">Learning Time</div>
               </div>
               <div>
-                <div className="text-purple-400 text-2xl font-bold">3</div>
-                <div className="text-slate-400 text-sm">Certificates Earned</div>
+                <div className="text-education text-2xl font-bold">3</div>
+                <div className="text-muted-foreground text-sm">Certificates Earned</div>
               </div>
             </div>
           </div>

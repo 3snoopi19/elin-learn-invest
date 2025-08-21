@@ -52,7 +52,7 @@ const TickerItem = ({ data, index }: { data: MarketQuote, index: number }) => {
   
   return (
     <motion.div
-      className={`flex-shrink-0 bg-slate-800/40 backdrop-blur-sm rounded-lg p-4 border border-slate-700/30 min-w-[280px] mx-2 shadow-lg hover:scale-105 transition-transform duration-200`}
+      className={`flex-shrink-0 bg-card/60 backdrop-blur-sm rounded-lg p-4 border border-border/50 min-w-[280px] mx-2 shadow-lg hover:scale-105 transition-transform duration-200 glass-effect`}
       style={{
         boxShadow: isPositive 
           ? `0 4px 6px -1px ${positiveColor}10` 
@@ -67,7 +67,7 @@ const TickerItem = ({ data, index }: { data: MarketQuote, index: number }) => {
       <div className="flex items-center justify-between">
         <div className="flex-1">
           <div className="flex items-center gap-3 mb-2">
-            <span className="font-bold text-white text-lg">{data.symbol}</span>
+            <span className="font-bold text-foreground text-lg">{data.symbol}</span>
             <div 
               className="flex items-center gap-1 px-2 py-1 rounded text-xs font-medium"
               style={{
@@ -88,11 +88,11 @@ const TickerItem = ({ data, index }: { data: MarketQuote, index: number }) => {
             </div>
           </div>
           
-          <div className="text-slate-400 text-sm mb-2 truncate">{symbolInfo.displayName}</div>
+          <div className="text-muted-foreground text-sm mb-2 truncate">{symbolInfo.displayName}</div>
           
           <div className="flex items-center justify-between">
             <div>
-              <div className="text-white text-xl font-semibold">
+              <div className="text-foreground text-xl font-semibold">
                 ${data.price.toLocaleString('en-US', { minimumFractionDigits: 2 })}
               </div>
               <div 
@@ -121,20 +121,20 @@ const TickerItem = ({ data, index }: { data: MarketQuote, index: number }) => {
 
 // Loading skeleton for ticker items
 const TickerSkeleton = () => (
-  <div className="flex-shrink-0 bg-slate-800/40 backdrop-blur-sm rounded-lg p-4 border border-slate-700/30 min-w-[280px] mx-2">
+  <div className="flex-shrink-0 bg-card/60 backdrop-blur-sm rounded-lg p-4 border border-border/50 min-w-[280px] mx-2 glass-effect">
     <div className="flex items-center justify-between">
       <div className="flex-1">
         <div className="flex items-center gap-3 mb-2">
-          <Skeleton className="h-6 w-16 bg-slate-700" />
-          <Skeleton className="h-6 w-20 bg-slate-700" />
+          <Skeleton className="h-6 w-16 bg-muted" />
+          <Skeleton className="h-6 w-20 bg-muted" />
         </div>
-        <Skeleton className="h-4 w-32 mb-2 bg-slate-700" />
+        <Skeleton className="h-4 w-32 mb-2 bg-muted" />
         <div className="flex items-center justify-between">
           <div>
-            <Skeleton className="h-6 w-24 mb-1 bg-slate-700" />
-            <Skeleton className="h-4 w-16 bg-slate-700" />
+            <Skeleton className="h-6 w-24 mb-1 bg-muted" />
+            <Skeleton className="h-4 w-16 bg-muted" />
           </div>
-          <Skeleton className="h-5 w-15 bg-slate-700" />
+          <Skeleton className="h-5 w-15 bg-muted" />
         </div>
       </div>
     </div>
@@ -249,35 +249,35 @@ export const LiveMarketFeed = () => {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, delay: 0.2 }}
     >
-      <Card className="relative overflow-hidden border-0 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 shadow-2xl">
+      <Card className="relative overflow-hidden border-0 neon-card">
         {/* Neon glow border */}
-        <div className="absolute inset-0 bg-gradient-to-r from-cyan-400/20 via-blue-400/20 to-cyan-400/20 rounded-lg blur-sm" />
-        <div className="absolute inset-[1px] bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 rounded-lg" />
+        <div className="absolute inset-0 bg-gradient-to-r from-accent/20 via-education/20 to-accent/20 rounded-lg blur-sm" />
+        <div className="absolute inset-[1px] bg-card rounded-lg" />
         
         <CardHeader className="relative pb-4">
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-cyan-500/20 rounded-lg">
-              <Activity className="w-5 h-5 text-cyan-400" />
+            <div className="p-2 bg-accent/20 rounded-lg">
+              <Activity className="w-5 h-5 text-accent" />
             </div>
             <CardTitle className="text-xl font-bold text-text-heading">Live Market Feed</CardTitle>
             <div className="flex items-center gap-2 ml-auto">
               {error ? (
                 <>
-                  <AlertCircle className="w-4 h-4 text-yellow-400" />
-                  <span className="text-yellow-400 text-sm font-medium">
+                  <AlertCircle className="w-4 h-4 text-warning" />
+                  <span className="text-warning text-sm font-medium">
                     Error {nextRetryIn > 0 ? `(${nextRetryIn}s)` : ''}
                   </span>
                 </>
               ) : (
                 <>
-                  <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></div>
-                  <span className="text-emerald-400 text-sm font-medium">Live</span>
+                  <div className="w-2 h-2 bg-success rounded-full animate-pulse"></div>
+                  <span className="text-success text-sm font-medium">Live</span>
                 </>
               )}
             </div>
           </div>
           {lastUpdated && (
-            <div className="text-slate-400 text-xs mt-2">
+            <div className="text-muted-foreground text-xs mt-2">
               Last updated: {lastUpdated.toLocaleTimeString()}
             </div>
           )}
@@ -285,14 +285,14 @@ export const LiveMarketFeed = () => {
 
         <CardContent className="relative">
           {error && (
-            <div className="bg-yellow-500/10 border border-yellow-500/20 rounded-lg p-3 mb-4">
+            <div className="bg-warning/10 border border-warning/20 rounded-lg p-3 mb-4">
               <div className="flex items-center justify-between">
-                <span className="text-yellow-400 text-sm">{error}</span>
+                <span className="text-warning text-sm">{error}</span>
                 <Button 
                   onClick={handleRefreshNow}
                   size="sm"
                   variant="outline"
-                  className="h-7 px-3 text-xs border-yellow-500/20 text-yellow-400 hover:bg-yellow-500/10"
+                  className="h-7 px-3 text-xs border-warning/20 text-warning hover:bg-warning/10"
                 >
                   <RefreshCw className="w-3 h-3 mr-1" />
                   Refresh now
@@ -303,10 +303,10 @@ export const LiveMarketFeed = () => {
           
           {/* FINNHUB_API_KEY missing warning for preview builds */}
           {process.env.NODE_ENV === 'development' && (
-            <div className="bg-orange-500/10 border border-orange-500/20 rounded-lg p-3 mb-4">
+            <div className="bg-warning/10 border border-warning/20 rounded-lg p-3 mb-4">
               <div className="flex items-center gap-2">
-                <AlertCircle className="w-4 h-4 text-orange-400" />
-                <span className="text-orange-400 text-sm">
+                <AlertCircle className="w-4 h-4 text-warning" />
+                <span className="text-warning text-sm">
                   Preview mode: Using sample data. FINNHUB_API_KEY required for live data.
                 </span>
               </div>
@@ -332,31 +332,31 @@ export const LiveMarketFeed = () => {
                   <TickerItem key={item.symbol} data={item} index={index} />
                 ))
               ) : (
-                <div className="flex-shrink-0 bg-slate-800/40 backdrop-blur-sm rounded-lg p-8 border border-slate-700/30 min-w-[280px] mx-2 text-center">
-                  <AlertCircle className="w-8 h-8 text-slate-400 mx-auto mb-2" />
-                  <div className="text-slate-400">No market data available</div>
+                <div className="flex-shrink-0 bg-card/60 backdrop-blur-sm rounded-lg p-8 border border-border/50 min-w-[280px] mx-2 text-center glass-effect">
+                  <AlertCircle className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
+                  <div className="text-muted-foreground">No market data available</div>
                 </div>
               )}
             </motion.div>
           </div>
 
           {/* Gradient fade edges */}
-          <div className="absolute left-0 top-0 w-8 h-full bg-gradient-to-r from-slate-900 to-transparent pointer-events-none z-10" />
-          <div className="absolute right-0 top-0 w-8 h-full bg-gradient-to-l from-slate-900 to-transparent pointer-events-none z-10" />
+          <div className="absolute left-0 top-0 w-8 h-full bg-gradient-to-r from-card to-transparent pointer-events-none z-10" />
+          <div className="absolute right-0 top-0 w-8 h-full bg-gradient-to-l from-card to-transparent pointer-events-none z-10" />
 
           {/* Market status indicators */}
-          <div className="flex justify-center gap-6 mt-6 pt-4 border-t border-slate-700/30">
+          <div className="flex justify-center gap-6 mt-6 pt-4 border-t border-border/30">
             <div className="text-center">
-              <div className="text-emerald-400 text-lg font-bold">+1,247</div>
-              <div className="text-slate-400 text-xs">Gainers</div>
+              <div className="text-success text-lg font-bold">+1,247</div>
+              <div className="text-muted-foreground text-xs">Gainers</div>
             </div>
             <div className="text-center">
-              <div className="text-red-400 text-lg font-bold">-892</div>
-              <div className="text-slate-400 text-xs">Losers</div>
+              <div className="text-destructive text-lg font-bold">-892</div>
+              <div className="text-muted-foreground text-xs">Losers</div>
             </div>
             <div className="text-center">
-              <div className="text-slate-400 text-lg font-bold">2,156</div>
-              <div className="text-slate-400 text-xs">Unchanged</div>
+              <div className="text-muted-foreground text-lg font-bold">2,156</div>
+              <div className="text-muted-foreground text-xs">Unchanged</div>
             </div>
           </div>
         </CardContent>

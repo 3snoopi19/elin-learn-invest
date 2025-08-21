@@ -22,7 +22,7 @@ export const ChatMessage = ({ message, onQuizAnswer }: ChatMessageProps) => {
         <AvatarFallback className={`text-xs font-medium ${
           isUser 
             ? 'bg-primary text-primary-foreground' 
-            : 'bg-gradient-to-br from-education to-education/80 text-white'
+            : 'bg-gradient-to-br from-education to-education/80 text-foreground'
         }`}>
           {isUser ? <User className="w-4 h-4" /> : <Bot className="w-4 h-4" />}
         </AvatarFallback>

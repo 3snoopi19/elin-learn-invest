@@ -60,10 +60,10 @@ const aiInsights = [
 
 const getPriorityColor = (priority: string) => {
   switch (priority) {
-    case "high": return "bg-red-500/20 text-red-400 border-red-500/30";
-    case "medium": return "bg-yellow-500/20 text-yellow-400 border-yellow-500/30";
-    case "low": return "bg-emerald-500/20 text-emerald-400 border-emerald-500/30";
-    default: return "bg-slate-500/20 text-slate-400 border-slate-500/30";
+    case "high": return "bg-destructive/20 text-destructive border-destructive/30";
+    case "medium": return "bg-warning/20 text-warning border-warning/30";
+    case "low": return "bg-success/20 text-success border-success/30";
+    default: return "bg-muted text-muted-foreground border-border";
   }
 };
 
@@ -89,25 +89,25 @@ export const AIInsightsCard = () => {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, delay: 0.4 }}
     >
-      <Card className="relative overflow-hidden border-0 bg-gradient-to-br from-slate-900 via-indigo-900/50 to-slate-900 shadow-2xl">
-        {/* Animated neon glow border */}
-        <div className="absolute inset-0 bg-gradient-to-r from-cyan-400/30 via-blue-400/30 to-purple-400/30 rounded-lg blur-sm animate-pulse" />
-        <div className="absolute inset-[1px] bg-gradient-to-br from-slate-900 via-indigo-900/50 to-slate-900 rounded-lg" />
+      <Card className="relative overflow-hidden border-0 neon-card">
+        {/* Animated border effect */}
+        <div className="absolute inset-0 bg-gradient-to-r from-education/30 via-primary/30 to-accent/30 rounded-lg blur-sm animate-pulse" />
+        <div className="absolute inset-[1px] bg-card rounded-lg" />
         
         <CardHeader className="relative pb-4">
           <div className="flex items-center gap-3">
-            <div className="relative p-2 bg-cyan-500/20 rounded-lg">
-              <Brain className="w-6 h-6 text-cyan-400" />
+            <div className="relative p-2 bg-education/20 rounded-lg">
+              <Brain className="w-6 h-6 text-education" />
               {/* Pulsing effect */}
-              <div className="absolute inset-0 bg-cyan-400/20 rounded-lg animate-ping" />
+              <div className="absolute inset-0 bg-education/20 rounded-lg animate-ping" />
             </div>
             <div className="flex-1">
               <CardTitle className="text-2xl font-bold text-text-heading">AI Insights</CardTitle>
               <p className="text-text-secondary text-sm">Personalized recommendations powered by ELIN</p>
             </div>
             <div className="flex items-center gap-2">
-              <div className="w-2 h-2 bg-cyan-400 rounded-full animate-pulse" />
-              <span className="text-cyan-400 text-sm font-medium">Active</span>
+              <div className="w-2 h-2 bg-education rounded-full animate-pulse" />
+              <span className="text-education text-sm font-medium">Active</span>
             </div>
           </div>
         </CardHeader>
@@ -121,17 +121,17 @@ export const AIInsightsCard = () => {
               <motion.div
                 key={insight.id}
                 layout
-                className="group relative p-4 rounded-lg bg-slate-800/40 border border-slate-700/30 hover:border-slate-600/50 transition-all duration-300"
+                className="group relative p-4 rounded-lg bg-card/50 border border-border/50 hover:border-border transition-all duration-300 glass-effect"
               >
                 {/* Hover glow effect */}
-                <div className="absolute inset-0 rounded-lg bg-gradient-to-r from-transparent via-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                <div className="absolute inset-0 rounded-lg bg-gradient-to-r from-transparent via-foreground/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                 
                 <div className="relative">
                   {/* Header */}
                   <div className="flex items-start justify-between mb-3">
                     <div className="flex items-start gap-3 flex-1">
-                      <div className="p-2 bg-indigo-500/20 rounded-lg flex-shrink-0">
-                        <CategoryIcon className="w-4 h-4 text-indigo-400" />
+                      <div className="p-2 bg-secondary/20 rounded-lg flex-shrink-0">
+                        <CategoryIcon className="w-4 h-4 text-secondary" />
                       </div>
                       
                       <div className="flex-1 min-w-0">
@@ -154,8 +154,8 @@ export const AIInsightsCard = () => {
 
                     {/* Confidence Score */}
                     <div className="text-right ml-4 flex-shrink-0">
-                      <div className="text-cyan-400 font-bold text-lg">{insight.confidence}%</div>
-                      <div className="text-slate-500 text-xs">confidence</div>
+                      <div className="text-accent font-bold text-lg">{insight.confidence}%</div>
+                      <div className="text-muted-foreground text-xs">confidence</div>
                     </div>
                   </div>
 
@@ -164,7 +164,7 @@ export const AIInsightsCard = () => {
                     <div className="flex gap-2">
                       <Button 
                         size="sm"
-                        className="bg-emerald-500 hover:bg-emerald-600 text-white border-0 shadow-lg shadow-emerald-500/25"
+                        variant="success"
                       >
                         {insight.action}
                         <ArrowRight className="w-3 h-3 ml-1" />
@@ -173,7 +173,6 @@ export const AIInsightsCard = () => {
                       <Button 
                         size="sm"
                         variant="outline"
-                        className="border-slate-600 text-slate-300 hover:bg-slate-700 hover:text-white"
                       >
                         <ExternalLink className="w-3 h-3 mr-1" />
                         Learn More
@@ -184,7 +183,6 @@ export const AIInsightsCard = () => {
                       variant="ghost"
                       size="sm"
                       onClick={() => toggleExpansion(insight.id)}
-                      className="text-slate-400 hover:text-white hover:bg-slate-700"
                     >
                       {isExpanded ? (
                         <>
@@ -212,27 +210,27 @@ export const AIInsightsCard = () => {
                       >
                         <div className="space-y-3">
                           <div>
-                            <h5 className="text-white font-medium text-sm mb-2">Recommendation</h5>
-                            <p className="text-cyan-200 text-sm leading-relaxed bg-cyan-500/10 p-3 rounded-lg border border-cyan-500/20">
+                            <h5 className="text-foreground font-medium text-sm mb-2">Recommendation</h5>
+                            <p className="text-accent text-sm leading-relaxed bg-accent/10 p-3 rounded-lg border border-accent/20">
                               {insight.recommendation}
                             </p>
                           </div>
                           
                           <div>
-                            <h5 className="text-white font-medium text-sm mb-2">Analysis</h5>
-                            <p className="text-slate-300 text-sm leading-relaxed">
+                            <h5 className="text-foreground font-medium text-sm mb-2">Analysis</h5>
+                            <p className="text-muted-foreground text-sm leading-relaxed">
                               {insight.explanation}
                             </p>
                           </div>
 
                           <div className="flex items-center justify-between pt-2">
-                            <div className="text-slate-400 text-xs">
-                              Related: <span className="text-blue-400">{insight.learningModule}</span>
+                            <div className="text-muted-foreground text-xs">
+                              Related: <span className="text-education">{insight.learningModule}</span>
                             </div>
                             <Button 
                               size="sm" 
                               variant="outline"
-                              className="border-blue-500/30 text-blue-400 hover:bg-blue-500/10"
+                              className="border-education/30 text-education hover:bg-education/10"
                             >
                               View Module
                             </Button>
@@ -247,13 +245,12 @@ export const AIInsightsCard = () => {
           })}
 
           {/* Footer */}
-          <div className="mt-6 pt-4 border-t border-slate-700/30 text-center">
-            <p className="text-slate-400 text-sm mb-3">
+          <div className="mt-6 pt-4 border-t border-border/30 text-center">
+            <p className="text-muted-foreground text-sm mb-3">
               Insights updated 2 minutes ago • Next analysis in 4 hours
             </p>
             <Button 
               variant="outline"
-              className="border-slate-600 text-slate-300 hover:bg-slate-700 hover:text-white"
             >
               <Brain className="w-4 h-4 mr-2" />
               Request New Analysis

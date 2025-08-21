@@ -191,46 +191,64 @@ All colors MUST be HSL.
 }
 
 @layer components {
-  /* Custom neon card styles */
+  /* Enhanced card styles with better elevation */
   .neon-card {
-    @apply bg-card/50 backdrop-blur-xl border border-border/50 rounded-xl;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), 
-                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    @apply bg-card/80 backdrop-blur-xl border border-border/50 rounded-xl shadow-lg;
+    box-shadow: 0 8px 32px hsla(var(--background), 0.8), 
+                inset 0 1px 0 hsla(var(--foreground), 0.1);
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
   
   .neon-card:hover {
-    @apply border-primary/30;
-    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4),
-                0 0 0 1px rgba(22, 163, 74, 0.2),
-                0 0 20px rgba(22, 163, 74, 0.1);
-    transform: translateY(-2px);
+    @apply border-primary/30 shadow-xl;
+    box-shadow: 0 12px 40px hsla(var(--background), 0.9),
+                0 0 0 1px hsla(var(--primary), 0.2),
+                0 0 20px hsla(var(--primary), 0.1);
+    transform: translateY(-4px);
+  }
+
+  /* Professional card variant */
+  .professional-card {
+    @apply bg-card border border-border rounded-lg shadow-sm hover:shadow-md transition-all duration-200;
   }
   
-  /* Neon button styles */
+  .professional-card:hover {
+    @apply shadow-lg border-primary/20 -translate-y-0.5;
+  }
+  
+  /* Enhanced button styles using semantic tokens */
   .neon-button-primary {
-    @apply bg-primary text-primary-foreground font-semibold px-6 py-3 rounded-lg;
-    box-shadow: 0 0 20px rgba(22, 163, 74, 0.4),
-                0 4px 15px rgba(0, 0, 0, 0.3);
+    @apply bg-primary text-primary-foreground font-semibold px-6 py-3 rounded-lg shadow-lg;
+    box-shadow: 0 0 20px hsla(var(--primary), 0.4),
+                0 4px 15px hsla(var(--background), 0.8);
     transition: all 0.3s ease;
   }
   
   .neon-button-primary:hover {
-    box-shadow: 0 0 30px rgba(22, 163, 74, 0.6),
-                0 6px 20px rgba(0, 0, 0, 0.4);
-    transform: translateY(-1px);
+    box-shadow: 0 0 30px hsla(var(--primary), 0.6),
+                0 6px 20px hsla(var(--background), 0.9);
+    transform: translateY(-2px);
   }
   
   .neon-button-secondary {
-    @apply border border-secondary text-secondary font-semibold px-6 py-3 rounded-lg bg-transparent;
-    box-shadow: 0 0 15px rgba(59, 130, 246, 0.2);
+    @apply border border-secondary text-secondary font-semibold px-6 py-3 rounded-lg bg-transparent shadow-sm;
+    box-shadow: 0 0 15px hsla(var(--secondary), 0.2);
     transition: all 0.3s ease;
   }
   
   .neon-button-secondary:hover {
-    @apply bg-secondary/10;
-    box-shadow: 0 0 25px rgba(59, 130, 246, 0.4);
+    @apply bg-secondary/10 shadow-md;
+    box-shadow: 0 0 25px hsla(var(--secondary), 0.4);
     transform: translateY(-1px);
+  }
+
+  /* Enhanced interactive elements */
+  .interactive-element {
+    @apply transition-all duration-200 hover:scale-105 hover:shadow-lg;
+  }
+
+  .glass-effect {
+    @apply bg-background/80 backdrop-blur-sm border border-border/50;
   }
   
   /* Glow text */
