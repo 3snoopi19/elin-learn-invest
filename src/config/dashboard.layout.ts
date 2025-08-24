@@ -82,6 +82,27 @@ export const DASHBOARD_CARDS: CardConfig[] = [
     ariaLabel: "Live market data and ticker information"
   },
   {
+    key: "money-flow-router",
+    title: "Money Flow Router",
+    subtitle: "Visualize cashflow & get smart suggestions", 
+    description: "Connect accounts and get AI-powered money flow recommendations",
+    route: "/router",
+    position: 21,
+    component: "MoneyFlowRouterCard",
+    ctas: [
+      { label: "Connect Accounts", href: "/router", variant: "primary", icon: "Building2", analytics: "router_connect_click" },
+      { label: "View Rules", href: "/router#rules", variant: "outline", analytics: "router_rules_click" }
+    ],
+    badges: [
+      { label: "New", variant: "default", icon: "Sparkles" },
+      { label: "Read-Only", variant: "outline", icon: "ShieldCheck" }
+    ],
+    analyticsTags: ["card_view", "open_click"],
+    gridSpan: { default: 1, lg: 1 },
+    lastUpdated: "2024-01-15T00:00:00Z",
+    ariaLabel: "Money flow visualization and smart financial rules"
+  },
+  {
     key: "credit-card-helper",
     title: "Credit Card AI Helper",
     subtitle: "Smart payment recommendations",

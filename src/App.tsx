@@ -23,6 +23,7 @@ import OnboardingQuiz from "./pages/OnboardingQuiz";
 import RiskQuiz from "./pages/RiskQuiz";
 import InvestorProfile from "./pages/InvestorProfile";
 import PaymentSuccess from "./pages/PaymentSuccess";
+import Router from "./pages/Router";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -54,6 +55,7 @@ const App = () => (
             <Route path="/risk-quiz" element={<RiskQuiz />} />
             <Route path="/investor-profile" element={<InvestorProfile />} />
             <Route path="/payment-success" element={<PaymentSuccess />} />
+            <Route path="/router" element={<Router />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
