@@ -134,6 +134,105 @@ export type Database = {
         }
         Relationships: []
       }
+      router_accounts: {
+        Row: {
+          account_id: string
+          balance: number
+          created_at: string
+          currency: string
+          id: string
+          last_synced_at: string | null
+          name: string
+          provider: string
+          type: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          account_id: string
+          balance?: number
+          created_at?: string
+          currency?: string
+          id?: string
+          last_synced_at?: string | null
+          name: string
+          provider: string
+          type: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          account_id?: string
+          balance?: number
+          created_at?: string
+          currency?: string
+          id?: string
+          last_synced_at?: string | null
+          name?: string
+          provider?: string
+          type?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      router_moves_sim: {
+        Row: {
+          created_at: string
+          id: string
+          moves_json: Json
+          run_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          moves_json: Json
+          run_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          moves_json?: Json
+          run_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      router_rules: {
+        Row: {
+          config_json: Json
+          created_at: string
+          id: string
+          is_active: boolean
+          name: string
+          type: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          config_json: Json
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          name: string
+          type: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          config_json?: Json
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          name?: string
+          type?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       subscribers: {
         Row: {
           created_at: string
