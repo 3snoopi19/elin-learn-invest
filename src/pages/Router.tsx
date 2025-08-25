@@ -27,13 +27,14 @@ import {
   Info
 } from "lucide-react";
 import { toast } from "sonner";
+import { MoneyFlowVisualization } from "@/components/MoneyFlowVisualization";
+import { SmartRulesManager } from "@/components/SmartRulesManager";
 
-// Mock data for simulation
 const mockAccounts = [
   {
     id: "acc_1",
     name: "Chase Checking",
-    type: "checking",
+    type: "checking" as const,
     balance: 3250.75,
     institution: "Chase Bank",
     lastSynced: new Date(Date.now() - 1000 * 60 * 30) // 30 minutes ago
@@ -41,7 +42,7 @@ const mockAccounts = [
   {
     id: "acc_2", 
     name: "Savings Account",
-    type: "savings",
+    type: "savings" as const,
     balance: 8500.00,
     institution: "Chase Bank",
     lastSynced: new Date(Date.now() - 1000 * 60 * 30)
@@ -49,7 +50,7 @@ const mockAccounts = [
   {
     id: "acc_3",
     name: "Freedom Unlimited",
-    type: "credit",
+    type: "credit" as const,
     balance: -1245.80,
     institution: "Chase Bank",
     lastSynced: new Date(Date.now() - 1000 * 60 * 30),
@@ -62,15 +63,19 @@ const mockAccounts = [
 const mockRules = [
   {
     id: "rule_1",
-    type: "percentage",
+    type: "percentage" as const,
+    name: "Emergency Fund Savings",
     description: "Save 20% of paycheck",
-    config: { percentage: 20, targetAccount: "acc_2" }
+    config: { percentage: 20, targetAccount: "acc_2", sourceAccount: "acc_1" },
+    enabled: true
   },
   {
     id: "rule_2", 
-    type: "fixed",
+    type: "fixed" as const,
+    name: "Credit Card Payment",
     description: "Pay credit card minimum + $50",
-    config: { amount: 85, targetAccount: "acc_3", daysBeforeDue: 5 }
+    config: { amount: 85, targetAccount: "acc_3", sourceAccount: "acc_1", daysBeforeDue: 5 },
+    enabled: true
   }
 ];
 
@@ -104,6 +109,10 @@ const Router = () => {
       ...acc,
       lastSynced: new Date()
     })));
+  };
+
+  const handleRulesChange = (newRules: any[]) => {
+    setRules(newRules);
   };
 
   const handleSimulateMonth = () => {
@@ -302,83 +311,23 @@ const Router = () => {
                   </Select>
                 </CardHeader>
                 <CardContent>
-                  <div className="h-64 flex items-center justify-center border-2 border-dashed border-muted-foreground/25 rounded-lg">
-                    <div className="text-center">
-                      <TrendingUp className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                      <p className="text-muted-foreground">Money Map visualization coming soon</p>
-                      <p className="text-sm text-muted-foreground mt-1">
-                        Will show income flows, bill payments, and transfers
-                      </p>
-                    </div>
-                  </div>
+                  <MoneyFlowVisualization 
+                    accounts={accounts} 
+                    timeframe={timeframe}
+                  />
                 </CardContent>
               </Card>
             </TabsContent>
 
             {/* Step 3: Smart Rules */}
             <TabsContent value="rules" className="space-y-6">
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between">
-                  <div>
-                    <CardTitle className="flex items-center gap-2">
-                      <Target className="h-5 w-5" />
-                      Smart Rules
-                    </CardTitle>
-                    <CardDescription>
-                      Create rules to automatically optimize your money flow
-                    </CardDescription>
-                  </div>
-                  <Button className="flex items-center gap-2">
-                    <Plus className="h-4 w-4" />
-                    Add Rule
-                  </Button>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid gap-4 mb-6">
-                    {rules.map((rule) => (
-                      <div key={rule.id} className="p-4 border rounded-lg">
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <h3 className="font-medium">{rule.description}</h3>
-                            <p className="text-sm text-muted-foreground">
-                              {rule.type === 'percentage' && `${rule.config.percentage}% to ${accounts.find(a => a.id === rule.config.targetAccount)?.name}`}
-                              {rule.type === 'fixed' && `$${rule.config.amount} to ${accounts.find(a => a.id === rule.config.targetAccount)?.name}`}
-                            </p>
-                          </div>
-                          <Badge variant="secondary">{rule.type}</Badge>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-
-                  <Separator className="mb-6" />
-
-                  <div className="flex justify-center">
-                    <Button onClick={handleSimulateMonth} className="flex items-center gap-2">
-                      <TrendingUp className="h-4 w-4" />
-                      Simulate Next Month
-                    </Button>
-                  </div>
-
-                  {simulation && (
-                    <div className="mt-6 space-y-4">
-                      <h3 className="font-medium">Suggested Moves</h3>
-                      {simulation.suggestedMoves.map((move, index) => (
-                        <div key={index} className="p-4 border rounded-lg bg-muted/50">
-                          <div className="flex items-center justify-between">
-                            <div>
-                              <p className="font-medium">{formatDate(move.date)}: Move {formatCurrency(move.amount)}</p>
-                              <p className="text-sm text-muted-foreground">To {move.target}</p>
-                              <p className="text-xs text-muted-foreground mt-1">{move.rationale}</p>
-                            </div>
-                            <ArrowRight className="h-4 w-4 text-muted-foreground" />
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
+              <SmartRulesManager
+                accounts={accounts}
+                rules={rules}
+                onRulesChange={handleRulesChange}
+                onSimulate={handleSimulateMonth}
+                simulation={simulation}
+              />
             </TabsContent>
           </Tabs>
         </div>
