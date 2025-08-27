@@ -139,47 +139,47 @@ export const SECFilingsExplorer = () => {
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, delay: 0.6 }}
+      transition={{ duration: 0.5, delay: 0.5 }}
     >
-      <Card className="relative overflow-hidden border-0 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 shadow-2xl">
-        {/* Neon glow border */}
-        <div className="absolute inset-0 bg-gradient-to-r from-blue-400/20 via-cyan-400/20 to-blue-400/20 rounded-lg blur-sm" />
-        <div className="absolute inset-[1px] bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 rounded-lg" />
+      <Card className="professional-card relative overflow-hidden border-0 bg-gradient-to-br from-card via-card to-slate-900 shadow-xl">
+        {/* Enhanced neon glow border */}
+        <div className="absolute inset-0 bg-gradient-to-r from-accent/20 via-primary/20 to-accent/20 rounded-lg blur-sm" />
+        <div className="absolute inset-[1px] bg-gradient-to-br from-card via-card to-slate-900 rounded-lg" />
         
         <CardHeader className="relative pb-4">
           <div className="flex items-center gap-3 mb-4">
-            <div className="p-2 bg-blue-500/20 rounded-lg">
-              <FileText className="w-6 h-6 text-blue-400" />
+            <div className="p-2 bg-accent/20 rounded-lg">
+              <FileText className="w-6 h-6 text-accent" />
             </div>
             <div className="flex-1">
               <CardTitle className="text-2xl font-bold text-text-heading">SEC Filings Explorer</CardTitle>
               <p className="text-text-secondary text-sm">AI-powered financial document analysis</p>
             </div>
             <div className="flex items-center gap-2">
-              <div className="w-2 h-2 bg-blue-400 rounded-full animate-pulse" />
-              <span className="text-blue-400 text-sm font-medium">Live</span>
+              <div className="w-2 h-2 bg-accent rounded-full live-pulse" />
+              <span className="text-accent text-sm font-medium">Live</span>
             </div>
           </div>
 
-          {/* Search Bar */}
+          {/* Enhanced Search Bar */}
           <div className="relative">
-            <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/20 to-blue-500/20 rounded-lg blur-md" />
+            <div className="absolute inset-0 bg-gradient-to-r from-accent/20 to-primary/20 rounded-lg blur-md" />
             <div className="relative flex items-center">
-              <Search className="absolute left-4 w-5 h-5 text-cyan-400 z-10" />
+              <Search className="absolute left-4 w-5 h-5 text-accent z-10" />
               <Input
                 placeholder="Search filings by company, ticker, or document type..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-12 pr-12 bg-slate-800/50 border-cyan-400/30 text-white placeholder:text-slate-400 focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/20 h-12"
+                className="pl-12 pr-12 bg-muted/50 border-accent/30 text-text-body placeholder:text-text-muted focus:border-accent focus:ring-2 focus:ring-accent/20 h-12"
               />
               <div className="absolute right-4 flex items-center gap-2 z-10">
-                <Filter className="w-4 h-4 text-slate-400" />
+                <Filter className="w-4 h-4 text-text-muted" />
                 {searchQuery && (
                   <Button
                     variant="ghost"
                     size="sm"
                     onClick={() => setSearchQuery("")}
-                    className="h-6 w-6 p-0 text-slate-400 hover:text-white"
+                    className="h-6 w-6 p-0 text-text-muted hover:text-text-heading"
                   >
                     <X className="w-4 h-4" />
                   </Button>
@@ -188,11 +188,11 @@ export const SECFilingsExplorer = () => {
             </div>
           </div>
 
-          {/* Watchlist Tags */}
+          {/* Enhanced Watchlist Tags */}
           <div className="mt-4">
             <div className="flex items-center gap-2 mb-3">
-              <Star className="w-4 h-4 text-yellow-400" />
-              <span className="text-slate-300 text-sm font-medium">Watchlist</span>
+              <Star className="w-4 h-4 text-warning" />
+              <span className="text-text-body text-sm font-medium">Watchlist</span>
             </div>
             <div className="flex flex-wrap gap-2">
               {watchlistTickers.map(ticker => (
@@ -201,8 +201,8 @@ export const SECFilingsExplorer = () => {
                   onClick={() => toggleTicker(ticker)}
                   className={`px-3 py-1 rounded-lg text-sm font-medium transition-all duration-200 ${
                     selectedTickers.includes(ticker)
-                      ? 'bg-cyan-500 text-white shadow-lg shadow-cyan-500/25 border border-cyan-400'
-                      : 'bg-slate-800/50 text-slate-400 border border-slate-700 hover:bg-slate-700 hover:text-white hover:border-slate-600'
+                      ? 'bg-accent text-white shadow-lg shadow-accent/25 border border-accent'
+                      : 'bg-muted/50 text-text-secondary border border-border hover:bg-muted hover:text-text-heading hover:border-border'
                   }`}
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
@@ -232,10 +232,10 @@ export const SECFilingsExplorer = () => {
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: index * 0.1 }}
-                  className="group relative p-4 rounded-lg bg-slate-800/40 border border-slate-700/30 hover:bg-slate-700/40 hover:border-blue-500/30 transition-all duration-300"
+                  className="group professional-card p-4 hover:-translate-y-1 transition-all duration-300"
                 >
                   {/* Hover glow effect */}
-                  <div className="absolute inset-0 rounded-lg bg-gradient-to-r from-blue-500/10 via-transparent to-cyan-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                  <div className="absolute inset-0 rounded-lg bg-gradient-to-r from-accent/10 via-transparent to-primary/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                   
                   <div className="relative">
                     {/* Header */}
@@ -243,7 +243,7 @@ export const SECFilingsExplorer = () => {
                       <div className="flex items-start gap-3 flex-1">
                         <div className="flex items-center gap-2">
                           {getPriorityIcon(filing.priority)}
-                          <Badge className="bg-slate-700 text-white font-mono text-xs">
+                          <Badge className="bg-muted text-text-heading font-mono text-xs border-border">
                             {filing.ticker}
                           </Badge>
                           <Badge 
@@ -255,7 +255,7 @@ export const SECFilingsExplorer = () => {
                         </div>
                       </div>
                       
-                      <div className="text-slate-400 text-sm flex items-center gap-1">
+                      <div className="text-text-secondary text-sm flex items-center gap-1">
                         <Calendar className="w-3 h-3" />
                         {formatDistanceToNow(filing.date, { addSuffix: true })}
                       </div>
@@ -263,13 +263,13 @@ export const SECFilingsExplorer = () => {
 
                     {/* Content */}
                     <div className="mb-3">
-                      <h4 className="text-white font-semibold text-sm mb-1 group-hover:text-blue-100 transition-colors">
+                      <h4 className="text-text-heading font-semibold text-sm mb-1 group-hover:text-accent transition-colors">
                         {filing.title}
                       </h4>
-                      <p className="text-slate-400 text-sm leading-relaxed mb-2">
+                      <p className="text-text-secondary text-sm leading-relaxed mb-2">
                         {filing.description}
                       </p>
-                      <div className="flex items-center gap-4 text-slate-500 text-xs">
+                      <div className="flex items-center gap-4 text-text-muted text-xs">
                         <span className="flex items-center gap-1">
                           <Building2 className="w-3 h-3" />
                           {filing.company}
@@ -284,7 +284,8 @@ export const SECFilingsExplorer = () => {
                       <div className="flex gap-2">
                         <Button 
                           size="sm"
-                          className="bg-blue-500 hover:bg-blue-600 text-white border-0 shadow-lg shadow-blue-500/25"
+                          variant="default"
+                          className="shadow-md"
                         >
                           <Eye className="w-3 h-3 mr-1" />
                           Quick View
@@ -293,7 +294,7 @@ export const SECFilingsExplorer = () => {
                         <Button 
                           size="sm"
                           variant="outline"
-                          className="border-slate-600 text-slate-300 hover:bg-slate-700 hover:text-white"
+                          className="shadow-sm"
                         >
                           <Download className="w-3 h-3 mr-1" />
                           Download
@@ -305,14 +306,15 @@ export const SECFilingsExplorer = () => {
                         size="sm"
                         onClick={() => handleSummarize(filing.id)}
                         disabled={isSummarizing === filing.id}
+                        variant="secondary"
                         className={`relative overflow-hidden ${
                           isSummarizing === filing.id
-                            ? 'bg-cyan-500 text-white'
-                            : 'bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white'
-                        } border-0 shadow-lg shadow-cyan-500/25`}
+                            ? 'bg-accent text-white'
+                            : 'bg-gradient-to-r from-accent/80 to-primary/80 hover:from-accent hover:to-primary text-white'
+                        } border-0 shadow-md`}
                       >
                         {/* Glowing effect */}
-                        <div className="absolute inset-0 bg-gradient-to-r from-cyan-400/20 to-blue-400/20 animate-pulse" />
+                        <div className="absolute inset-0 bg-gradient-to-r from-accent/20 to-primary/20 animate-pulse" />
                         
                         <div className="relative flex items-center gap-1">
                           <Brain className={`w-3 h-3 ${isSummarizing === filing.id ? 'animate-spin' : ''}`} />
@@ -330,7 +332,7 @@ export const SECFilingsExplorer = () => {
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              className="text-center py-8 text-slate-400"
+              className="text-center py-8 text-text-secondary"
             >
               <FileText className="w-12 h-12 mx-auto mb-4 opacity-50" />
               <p className="text-lg mb-2">No filings found</p>
@@ -340,17 +342,17 @@ export const SECFilingsExplorer = () => {
         </CardContent>
 
         {/* Footer Stats */}
-        <div className="relative px-6 py-4 border-t border-slate-700/30">
+        <div className="relative px-6 py-4 border-t border-border/30">
           <div className="flex justify-between items-center text-sm">
-            <span className="text-slate-400">
+            <span className="text-text-secondary">
               {filteredFilings.length} of {filings.length} filings
             </span>
-            <div className="flex items-center gap-4 text-slate-400">
+            <div className="flex items-center gap-4 text-text-secondary">
               <span>Last updated: 5 min ago</span>
               <Button
                 variant="ghost"
                 size="sm"
-                className="text-blue-400 hover:text-white hover:bg-blue-500/20"
+                className="text-accent hover:text-text-heading hover:bg-accent/10"
               >
                 <ExternalLink className="w-3 h-3 mr-1" />
                 SEC.gov

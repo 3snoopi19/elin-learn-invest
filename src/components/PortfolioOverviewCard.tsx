@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { PieChart, Pie, Cell, ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip } from "recharts";
 import { TrendingUp, TrendingDown, BarChart3, PieChart as PieChartIcon } from "lucide-react";
@@ -67,57 +68,58 @@ export const PortfolioOverviewCard = ({
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, delay: 0.1 }}
     >
-      <Card className="relative overflow-hidden border-0 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 shadow-2xl">
-        {/* Neon glow border */}
-        <div className="absolute inset-0 bg-gradient-to-r from-blue-400/20 via-emerald-400/20 to-blue-400/20 rounded-lg blur-sm" />
-        <div className="absolute inset-[1px] bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 rounded-lg" />
-        
-        <CardHeader className="relative pb-4">
-          <div className="flex items-center justify-between">
-            <CardTitle className="text-2xl font-bold text-text-heading">Portfolio Overview</CardTitle>
+          <Card className="professional-card border-0 bg-gradient-to-br from-card via-card to-slate-900 shadow-xl">
+            {/* Enhanced neon glow border */}
+            <div className="absolute inset-0 bg-gradient-to-r from-primary/20 via-accent/20 to-primary/20 rounded-lg blur-sm" />
+            <div className="absolute inset-[1px] bg-gradient-to-br from-card via-card to-slate-900 rounded-lg" />
             
-            {/* View Mode Toggle */}
-            <div className="flex bg-slate-800/50 rounded-lg p-1">
-              <button
-                onClick={() => setViewMode('allocation')}
-                className={`flex items-center gap-2 px-3 py-2 rounded text-sm transition-colors ${
-                  viewMode === 'allocation' 
-                    ? 'bg-emerald-500 text-white' 
-                    : 'text-slate-400 hover:text-white'
-                }`}
-              >
-                <PieChartIcon className="w-4 h-4" />
-                Allocation
-              </button>
-              <button
-                onClick={() => setViewMode('performance')}
-                className={`flex items-center gap-2 px-3 py-2 rounded text-sm transition-colors ${
-                  viewMode === 'performance' 
-                    ? 'bg-emerald-500 text-white' 
-                    : 'text-slate-400 hover:text-white'
-                }`}
-              >
-                <BarChart3 className="w-4 h-4" />
-                Performance
-              </button>
-            </div>
-          </div>
-        </CardHeader>
+            <CardHeader className="relative pb-4">
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-2xl font-bold text-text-heading flex items-center gap-3">
+                  <div className="p-2 bg-primary/20 rounded-lg">
+                    <PieChartIcon className="w-6 h-6 text-primary" />
+                  </div>
+                  Portfolio Overview
+                </CardTitle>
+                
+                {/* View Mode Toggle */}
+                <div className="flex bg-muted/30 rounded-lg p-1 border border-border/30">
+                  <Button
+                    variant={viewMode === 'allocation' ? 'default' : 'ghost'}
+                    size="sm"
+                    onClick={() => setViewMode('allocation')}
+                    className="flex items-center gap-2"
+                  >
+                    <PieChartIcon className="w-4 h-4" />
+                    Allocation
+                  </Button>
+                  <Button
+                    variant={viewMode === 'performance' ? 'default' : 'ghost'}
+                    size="sm"
+                    onClick={() => setViewMode('performance')}
+                    className="flex items-center gap-2"
+                  >
+                    <BarChart3 className="w-4 h-4" />
+                    Performance
+                  </Button>
+                </div>
+              </div>
+            </CardHeader>
 
         <CardContent className="relative">
           {/* Key Metrics Row */}
-          <div className="grid grid-cols-3 gap-4 mb-6">
-            <div className="bg-slate-800/30 rounded-lg p-4 border border-slate-700/50">
-              <p className="text-slate-400 text-sm mb-1">Total Value</p>
-              <p className="text-white text-xl font-bold">
+          <div className="grid grid-cols-3 gap-6 mb-6">
+            <div className="professional-card p-4 bg-gradient-to-br from-muted/30 to-muted/10 border-border/30">
+              <p className="text-text-secondary text-sm mb-1 font-medium">Total Value</p>
+              <p className="text-text-heading text-xl font-bold">
                 ${totalValue.toLocaleString()}
               </p>
             </div>
             
-            <div className="bg-slate-800/30 rounded-lg p-4 border border-slate-700/50">
-              <p className="text-slate-400 text-sm mb-1">30-Day Change</p>
+            <div className="professional-card p-4 bg-gradient-to-br from-muted/30 to-muted/10 border-border/30">
+              <p className="text-text-secondary text-sm mb-1 font-medium">30-Day Change</p>
               <div className={`flex items-center gap-2 ${
-                isPositive ? 'text-emerald-400' : 'text-red-400'
+                isPositive ? 'text-success' : 'text-destructive'
               }`}>
                 {isPositive ? (
                   <TrendingUp className="w-4 h-4" />
@@ -130,18 +132,18 @@ export const PortfolioOverviewCard = ({
               </div>
             </div>
             
-            <div className="bg-slate-800/30 rounded-lg p-4 border border-slate-700/50">
-              <p className="text-slate-400 text-sm mb-1">Diversification</p>
+            <div className="professional-card p-4 bg-gradient-to-br from-muted/30 to-muted/10 border-border/30">
+              <p className="text-text-secondary text-sm mb-1 font-medium">Diversification</p>
               <div className="flex items-center gap-2">
-                <span className="text-white text-xl font-bold">{diversificationScore}</span>
+                <span className="text-text-heading text-xl font-bold">{diversificationScore}</span>
                 <Badge 
                   variant="secondary"
                   className={`${
                     diversificationScore >= 80 
-                      ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30' 
+                      ? 'bg-success/20 text-success border-success/30' 
                       : diversificationScore >= 60
-                      ? 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30'
-                      : 'bg-red-500/20 text-red-400 border-red-500/30'
+                      ? 'bg-warning/20 text-warning border-warning/30'
+                      : 'bg-destructive/20 text-destructive border-destructive/30'
                   }`}
                 >
                   {diversificationScore >= 80 ? 'Excellent' : diversificationScore >= 60 ? 'Good' : 'Poor'}

@@ -8,6 +8,7 @@ import { useToast } from "@/hooks/use-toast";
 import { DASHBOARD_CARDS } from "@/config/dashboard.layout";
 import { dedupeCards } from "@/utils/dashboard/dedupe";
 import { DashboardCardRenderer } from "@/utils/dashboard/ComponentMapper";
+import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 const Dashboard = () => {
   const { user, loading } = useAuth();
@@ -71,22 +72,22 @@ const Dashboard = () => {
       <Header />
       
       {/* Live Market Updates Banner */}
-      <div className="bg-gradient-to-r from-card/50 to-card/30 border-b border-border/50">
-        <div className="container mx-auto px-4 py-3">
+      <div className="bg-gradient-to-r from-card/80 to-card/60 border-b border-border/50 backdrop-blur">
+        <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4 text-sm">
-              <span className="flex items-center gap-2 text-primary font-medium">
+            <div className="flex items-center gap-6 text-sm">
+              <span className="flex items-center gap-2 text-primary font-semibold">
                 <div className="w-2 h-2 bg-primary rounded-full live-pulse" />
                 Market Open
               </span>
-              <span className="text-muted-foreground">•</span>
-              <span className="text-foreground">S&P 500: <span className="text-primary">+0.87%</span></span>
-              <span className="text-muted-foreground">•</span>
-              <span className="text-foreground">NASDAQ: <span className="text-primary">+1.23%</span></span>
-              <span className="text-muted-foreground">•</span>
-              <span className="text-foreground">BTC: <span className="text-accent">+2.15%</span></span>
+              <span className="text-text-muted">•</span>
+              <span className="text-text-body">S&P 500: <span className="text-success font-medium">+0.87%</span></span>
+              <span className="text-text-muted">•</span>
+              <span className="text-text-body">NASDAQ: <span className="text-success font-medium">+1.23%</span></span>
+              <span className="text-text-muted">•</span>
+              <span className="text-text-body">BTC: <span className="text-accent font-medium">+2.15%</span></span>
             </div>
-            <div className="text-xs text-muted-foreground">
+            <div className="text-xs text-text-secondary">
               Last updated: {new Date().toLocaleTimeString()}
             </div>
           </div>
@@ -95,25 +96,27 @@ const Dashboard = () => {
       
       <main className="container mx-auto px-4 py-8">
         {/* Hero Greeting Section */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between mb-6">
-            <div>
-              <h1 className="text-4xl font-bold bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text text-transparent">
+        <div className="mb-10">
+          <div className="flex items-center justify-between mb-8">
+            <div className="space-y-2">
+              <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-text-heading via-text-body to-text-secondary bg-clip-text text-transparent">
                 Good {new Date().getHours() < 12 ? 'morning' : new Date().getHours() < 18 ? 'afternoon' : 'evening'}, {user.user_metadata?.first_name || 'Investor'}!
               </h1>
-              <p className="text-lg text-muted-foreground mt-2">
+              <p className="text-lg text-text-secondary">
                 Here's your portfolio overview and market insights
               </p>
             </div>
             {!userProfile?.risk_profile && (
-              <div className="neon-card p-4">
-                <p className="text-sm text-muted-foreground mb-2">Complete your setup</p>
-                <button 
+              <div className="professional-card p-6 bg-gradient-to-br from-primary/10 via-primary/5 to-transparent border-primary/20">
+                <p className="text-sm text-text-secondary mb-3">Complete your setup</p>
+                <Button 
                   onClick={() => navigate('/risk-quiz')}
-                  className="neon-button-primary text-sm"
+                  variant="default"
+                  size="lg"
+                  className="shadow-lg"
                 >
                   Take Risk Quiz
-                </button>
+                </Button>
               </div>
             )}
           </div>
@@ -189,7 +192,7 @@ const Dashboard = () => {
         </div>
 
         {/* Quick Actions Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {[
             {
               title: "Chat with ELIN",
@@ -197,7 +200,8 @@ const Dashboard = () => {
               icon: "MessageSquare",
               route: "/chat",
               gradient: "from-primary/20 to-primary/5",
-              hover: "hover:from-primary/30 hover:to-primary/10"
+              hover: "hover:from-primary/30 hover:to-primary/10",
+              buttonColor: "bg-primary hover:bg-primary-hover"
             },
             {
               title: "Portfolio Simulator", 
@@ -205,15 +209,17 @@ const Dashboard = () => {
               icon: "TrendingUp",
               route: "/portfolio-simulator",
               gradient: "from-secondary/20 to-secondary/5",
-              hover: "hover:from-secondary/30 hover:to-secondary/10"
+              hover: "hover:from-secondary/30 hover:to-secondary/10",
+              buttonColor: "bg-secondary hover:bg-secondary/90"
             },
             {
               title: "Learning Hub",
               subtitle: "Expand your knowledge",
               icon: "BookOpen", 
               route: "/learn",
-              gradient: "from-accent/20 to-accent/5",
-              hover: "hover:from-accent/30 hover:to-accent/10"
+              gradient: "from-education/20 to-education/5",
+              hover: "hover:from-education/30 hover:to-education/10",
+              buttonColor: "bg-education hover:bg-education/90"
             },
             {
               title: "Market Analysis",
@@ -221,7 +227,8 @@ const Dashboard = () => {
               icon: "BarChart3",
               route: "/filings",
               gradient: "from-warning/20 to-warning/5", 
-              hover: "hover:from-warning/30 hover:to-warning/10"
+              hover: "hover:from-warning/30 hover:to-warning/10",
+              buttonColor: "bg-warning hover:bg-warning/90"
             }
           ].map((action, index) => (
             <motion.div
@@ -229,22 +236,28 @@ const Dashboard = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3, delay: 0.7 + index * 0.1 }}
+              className={`professional-card cursor-pointer bg-gradient-to-br ${action.gradient} ${action.hover} group p-6 hover:-translate-y-1`}
               onClick={() => navigate(action.route)}
-              className={`neon-card p-6 cursor-pointer bg-gradient-to-br ${action.gradient} ${action.hover} group`}
             >
-              <div className="flex items-center gap-3 mb-3">
-                <div className="w-10 h-10 rounded-lg bg-card/50 flex items-center justify-center">
+              <div className="flex flex-col items-center text-center space-y-4">
+                <div className="w-12 h-12 rounded-xl bg-card/50 flex items-center justify-center group-hover:scale-110 transition-transform">
                   {/* Icon component would be rendered here based on action.icon */}
-                  <div className="w-5 h-5 bg-primary/60 rounded" />
+                  <div className="w-6 h-6 bg-primary/60 rounded" />
                 </div>
-                <div>
-                  <h3 className="font-semibold text-foreground group-hover:text-primary transition-colors">
+                <div className="space-y-2">
+                  <h3 className="font-semibold text-text-heading group-hover:text-primary transition-colors">
                     {action.title}
                   </h3>
-                  <p className="text-xs text-muted-foreground">
+                  <p className="text-sm text-text-secondary">
                     {action.subtitle}
                   </p>
                 </div>
+                <Button
+                  size="sm"
+                  className={`${action.buttonColor} text-white border-0 opacity-0 group-hover:opacity-100 transition-opacity`}
+                >
+                  Open
+                </Button>
               </div>
             </motion.div>
           ))}

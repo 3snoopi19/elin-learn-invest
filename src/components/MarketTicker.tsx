@@ -40,13 +40,13 @@ export const MarketTicker = () => {
 
   if (loading || quotes.length === 0) {
     return (
-      <div className="bg-slate-900/80 border-y border-slate-700/50 py-2 overflow-hidden">
+      <div className="bg-card/80 backdrop-blur border-y border-border/50 py-3 overflow-hidden">
         <div className="flex space-x-8 animate-pulse">
           {Array.from({ length: 6 }).map((_, i) => (
-            <div key={i} className="flex items-center space-x-2 text-sm">
-              <div className="w-12 h-4 bg-slate-700 rounded"></div>
-              <div className="w-16 h-4 bg-slate-700 rounded"></div>
-              <div className="w-12 h-4 bg-slate-700 rounded"></div>
+            <div key={i} className="flex items-center space-x-3 text-sm">
+              <div className="w-12 h-4 bg-muted rounded"></div>
+              <div className="w-16 h-4 bg-muted rounded"></div>
+              <div className="w-12 h-4 bg-muted rounded"></div>
             </div>
           ))}
         </div>
@@ -55,7 +55,7 @@ export const MarketTicker = () => {
   }
 
   return (
-    <div className="bg-slate-900/80 border-y border-slate-700/50 py-2 overflow-hidden relative">
+    <div className="bg-card/80 backdrop-blur border-y border-border/50 py-3 overflow-hidden relative">
       <motion.div
         className="flex space-x-8"
         animate={{ x: [0, -50] }}
@@ -73,18 +73,18 @@ export const MarketTicker = () => {
           return (
             <div 
               key={`${quote.symbol}-${index}`}
-              className="flex items-center space-x-2 text-sm whitespace-nowrap"
+              className="flex items-center space-x-3 text-sm whitespace-nowrap"
             >
-              <span className="font-semibold text-white">{quote.symbol}</span>
-              <span className="text-slate-300">
+              <span className="font-semibold text-text-heading">{quote.symbol}</span>
+              <span className="text-text-body">
                 ${quote.price.toFixed(2)}
               </span>
               <div className={`flex items-center space-x-1 ${
-                isPositive ? 'text-emerald-400' : isNegative ? 'text-red-400' : 'text-slate-400'
+                isPositive ? 'text-success' : isNegative ? 'text-destructive' : 'text-text-muted'
               }`}>
                 {isPositive && <TrendingUp className="w-3 h-3" />}
                 {isNegative && <TrendingDown className="w-3 h-3" />}
-                <span>
+                <span className="font-medium">
                   {isPositive ? '+' : ''}{quote.changePct.toFixed(2)}%
                 </span>
               </div>
@@ -94,8 +94,8 @@ export const MarketTicker = () => {
       </motion.div>
       
       {/* Gradient fades */}
-      <div className="absolute left-0 top-0 w-8 h-full bg-gradient-to-r from-slate-900 to-transparent pointer-events-none" />
-      <div className="absolute right-0 top-0 w-8 h-full bg-gradient-to-l from-slate-900 to-transparent pointer-events-none" />
+      <div className="absolute left-0 top-0 w-8 h-full bg-gradient-to-r from-background to-transparent pointer-events-none" />
+      <div className="absolute right-0 top-0 w-8 h-full bg-gradient-to-l from-background to-transparent pointer-events-none" />
     </div>
   );
 };

@@ -43,13 +43,13 @@ export const HeroSummaryCard = ({
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
     >
-      <Card className="relative overflow-hidden border-0 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 shadow-2xl">
-        {/* Animated background gradient */}
-        <div className="absolute inset-0 bg-gradient-to-r from-blue-600/10 via-emerald-600/10 to-blue-600/10 animate-pulse" />
+      <Card className="professional-card relative overflow-hidden border-0 bg-gradient-to-br from-card via-card to-slate-900 shadow-xl">
+        {/* Enhanced gradient background */}
+        <div className="absolute inset-0 bg-gradient-to-r from-primary/10 via-accent/10 to-primary/10 animate-pulse" />
         
-        {/* Neon glow border */}
-        <div className="absolute inset-0 bg-gradient-to-r from-emerald-400/20 via-blue-400/20 to-emerald-400/20 rounded-lg blur-sm" />
-        <div className="absolute inset-[1px] bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 rounded-lg" />
+        {/* Professional border glow */}
+        <div className="absolute inset-0 bg-gradient-to-r from-primary/20 via-accent/20 to-primary/20 rounded-lg blur-sm" />
+        <div className="absolute inset-[1px] bg-gradient-to-br from-card via-card to-slate-900 rounded-lg" />
         
         <CardContent className="relative p-8">
           {/* Header Section */}
@@ -62,8 +62,8 @@ export const HeroSummaryCard = ({
 
           {/* Portfolio Value Section */}
           <div className="mb-6">
-            <div className="flex items-baseline gap-4 mb-3">
-              <span className="text-5xl font-bold text-white">
+            <div className="flex items-baseline gap-4 mb-4">
+              <span className="text-5xl font-bold text-text-heading">
                 ${portfolioValue.toLocaleString('en-US', { 
                   minimumFractionDigits: 2, 
                   maximumFractionDigits: 2 
@@ -75,34 +75,28 @@ export const HeroSummaryCard = ({
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
                 {/* Timeframe Toggle */}
-                <div className="flex bg-slate-800/50 rounded-lg p-1">
-                  <button
+                <div className="flex bg-muted/30 rounded-lg p-1 border border-border/30">
+                  <Button
+                    variant={timeframe === 'daily' ? 'default' : 'ghost'}
+                    size="sm"
                     onClick={() => setTimeframe('daily')}
-                    className={`px-3 py-1 rounded text-sm transition-colors ${
-                      timeframe === 'daily' 
-                        ? 'bg-emerald-500 text-white' 
-                        : 'text-slate-400 hover:text-white'
-                    }`}
                   >
                     Daily
-                  </button>
-                  <button
+                  </Button>
+                  <Button
+                    variant={timeframe === 'weekly' ? 'default' : 'ghost'}
+                    size="sm"
                     onClick={() => setTimeframe('weekly')}
-                    className={`px-3 py-1 rounded text-sm transition-colors ${
-                      timeframe === 'weekly' 
-                        ? 'bg-emerald-500 text-white' 
-                        : 'text-slate-400 hover:text-white'
-                    }`}
                   >
                     Weekly
-                  </button>
+                  </Button>
                 </div>
 
                 {/* Change Indicator */}
-                <div className={`flex items-center gap-2 px-3 py-1 rounded-lg ${
+                <div className={`flex items-center gap-2 px-4 py-2 rounded-lg border ${
                   isPositive 
-                    ? 'bg-emerald-500/20 text-emerald-400' 
-                    : 'bg-red-500/20 text-red-400'
+                    ? 'bg-success/10 text-success border-success/20' 
+                    : 'bg-destructive/10 text-destructive border-destructive/20'
                 }`}>
                   {isPositive ? (
                     <TrendingUp className="w-4 h-4" />
@@ -119,7 +113,7 @@ export const HeroSummaryCard = ({
               <div className="w-32 h-12">
                 <PortfolioSparkline 
                   data={sparklineData} 
-                  color={isPositive ? '#16a34a' : '#ef4444'}
+                  color={isPositive ? 'hsl(var(--success))' : 'hsl(var(--destructive))'}
                 />
               </div>
             </div>
@@ -127,19 +121,20 @@ export const HeroSummaryCard = ({
 
           {/* CTA Section */}
           {!hasRiskProfile && (
-            <div className="bg-gradient-to-r from-emerald-500/10 to-blue-500/10 rounded-lg p-4 border border-emerald-500/20">
+            <div className="bg-gradient-to-r from-primary/10 to-accent/10 rounded-lg p-4 border border-primary/20">
               <div className="flex items-center justify-between">
                 <div>
-                  <h3 className="text-lg font-semibold text-white mb-1">
+                  <h3 className="text-lg font-semibold text-text-heading mb-1">
                     Unlock Personalized Insights
                   </h3>
-                  <p className="text-sm text-slate-400">
+                  <p className="text-sm text-text-secondary">
                     Complete your risk assessment to get tailored investment recommendations
                   </p>
                 </div>
                 <Button 
                   onClick={() => navigate('/risk-quiz')}
-                  className="bg-emerald-500 hover:bg-emerald-600 text-white border-0 shadow-lg shadow-emerald-500/25"
+                  variant="default"
+                  className="shadow-lg"
                 >
                   <HelpCircle className="w-4 h-4 mr-2" />
                   Take Risk Quiz
