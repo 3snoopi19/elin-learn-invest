@@ -10,17 +10,24 @@ import { dedupeCards } from "@/utils/dashboard/dedupe";
 import { DashboardCardRenderer } from "@/utils/dashboard/ComponentMapper";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
+import { OnboardingCarousel } from "@/components/onboarding/OnboardingCarousel";
+import { ProgressBadges } from "@/components/gamification/ProgressBadges";
+import { DailyLearningFeed } from "@/components/feed/DailyLearningFeed";
+import { MarketSentimentGauge } from "@/components/market/MarketSentimentGauge";
 const Dashboard = () => {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [userProfile, setUserProfile] = useState<any>(null);
+  const [showOnboarding, setShowOnboarding] = useState(false);
+  const [showProgressBadges, setShowProgressBadges] = useState(false);
+  const [showLearningFeed, setShowLearningFeed] = useState(true);
   const { toast } = useToast();
 
   // Get deduplicated dashboard cards
   const dashboardCards = dedupeCards(DASHBOARD_CARDS);
 
-  // Check if user just completed the quiz
+  // Check if user just completed the quiz or is new
   useEffect(() => {
     if (searchParams.get('quiz_completed') === 'true') {
       toast({
@@ -28,7 +35,13 @@ const Dashboard = () => {
         description: "Your personalized investment recommendations are now available.",
       });
     }
-  }, [searchParams, toast]);
+    
+    // Show onboarding for new users (simulate check for first-time users)
+    const hasSeenOnboarding = localStorage.getItem('elin_onboarding_completed');
+    if (!hasSeenOnboarding && user) {
+      setShowOnboarding(true);
+    }
+  }, [searchParams, toast, user]);
 
   // Redirect non-authenticated users
   useEffect(() => {
@@ -58,6 +71,15 @@ const Dashboard = () => {
 
     fetchProfile();
   }, [user]);
+
+  const handleOnboardingComplete = () => {
+    setShowOnboarding(false);
+    localStorage.setItem('elin_onboarding_completed', 'true');
+    toast({
+      title: "Welcome to ELIN!",
+      description: "You're all set to start your investment learning journey.",
+    });
+  };
 
   if (loading) {
     return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
@@ -148,29 +170,38 @@ const Dashboard = () => {
           </div>
         </div>
 
-        {/* Secondary Row - Live Feed, Activity & Credit Card Helper */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-          <DashboardCardRenderer
-            componentName="LiveMarketFeed"
-            props={{
-              animationDelay: 0.2,
-              ...dashboardCards.find(c => c.component === 'LiveMarketFeed')?.props
-            }}
-          />
-          <DashboardCardRenderer
-            componentName="RecentActivityCard"
-            props={{
-              animationDelay: 0.3,
-              ...dashboardCards.find(c => c.component === 'RecentActivityCard')?.props
-            }}
-          />
-          <DashboardCardRenderer
-            componentName="CreditCardHelperCard"
-            props={{
-              animationDelay: 0.4,
-              ...dashboardCards.find(c => c.component === 'CreditCardHelperCard')?.props
-            }}
-          />
+        {/* Secondary Row - Market Sentiment, Live Feed, Activity */}
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-8">
+          <div className="lg:col-span-1">
+            <MarketSentimentGauge />
+          </div>
+          <div className="lg:col-span-1">
+            <DashboardCardRenderer
+              componentName="LiveMarketFeed"
+              props={{
+                animationDelay: 0.2,
+                ...dashboardCards.find(c => c.component === 'LiveMarketFeed')?.props
+              }}
+            />
+          </div>
+          <div className="lg:col-span-1">
+            <DashboardCardRenderer
+              componentName="RecentActivityCard"
+              props={{
+                animationDelay: 0.3,
+                ...dashboardCards.find(c => c.component === 'RecentActivityCard')?.props
+              }}
+            />
+          </div>
+          <div className="lg:col-span-1">
+            <DashboardCardRenderer
+              componentName="CreditCardHelperCard"
+              props={{
+                animationDelay: 0.4,
+                ...dashboardCards.find(c => c.component === 'CreditCardHelperCard')?.props
+              }}
+            />
+          </div>
         </div>
 
         {/* Learning & Tools Row */}
@@ -189,6 +220,48 @@ const Dashboard = () => {
               ...dashboardCards.find(c => c.component === 'SECFilingsExplorer')?.props
             }}
           />
+        </div>
+
+        {/* Enhanced Features Row */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+          {/* Progress Badges */}
+          <div className="lg:col-span-1">
+            <div className="bg-card border rounded-lg p-4">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold">Achievement Progress</h3>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowProgressBadges(!showProgressBadges)}
+                  aria-label={showProgressBadges ? "Hide progress badges" : "Show progress badges"}
+                >
+                  {showProgressBadges ? "Hide" : "View All"}
+                </Button>
+              </div>
+              {showProgressBadges ? (
+                <ProgressBadges />
+              ) : (
+                <div className="text-center py-8">
+                  <div className="text-2xl mb-2">🏆</div>
+                  <p className="text-sm text-muted-foreground mb-3">
+                    Track your learning achievements
+                  </p>
+                  <Button
+                    size="sm"
+                    onClick={() => setShowProgressBadges(true)}
+                    className="bg-primary hover:bg-primary-hover"
+                  >
+                    View Badges
+                  </Button>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Daily Learning Feed */}
+          <div className="lg:col-span-2">
+            {showLearningFeed && <DailyLearningFeed />}
+          </div>
         </div>
 
         {/* Quick Actions Grid */}
@@ -265,6 +338,13 @@ const Dashboard = () => {
       </main>
       
       <Footer />
+      
+      {/* Onboarding Modal */}
+      <OnboardingCarousel
+        isOpen={showOnboarding}
+        onClose={() => setShowOnboarding(false)}
+        onComplete={handleOnboardingComplete}
+      />
     </div>
   );
 };
