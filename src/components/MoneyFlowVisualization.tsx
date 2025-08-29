@@ -93,7 +93,12 @@ const mockTransactions: Transaction[] = [
 
 // Transaction History Modal Component
 const TransactionModal = ({ data, type }: { data: NodeData; type: 'income' | 'expense' | 'account' }) => {
-  const transactions = data.transactions || mockTransactions.filter(t => t.type === type).slice(0, 5);
+  const transactions = Array.isArray(data.transactions) 
+    ? data.transactions 
+    : mockTransactions.filter(t => {
+        if (type === 'account') return true; // Show all transactions for accounts
+        return t.type === type;
+      }).slice(0, 5);
   
   return (
     <Dialog>
