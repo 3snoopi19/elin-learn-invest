@@ -26,6 +26,7 @@ import OnboardingQuiz from "./pages/OnboardingQuiz";
 import RiskQuiz from "./pages/RiskQuiz";
 import InvestorProfile from "./pages/InvestorProfile";
 import PaymentSuccess from "./pages/PaymentSuccess";
+import MoneyFlowPage from "./pages/MoneyFlow";
 import Router from "./pages/Router";
 import ProMode from "./pages/ProMode";
 import NotFound from "./pages/NotFound";
@@ -60,6 +61,7 @@ const App = () => (
                 <Route path="/investor-profile" element={<InvestorProfile />} />
                 <Route path="/payment-success" element={<PaymentSuccess />} />
                 <Route path="/pro-mode" element={<ProMode />} />
+                <Route path="/money-flow" element={<MoneyFlowPage />} />
                 <Route path="/router" element={<Router />} />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />

@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useState, useEffect } from 'react';
 import {
   ReactFlow,
   addEdge,
@@ -24,10 +24,32 @@ import {
   Wallet,
   Building2,
   ShoppingCart,
-  Zap
+  Zap,
+  Info,
+  TrendingUp,
+  TrendingDown,
+  X,
+  Calendar,
+  Target,
+  AlertCircle,
+  Lightbulb
 } from 'lucide-react';
 import { Button } from './ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from './ui/dialog';
+import { Badge } from './ui/badge';
+import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './ui/tooltip';
+import { useIsMobile } from '@/hooks/use-mobile';
+
+interface Transaction {
+  id: string;
+  date: string;
+  amount: number;
+  description: string;
+  category: string;
+  type: 'income' | 'expense' | 'transfer';
+}
 
 interface Account {
   id: string;
@@ -37,44 +59,111 @@ interface Account {
   institution: string;
 }
 
+interface NodeData {
+  label: string;
+  amount: string;
+  type?: string;
+  category?: string;
+  frequency?: string;
+  transactions?: Transaction[];
+  totalTransactions?: number;
+}
+
 interface MoneyFlowVisualizationProps {
   accounts: Account[];
   timeframe: string;
 }
 
-const IncomeNode = ({ data }: { data: any }) => {
+// Mock transaction data
+const mockTransactions: Transaction[] = [
+  { id: '1', date: '2024-01-15', amount: 4200, description: 'Salary Deposit', category: 'salary', type: 'income' },
+  { id: '2', date: '2024-01-10', amount: -1800, description: 'Monthly Rent', category: 'rent', type: 'expense' },
+  { id: '3', date: '2024-01-08', amount: 800, description: 'Freelance Project', category: 'freelance', type: 'income' },
+  { id: '4', date: '2024-01-05', amount: -420, description: 'Car Payment', category: 'car', type: 'expense' },
+  { id: '5', date: '2024-01-03', amount: -125, description: 'Grocery Shopping', category: 'shopping', type: 'expense' },
+];
+
+// Transaction History Modal Component
+const TransactionModal = ({ data, type }: { data: NodeData; type: 'income' | 'expense' | 'account' }) => {
+  const transactions = data.transactions || mockTransactions.filter(t => t.type === type).slice(0, 5);
+  
+  return (
+    <Dialog>
+      <DialogTrigger asChild>
+        <div className="w-full h-full" />
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2 text-foreground">
+            {type === 'income' && <TrendingUp className="h-5 w-5 text-success" />}
+            {type === 'expense' && <TrendingDown className="h-5 w-5 text-destructive" />}
+            {type === 'account' && <Wallet className="h-5 w-5 text-secondary" />}
+            {data.label} Transactions
+          </DialogTitle>
+        </DialogHeader>
+        <div className="space-y-3 max-h-80 overflow-y-auto">
+          {transactions.map((transaction) => (
+            <div key={transaction.id} className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+              <div>
+                <p className="font-medium text-foreground">{transaction.description}</p>
+                <p className="text-sm text-muted-foreground">{transaction.date}</p>
+              </div>
+              <div className={`font-bold ${transaction.amount > 0 ? 'text-success' : 'text-destructive'}`}>
+                {transaction.amount > 0 ? '+' : ''}${Math.abs(transaction.amount).toLocaleString()}
+              </div>
+            </div>
+          ))}
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+};
+
+const IncomeNode = ({ data }: { data: NodeData }) => {
   const getIcon = (type: string) => {
     switch (type) {
       case 'salary':
-        return <Briefcase className="h-5 w-5 text-emerald-600" />;
+        return <Briefcase className="h-5 w-5 text-success" />;
       case 'freelance':
-        return <Zap className="h-5 w-5 text-emerald-600" />;
+        return <Zap className="h-5 w-5 text-success" />;
       default:
-        return <DollarSign className="h-5 w-5 text-emerald-600" />;
+        return <DollarSign className="h-5 w-5 text-success" />;
     }
   };
 
   return (
-    <div className="group relative px-5 py-4 bg-gradient-to-br from-emerald-50 to-emerald-100 dark:from-emerald-950/50 dark:to-emerald-900/30 border-2 border-emerald-200 dark:border-emerald-800 rounded-xl shadow-sm hover:shadow-md transition-all duration-200 min-w-[180px] cursor-pointer">
-      <div className="absolute inset-0 bg-gradient-to-br from-emerald-400/10 to-emerald-600/5 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
-      <div className="relative">
-        <div className="flex items-center gap-3 mb-3">
-          <div className="p-2 bg-emerald-100 dark:bg-emerald-900/50 rounded-lg group-hover:scale-110 transition-transform duration-200">
-            {getIcon(data.type)}
+    <TooltipProvider>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <div className="relative">
+            <TransactionModal data={data} type="income" />
+            <div className="group relative px-4 py-3 bg-card border-2 border-success/20 rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 min-w-[160px] cursor-pointer hover:scale-105 animate-pulse-subtle">
+              <div className="absolute inset-0 bg-gradient-to-br from-success/5 to-success/10 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
+              <div className="relative">
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="p-2 bg-success/10 rounded-lg group-hover:scale-110 transition-transform duration-200">
+                    {getIcon(data.type || '')}
+                  </div>
+                  <div className="flex flex-col">
+                    <div className="text-sm font-semibold text-card-foreground">{data.label}</div>
+                    <div className="text-xs text-muted-foreground">{data.frequency || 'Monthly'}</div>
+                  </div>
+                </div>
+                <div className="text-lg font-bold text-success">
+                  +{data.amount}
+                </div>
+                <div className="text-xs text-muted-foreground mt-1">
+                  {data.totalTransactions || data.transactions?.length || 0} transactions
+                </div>
+              </div>
+            </div>
           </div>
-          <div className="flex flex-col">
-            <div className="text-sm font-semibold text-emerald-900 dark:text-emerald-100">{data.label}</div>
-            <div className="text-xs text-emerald-700 dark:text-emerald-300">{data.frequency || 'Monthly'}</div>
-          </div>
-        </div>
-        <div className="text-xl font-bold text-emerald-800 dark:text-emerald-200">
-          +{data.amount}
-        </div>
-        <div className="text-xs text-emerald-600 dark:text-emerald-400 mt-1">
-          {data.transactions || '12'} transactions
-        </div>
-      </div>
-    </div>
+        </TooltipTrigger>
+        <TooltipContent>
+          <p>Click to view transaction history</p>
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
   );
 };
 
@@ -82,13 +171,13 @@ const AccountNode = ({ data }: { data: any }) => {
   const getIcon = (type: string) => {
     switch (type) {
       case 'checking':
-        return <Wallet className="h-5 w-5 text-blue-600" />;
+        return <Wallet className="h-5 w-5 text-secondary" />;
       case 'savings':
-        return <PiggyBank className="h-5 w-5 text-blue-600" />;
+        return <PiggyBank className="h-5 w-5 text-secondary" />;
       case 'credit':
-        return <CreditCard className="h-5 w-5 text-blue-600" />;
+        return <CreditCard className="h-5 w-5 text-secondary" />;
       default:
-        return <Building2 className="h-5 w-5 text-blue-600" />;
+        return <Building2 className="h-5 w-5 text-secondary" />;
     }
   };
 
@@ -102,66 +191,90 @@ const AccountNode = ({ data }: { data: any }) => {
   };
 
   return (
-    <div className="group relative px-5 py-4 bg-gradient-to-br from-blue-50 to-slate-50 dark:from-slate-900/50 dark:to-blue-950/30 border-2 border-slate-200 dark:border-slate-700 rounded-xl shadow-sm hover:shadow-md transition-all duration-200 min-w-[200px] cursor-pointer">
-      <div className="absolute inset-0 bg-gradient-to-br from-blue-400/5 to-slate-400/5 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
-      <div className="relative">
-        <div className="flex items-center gap-3 mb-3">
-          <div className="p-2 bg-blue-100 dark:bg-blue-900/50 rounded-lg group-hover:scale-110 transition-transform duration-200">
-            {getIcon(data.type)}
+    <TooltipProvider>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <div className="relative">
+            <TransactionModal data={data} type="account" />
+            <div className="group relative px-4 py-3 bg-card border-2 border-secondary/20 rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 min-w-[180px] cursor-pointer hover:scale-105">
+              <div className="absolute inset-0 bg-gradient-to-br from-secondary/5 to-secondary/10 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
+              <div className="relative">
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="p-2 bg-secondary/10 rounded-lg group-hover:scale-110 transition-transform duration-200">
+                    {getIcon(data.type)}
+                  </div>
+                  <div className="flex flex-col">
+                    <div className="text-sm font-semibold text-card-foreground">{data.name}</div>
+                    <div className="text-xs text-muted-foreground">{data.institution}</div>
+                  </div>
+                </div>
+                <div className={`text-lg font-bold ${data.balance < 0 ? 'text-destructive' : 'text-card-foreground'}`}>
+                  {formatCurrency(data.balance)}
+                </div>
+                <div className="text-xs text-muted-foreground mt-1">
+                  Last updated today
+                </div>
+              </div>
+            </div>
           </div>
-          <div className="flex flex-col">
-            <div className="text-sm font-semibold text-slate-900 dark:text-slate-100">{data.name}</div>
-            <div className="text-xs text-slate-600 dark:text-slate-400">{data.institution}</div>
-          </div>
-        </div>
-        <div className={`text-xl font-bold ${data.balance < 0 ? 'text-red-600 dark:text-red-400' : 'text-slate-800 dark:text-slate-200'}`}>
-          {formatCurrency(data.balance)}
-        </div>
-        <div className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-          Last updated today
-        </div>
-      </div>
-    </div>
+        </TooltipTrigger>
+        <TooltipContent>
+          <p>Click to view account transactions</p>
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
   );
 };
 
-const ExpenseNode = ({ data }: { data: any }) => {
+const ExpenseNode = ({ data }: { data: NodeData }) => {
   const getIcon = (category: string) => {
     switch (category) {
       case 'rent':
-        return <Home className="h-5 w-5 text-rose-600" />;
+        return <Home className="h-5 w-5 text-destructive" />;
       case 'car':
-        return <Car className="h-5 w-5 text-rose-600" />;
+        return <Car className="h-5 w-5 text-destructive" />;
       case 'credit':
-        return <CreditCard className="h-5 w-5 text-rose-600" />;
+        return <CreditCard className="h-5 w-5 text-destructive" />;
       case 'shopping':
-        return <ShoppingCart className="h-5 w-5 text-rose-600" />;
+        return <ShoppingCart className="h-5 w-5 text-destructive" />;
       default:
-        return <DollarSign className="h-5 w-5 text-rose-600" />;
+        return <DollarSign className="h-5 w-5 text-destructive" />;
     }
   };
 
   return (
-    <div className="group relative px-5 py-4 bg-gradient-to-br from-rose-50 to-red-50 dark:from-rose-950/50 dark:to-red-900/30 border-2 border-rose-200 dark:border-rose-800 rounded-xl shadow-sm hover:shadow-md transition-all duration-200 min-w-[180px] cursor-pointer">
-      <div className="absolute inset-0 bg-gradient-to-br from-rose-400/10 to-red-400/5 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
-      <div className="relative">
-        <div className="flex items-center gap-3 mb-3">
-          <div className="p-2 bg-rose-100 dark:bg-rose-900/50 rounded-lg group-hover:scale-110 transition-transform duration-200">
-            {getIcon(data.category)}
+    <TooltipProvider>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <div className="relative">
+            <TransactionModal data={data} type="expense" />
+            <div className="group relative px-4 py-3 bg-card border-2 border-destructive/20 rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 min-w-[160px] cursor-pointer hover:scale-105">
+              <div className="absolute inset-0 bg-gradient-to-br from-destructive/5 to-destructive/10 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
+              <div className="relative">
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="p-2 bg-destructive/10 rounded-lg group-hover:scale-110 transition-transform duration-200">
+                    {getIcon(data.category || '')}
+                  </div>
+                  <div className="flex flex-col">
+                    <div className="text-sm font-semibold text-card-foreground">{data.label}</div>
+                    <div className="text-xs text-muted-foreground">{data.frequency || 'Monthly'}</div>
+                  </div>
+                </div>
+                <div className="text-lg font-bold text-destructive">
+                  -{data.amount}
+                </div>
+                <div className="text-xs text-muted-foreground mt-1">
+                  {data.totalTransactions || data.transactions?.length || 0} transactions
+                </div>
+              </div>
+            </div>
           </div>
-          <div className="flex flex-col">
-            <div className="text-sm font-semibold text-rose-900 dark:text-rose-100">{data.label}</div>
-            <div className="text-xs text-rose-700 dark:text-rose-300">{data.frequency || 'Monthly'}</div>
-          </div>
-        </div>
-        <div className="text-xl font-bold text-rose-800 dark:text-rose-200">
-          -{data.amount}
-        </div>
-        <div className="text-xs text-rose-600 dark:text-rose-400 mt-1">
-          {data.transactions || '5'} transactions
-        </div>
-      </div>
-    </div>
+        </TooltipTrigger>
+        <TooltipContent>
+          <p>Click to view expense history</p>
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
   );
 };
 
@@ -175,7 +288,20 @@ export const MoneyFlowVisualization: React.FC<MoneyFlowVisualizationProps> = ({
   accounts,
   timeframe,
 }) => {
-  const [selectedTimeframe, setSelectedTimeframe] = useState(timeframe || "30");
+  const [selectedTimeframe, setSelectedTimeframe] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('money-flow-timeframe') || timeframe || "30";
+    }
+    return timeframe || "30";
+  });
+  const isMobile = useIsMobile();
+
+  // Persist timeframe selection
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('money-flow-timeframe', selectedTimeframe);
+    }
+  }, [selectedTimeframe]);
 
   const initialNodes = useMemo((): Node[] => {
     // Income sources positioned on the left
@@ -442,7 +568,32 @@ export const MoneyFlowVisualization: React.FC<MoneyFlowVisualizationProps> = ({
     },
   ], []);
 
-  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
+  // Calculate dynamic mobile positioning for better mobile experience
+  const mobileNodes = useMemo(() => {
+    if (!isMobile) return initialNodes;
+    
+    // Mobile layout: vertical stacking with adequate spacing
+    return initialNodes.map((node, index) => {
+      const nodeType = node.type;
+      let yPosition = 50;
+      let xPosition = 50;
+      
+      if (nodeType === 'income') {
+        yPosition = 50 + (index * 200);
+      } else if (nodeType === 'account') {
+        yPosition = 600 + (index * 180);
+      } else if (nodeType === 'expense') {
+        yPosition = 1200 + (index * 200);
+      }
+      
+      return {
+        ...node,
+        position: { x: xPosition, y: yPosition },
+      };
+    });
+  }, [initialNodes, isMobile]);
+
+  const [nodes, setNodes, onNodesChange] = useNodesState(isMobile ? mobileNodes : initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
 
   const onConnect = useCallback(
@@ -450,26 +601,66 @@ export const MoneyFlowVisualization: React.FC<MoneyFlowVisualizationProps> = ({
     [setEdges]
   );
 
+  // Dynamic insights based on data
+  const insights = useMemo(() => {
+    const totalIncome = 5150;
+    const totalExpenses = 3155;
+    const netIncome = totalIncome - totalExpenses;
+    const savingsRate = ((netIncome / totalIncome) * 100).toFixed(1);
+    
+    const topExpense = { name: 'Rent', amount: 1800 };
+    const suggestions = [];
+    
+    if (parseFloat(savingsRate) < 20) {
+      suggestions.push({
+        icon: <AlertCircle className="h-5 w-5 text-warning" />,
+        title: "Low Savings Rate",
+        description: `You're saving ${savingsRate}% - aim for 20%+`,
+        action: "Review expenses"
+      });
+    }
+    
+    if (topExpense.amount > totalIncome * 0.3) {
+      suggestions.push({
+        icon: <Home className="h-5 w-5 text-destructive" />,
+        title: "High Housing Cost",
+        description: "Housing costs over 30% of income",
+        action: "Consider alternatives"
+      });
+    }
+    
+    return {
+      totalIncome,
+      totalExpenses,
+      netIncome,
+      savingsRate,
+      topExpense,
+      suggestions
+    };
+  }, [selectedTimeframe]);
+
   return (
-    <div className="w-full">
-      {/* Toolbar */}
-      <div className="flex items-center justify-between mb-4 p-4 bg-gradient-to-r from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 rounded-xl border border-slate-200 dark:border-slate-700">
+    <div className="w-full space-y-6">
+      {/* Mobile-optimized header */}
+      <div className={`${isMobile ? 'flex-col space-y-4' : 'flex items-center justify-between'} mb-4 p-4 bg-card rounded-xl border`}>
         <div className="flex items-center gap-4">
-          <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
+          <h3 className="text-lg font-semibold text-card-foreground">
             Money Flow Automation
           </h3>
-          <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400">
-            <div className="w-3 h-3 bg-emerald-500 rounded-full"></div>
-            <span>Income</span>
-            <div className="w-3 h-3 bg-blue-500 rounded-full ml-3"></div>
-            <span>Accounts</span>
-            <div className="w-3 h-3 bg-rose-500 rounded-full ml-3"></div>
-            <span>Expenses</span>
-          </div>
+          {!isMobile && (
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <div className="w-3 h-3 bg-success rounded-full"></div>
+              <span>Income</span>
+              <div className="w-3 h-3 bg-secondary rounded-full ml-3"></div>
+              <span>Accounts</span>
+              <div className="w-3 h-3 bg-destructive rounded-full ml-3"></div>
+              <span>Expenses</span>
+            </div>
+          )}
         </div>
         <div className="flex items-center gap-3">
           <Select value={selectedTimeframe} onValueChange={setSelectedTimeframe}>
-            <SelectTrigger className="w-40 bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-600">
+            <SelectTrigger className={`${isMobile ? 'w-full' : 'w-40'} bg-background border`}>
               <SelectValue placeholder="Select timeframe" />
             </SelectTrigger>
             <SelectContent>
@@ -479,19 +670,15 @@ export const MoneyFlowVisualization: React.FC<MoneyFlowVisualizationProps> = ({
               <SelectItem value="365">Last year</SelectItem>
             </SelectContent>
           </Select>
-          <Button 
-            variant="default" 
-            size="sm" 
-            className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white shadow-sm"
-          >
+          <Button variant="secondary" size={isMobile ? "sm" : "default"}>
             <Plus className="h-4 w-4 mr-2" />
-            New Automation
+            New Rule
           </Button>
         </div>
       </div>
 
       {/* Flow Visualization */}
-      <div className="h-[600px] w-full bg-gradient-to-br from-slate-50 to-white dark:from-slate-900 dark:to-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-sm overflow-hidden">
+      <div className={`${isMobile ? 'h-[800px]' : 'h-[600px]'} w-full bg-background border rounded-xl shadow-sm overflow-hidden`}>
         <ReactFlow
           nodes={nodes}
           edges={edges}
@@ -501,64 +688,124 @@ export const MoneyFlowVisualization: React.FC<MoneyFlowVisualizationProps> = ({
           nodeTypes={nodeTypes}
           fitView
           fitViewOptions={{
-            padding: 0.1,
+            padding: isMobile ? 0.05 : 0.1,
             includeHiddenNodes: false,
           }}
           className="rounded-xl"
           proOptions={{ hideAttribution: true }}
         >
           <Controls 
-            className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 rounded-lg shadow-sm"
-            showZoom={true}
+            className="bg-card border rounded-lg shadow-sm"
+            showZoom={!isMobile}
             showFitView={true}
-            showInteractive={true}
+            showInteractive={!isMobile}
           />
           <Background 
             variant={BackgroundVariant.Dots} 
-            gap={16} 
+            gap={isMobile ? 12 : 16} 
             size={1} 
-            color="#e2e8f0"
             className="opacity-30"
           />
         </ReactFlow>
       </div>
 
       {/* Summary Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
-        <div className="p-4 bg-gradient-to-br from-emerald-50 to-emerald-100 dark:from-emerald-950/50 dark:to-emerald-900/30 rounded-xl border border-emerald-200 dark:border-emerald-800">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-emerald-100 dark:bg-emerald-900/50 rounded-lg">
-              <DollarSign className="h-5 w-5 text-emerald-600" />
+      <div className={`grid ${isMobile ? 'grid-cols-1' : 'grid-cols-3'} gap-4`}>
+        <Card className="bg-success/5 border-success/20">
+          <CardContent className="p-4">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-success/10 rounded-lg">
+                <TrendingUp className="h-5 w-5 text-success" />
+              </div>
+              <div>
+                <div className="text-sm text-muted-foreground">Total Income</div>
+                <div className="text-xl font-bold text-success">+${insights.totalIncome.toLocaleString()}</div>
+              </div>
             </div>
-            <div>
-              <div className="text-sm text-emerald-700 dark:text-emerald-300">Total Income</div>
-              <div className="text-xl font-bold text-emerald-800 dark:text-emerald-200">+$5,150</div>
+          </CardContent>
+        </Card>
+        
+        <Card className="bg-secondary/5 border-secondary/20">
+          <CardContent className="p-4">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-secondary/10 rounded-lg">
+                <Wallet className="h-5 w-5 text-secondary" />
+              </div>
+              <div>
+                <div className="text-sm text-muted-foreground">Savings Rate</div>
+                <div className="text-xl font-bold text-secondary">{insights.savingsRate}%</div>
+              </div>
             </div>
-          </div>
-        </div>
-        <div className="p-4 bg-gradient-to-br from-blue-50 to-slate-50 dark:from-slate-900/50 dark:to-blue-950/30 rounded-xl border border-slate-200 dark:border-slate-700">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-blue-100 dark:bg-blue-900/50 rounded-lg">
-              <Wallet className="h-5 w-5 text-blue-600" />
+          </CardContent>
+        </Card>
+        
+        <Card className="bg-destructive/5 border-destructive/20">
+          <CardContent className="p-4">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-destructive/10 rounded-lg">
+                <TrendingDown className="h-5 w-5 text-destructive" />
+              </div>
+              <div>
+                <div className="text-sm text-muted-foreground">Total Expenses</div>
+                <div className="text-xl font-bold text-destructive">-${insights.totalExpenses.toLocaleString()}</div>
+              </div>
             </div>
-            <div>
-              <div className="text-sm text-slate-600 dark:text-slate-400">Net Worth</div>
-              <div className="text-xl font-bold text-slate-800 dark:text-slate-200">$12,450</div>
-            </div>
-          </div>
-        </div>
-        <div className="p-4 bg-gradient-to-br from-rose-50 to-red-50 dark:from-rose-950/50 dark:to-red-900/30 rounded-xl border border-rose-200 dark:border-rose-800">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-rose-100 dark:bg-rose-900/50 rounded-lg">
-              <ShoppingCart className="h-5 w-5 text-rose-600" />
-            </div>
-            <div>
-              <div className="text-sm text-rose-700 dark:text-rose-300">Total Expenses</div>
-              <div className="text-xl font-bold text-rose-800 dark:text-rose-200">-$3,155</div>
-            </div>
-          </div>
-        </div>
+          </CardContent>
+        </Card>
       </div>
+
+      {/* Dynamic Insights */}
+      {insights.suggestions.length > 0 && (
+        <div className="space-y-4">
+          <h4 className="text-lg font-semibold text-card-foreground flex items-center gap-2">
+            <Lightbulb className="h-5 w-5 text-warning" />
+            Smart Suggestions
+          </h4>
+          <div className={`grid ${isMobile ? 'grid-cols-1' : 'grid-cols-2'} gap-4`}>
+            {insights.suggestions.map((suggestion, index) => (
+              <Card key={index} className="border-l-4 border-l-warning">
+                <CardContent className="p-4">
+                  <div className="flex items-start gap-3">
+                    <div className="p-2 bg-warning/10 rounded-lg">
+                      {suggestion.icon}
+                    </div>
+                    <div className="flex-1">
+                      <h5 className="font-semibold text-card-foreground">{suggestion.title}</h5>
+                      <p className="text-sm text-muted-foreground mt-1">{suggestion.description}</p>
+                      <Badge variant="outline" className="mt-2 text-xs">
+                        {suggestion.action}
+                      </Badge>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Top Expense Card */}
+      <Card className="bg-gradient-to-r from-card to-muted/20">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-card-foreground">
+            <Target className="h-5 w-5 text-destructive" />
+            Top Expense This Month
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-lg font-semibold text-card-foreground">{insights.topExpense.name}</p>
+              <p className="text-sm text-muted-foreground">
+                {((insights.topExpense.amount / insights.totalIncome) * 100).toFixed(1)}% of income
+              </p>
+            </div>
+            <div className="text-2xl font-bold text-destructive">
+              ${insights.topExpense.amount.toLocaleString()}
+            </div>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 };

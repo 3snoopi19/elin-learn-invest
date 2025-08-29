@@ -440,4 +440,14 @@ All colors MUST be HSL.
   @apply bg-gradient-to-r from-muted/30 via-muted/50 to-muted/30 animate-pulse rounded;
   background-size: 200% 100%;
 }
+
+/* Mobile-responsive animations for subtle pulse effect */
+@keyframes pulse-subtle {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.02); }
+}
+
+.animate-pulse-subtle {
+  animation: pulse-subtle 3s ease-in-out infinite;
+}
 }
