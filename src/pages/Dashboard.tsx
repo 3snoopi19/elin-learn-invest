@@ -93,49 +93,49 @@ const Dashboard = () => {
     <div className="min-h-screen bg-background">
       <Header />
       
-      {/* Live Market Updates Banner */}
-      <div className="bg-gradient-to-r from-card/80 to-card/60 border-b border-border/50 backdrop-blur">
-        <div className="container mx-auto px-4 py-4">
+      {/* Live Market Updates Banner - Hidden on small mobile for better UX */}
+      <div className="hidden sm:block bg-gradient-to-r from-card/80 to-card/60 border-b border-border/50 backdrop-blur">
+        <div className="container mx-auto px-4 py-2 md:py-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-6 text-sm">
+            <div className="flex items-center gap-3 md:gap-6 text-xs md:text-sm">
               <span className="flex items-center gap-2 text-primary font-semibold">
                 <div className="w-2 h-2 bg-primary rounded-full live-pulse" />
                 Market Open
               </span>
-              <span className="text-text-muted">•</span>
+              <span className="hidden md:inline text-text-muted">•</span>
               <span className="text-text-body">S&P 500: <span className="text-success font-medium">+0.87%</span></span>
-              <span className="text-text-muted">•</span>
-              <span className="text-text-body">NASDAQ: <span className="text-success font-medium">+1.23%</span></span>
-              <span className="text-text-muted">•</span>
-              <span className="text-text-body">BTC: <span className="text-accent font-medium">+2.15%</span></span>
+              <span className="hidden sm:inline text-text-muted">•</span>
+              <span className="hidden sm:inline text-text-body">NASDAQ: <span className="text-success font-medium">+1.23%</span></span>
+              <span className="hidden md:inline text-text-muted">•</span>
+              <span className="hidden md:inline text-text-body">BTC: <span className="text-accent font-medium">+2.15%</span></span>
             </div>
-            <div className="text-xs text-text-secondary">
+            <div className="hidden md:block text-xs text-text-secondary">
               Last updated: {new Date().toLocaleTimeString()}
             </div>
           </div>
         </div>
       </div>
       
-      <main className="container mx-auto px-4 py-8">
-        {/* Hero Greeting Section */}
-        <div className="mb-10">
-          <div className="flex items-center justify-between mb-8">
+      <main className="mobile-content mobile-container py-4 md:py-8">
+        {/* Hero Greeting Section - Mobile optimized */}
+        <div className="mb-6 md:mb-10">
+          <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 md:mb-8 gap-4">
             <div className="space-y-2">
-              <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-text-heading via-text-body to-text-secondary bg-clip-text text-transparent">
+              <h1 className="text-2xl md:text-4xl lg:text-5xl font-bold bg-gradient-to-r from-text-heading via-text-body to-text-secondary bg-clip-text text-transparent leading-tight">
                 Good {new Date().getHours() < 12 ? 'morning' : new Date().getHours() < 18 ? 'afternoon' : 'evening'}, {user.user_metadata?.first_name || 'Investor'}!
               </h1>
-              <p className="text-lg text-text-secondary">
+              <p className="text-base md:text-lg text-text-secondary">
                 Here's your portfolio overview and market insights
               </p>
             </div>
             {!userProfile?.risk_profile && (
-              <div className="professional-card p-6 bg-gradient-to-br from-primary/10 via-primary/5 to-transparent border-primary/20">
+              <div className="professional-card p-4 md:p-6 bg-gradient-to-br from-primary/10 via-primary/5 to-transparent border-primary/20 w-full md:w-auto">
                 <p className="text-sm text-text-secondary mb-3">Complete your setup</p>
                 <Button 
                   onClick={() => navigate('/risk-quiz')}
                   variant="default"
                   size="lg"
-                  className="shadow-lg"
+                  className="w-full md:w-auto shadow-lg mobile-button"
                 >
                   Take Risk Quiz
                 </Button>
@@ -144,10 +144,10 @@ const Dashboard = () => {
           </div>
         </div>
 
-        {/* Main Dashboard Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-8">
+        {/* Main Dashboard Grid - Mobile responsive */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 md:gap-6 mb-6 md:mb-8">
           
-          {/* Portfolio Overview - Large Card */}
+          {/* Portfolio Overview - Full width on mobile */}
           <div className="lg:col-span-8">
             <DashboardCardRenderer
               componentName="PortfolioOverviewCard"
@@ -158,7 +158,7 @@ const Dashboard = () => {
             />
           </div>
           
-          {/* AI Insights - Side Panel */}
+          {/* AI Insights - Full width on mobile */}
           <div className="lg:col-span-4">
             <DashboardCardRenderer
               componentName="AIInsightsCard"
@@ -170,12 +170,12 @@ const Dashboard = () => {
           </div>
         </div>
 
-        {/* Secondary Row - Market Sentiment, Live Feed, Activity */}
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-8">
-          <div className="lg:col-span-1">
+        {/* Secondary Row - Stacked on mobile */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-6 md:mb-8">
+          <div className="sm:col-span-1">
             <MarketSentimentGauge />
           </div>
-          <div className="lg:col-span-1">
+          <div className="sm:col-span-1">
             <DashboardCardRenderer
               componentName="LiveMarketFeed"
               props={{
@@ -184,7 +184,7 @@ const Dashboard = () => {
               }}
             />
           </div>
-          <div className="lg:col-span-1">
+          <div className="sm:col-span-2 lg:col-span-1">
             <DashboardCardRenderer
               componentName="RecentActivityCard"
               props={{
@@ -193,7 +193,7 @@ const Dashboard = () => {
               }}
             />
           </div>
-          <div className="lg:col-span-1">
+          <div className="sm:col-span-2 lg:col-span-1">
             <DashboardCardRenderer
               componentName="CreditCardHelperCard"
               props={{
@@ -204,8 +204,8 @@ const Dashboard = () => {
           </div>
         </div>
 
-        {/* Learning & Tools Row */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+        {/* Learning & Tools Row - Mobile responsive */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6 mb-6 md:mb-8">
           <DashboardCardRenderer
             componentName="LearningPathsCard"
             props={{
@@ -222,8 +222,8 @@ const Dashboard = () => {
           />
         </div>
 
-        {/* Enhanced Features Row */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+        {/* Enhanced Features Row - Mobile responsive */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6 mb-6 md:mb-8">
           {/* Progress Badges */}
           <div className="lg:col-span-1">
             <div className="bg-card border rounded-lg p-4">
@@ -233,6 +233,7 @@ const Dashboard = () => {
                   variant="outline"
                   size="sm"
                   onClick={() => setShowProgressBadges(!showProgressBadges)}
+                  className="mobile-button"
                   aria-label={showProgressBadges ? "Hide progress badges" : "Show progress badges"}
                 >
                   {showProgressBadges ? "Hide" : "View All"}
@@ -241,7 +242,7 @@ const Dashboard = () => {
               {showProgressBadges ? (
                 <ProgressBadges />
               ) : (
-                <div className="text-center py-8">
+                <div className="text-center py-6 md:py-8">
                   <div className="text-2xl mb-2">🏆</div>
                   <p className="text-sm text-muted-foreground mb-3">
                     Track your learning achievements
@@ -249,7 +250,7 @@ const Dashboard = () => {
                   <Button
                     size="sm"
                     onClick={() => setShowProgressBadges(true)}
-                    className="bg-primary hover:bg-primary-hover"
+                    className="bg-primary hover:bg-primary-hover mobile-button"
                   >
                     View Badges
                   </Button>
@@ -264,8 +265,8 @@ const Dashboard = () => {
           </div>
         </div>
 
-        {/* Quick Actions Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        {/* Quick Actions Grid - Mobile optimized */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6">
           {[
             {
               title: "Chat with ELIN",
@@ -309,25 +310,25 @@ const Dashboard = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3, delay: 0.7 + index * 0.1 }}
-              className={`professional-card cursor-pointer bg-gradient-to-br ${action.gradient} ${action.hover} group p-6 hover:-translate-y-1`}
+              className={`professional-card cursor-pointer bg-gradient-to-br ${action.gradient} ${action.hover} group p-4 md:p-6 hover:-translate-y-1 touch-target`}
               onClick={() => navigate(action.route)}
             >
-              <div className="flex flex-col items-center text-center space-y-4">
-                <div className="w-12 h-12 rounded-xl bg-card/50 flex items-center justify-center group-hover:scale-110 transition-transform">
+              <div className="flex flex-col items-center text-center space-y-3 md:space-y-4">
+                <div className="w-8 h-8 md:w-12 md:h-12 rounded-lg md:rounded-xl bg-card/50 flex items-center justify-center group-hover:scale-110 transition-transform">
                   {/* Icon component would be rendered here based on action.icon */}
-                  <div className="w-6 h-6 bg-primary/60 rounded" />
+                  <div className="w-4 h-4 md:w-6 md:h-6 bg-primary/60 rounded" />
                 </div>
-                <div className="space-y-2">
-                  <h3 className="font-semibold text-text-heading group-hover:text-primary transition-colors">
+                <div className="space-y-1 md:space-y-2">
+                  <h3 className="font-semibold text-sm md:text-base text-text-heading group-hover:text-primary transition-colors">
                     {action.title}
                   </h3>
-                  <p className="text-sm text-text-secondary">
+                  <p className="text-xs md:text-sm text-text-secondary hidden sm:block">
                     {action.subtitle}
                   </p>
                 </div>
                 <Button
                   size="sm"
-                  className={`${action.buttonColor} text-white border-0 opacity-0 group-hover:opacity-100 transition-opacity`}
+                  className={`${action.buttonColor} text-white border-0 opacity-0 group-hover:opacity-100 transition-opacity mobile-button w-full md:w-auto`}
                 >
                   Open
                 </Button>

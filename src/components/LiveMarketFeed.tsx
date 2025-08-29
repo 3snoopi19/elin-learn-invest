@@ -40,7 +40,7 @@ const MiniSparkline = ({ isPositive }: { isPositive: boolean }) => {
   );
 };
 
-// Individual ticker item
+// Individual ticker item - Mobile optimized
 const TickerItem = ({ data, index }: { data: MarketQuote, index: number }) => {
   const isPositive = data.changeAbs >= 0;
   const isUnchanged = data.changeAbs === 0;
@@ -52,7 +52,7 @@ const TickerItem = ({ data, index }: { data: MarketQuote, index: number }) => {
   
   return (
     <motion.div
-      className={`flex-shrink-0 bg-card/60 backdrop-blur-sm rounded-lg p-4 border border-border/50 min-w-[280px] mx-2 shadow-lg hover:scale-105 transition-transform duration-200 glass-effect`}
+      className={`flex-shrink-0 bg-card/60 backdrop-blur-sm rounded-lg p-3 md:p-4 border border-border/50 min-w-[240px] md:min-w-[280px] mx-1 md:mx-2 shadow-lg hover:scale-105 transition-transform duration-200 glass-effect`}
       style={{
         boxShadow: isPositive 
           ? `0 4px 6px -1px ${positiveColor}10` 
@@ -66,8 +66,8 @@ const TickerItem = ({ data, index }: { data: MarketQuote, index: number }) => {
     >
       <div className="flex items-center justify-between">
         <div className="flex-1">
-          <div className="flex items-center gap-3 mb-2">
-            <span className="font-bold text-foreground text-lg">{data.symbol}</span>
+          <div className="flex items-center gap-2 md:gap-3 mb-2">
+            <span className="font-bold text-foreground text-base md:text-lg">{data.symbol}</span>
             <div 
               className="flex items-center gap-1 px-2 py-1 rounded text-xs font-medium"
               style={{
@@ -88,15 +88,15 @@ const TickerItem = ({ data, index }: { data: MarketQuote, index: number }) => {
             </div>
           </div>
           
-          <div className="text-muted-foreground text-sm mb-2 truncate">{symbolInfo.displayName}</div>
+          <div className="text-muted-foreground text-xs md:text-sm mb-2 truncate">{symbolInfo.displayName}</div>
           
           <div className="flex items-center justify-between">
             <div>
-              <div className="text-foreground text-xl font-semibold">
+              <div className="text-foreground text-lg md:text-xl font-semibold">
                 ${data.price.toLocaleString('en-US', { minimumFractionDigits: 2 })}
               </div>
               <div 
-                className="text-sm"
+                className="text-xs md:text-sm"
                 style={{
                   color: isPositive 
                     ? positiveColor 
@@ -109,7 +109,7 @@ const TickerItem = ({ data, index }: { data: MarketQuote, index: number }) => {
               </div>
             </div>
             
-            <div className="ml-4">
+            <div className="ml-3 md:ml-4">
               <MiniSparkline isPositive={isPositive} />
             </div>
           </div>
@@ -313,52 +313,52 @@ export const LiveMarketFeed = () => {
             </div>
           )}
           
-          {/* Scrolling ticker */}
-          <div className="relative overflow-hidden">
-            <motion.div
-              className="flex"
-              animate={{ x: loading ? 0 : -currentIndex * 300 }}
-              transition={{ duration: 0.8, ease: "easeInOut" }}
-              aria-live="polite"
-              aria-label="Live market data feed"
-            >
-              {loading ? (
-                // Show loading skeletons
-                Array.from({ length: 4 }).map((_, index) => (
-                  <TickerSkeleton key={`skeleton-${index}`} />
-                ))
-              ) : marketData.length > 0 ? (
-                marketData.map((item, index) => (
-                  <TickerItem key={item.symbol} data={item} index={index} />
-                ))
-              ) : (
-                <div className="flex-shrink-0 bg-card/60 backdrop-blur-sm rounded-lg p-8 border border-border/50 min-w-[280px] mx-2 text-center glass-effect">
-                  <AlertCircle className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
-                  <div className="text-muted-foreground">No market data available</div>
-                </div>
-              )}
-            </motion.div>
-          </div>
+      {/* Scrolling ticker - Mobile optimized */}
+      <div className="relative overflow-hidden">
+        <motion.div
+          className="flex"
+          animate={{ x: loading ? 0 : -currentIndex * 260 }} // Reduced width for mobile
+          transition={{ duration: 0.8, ease: "easeInOut" }}
+          aria-live="polite"
+          aria-label="Live market data feed"
+        >
+          {loading ? (
+            // Show loading skeletons
+            Array.from({ length: 4 }).map((_, index) => (
+              <TickerSkeleton key={`skeleton-${index}`} />
+            ))
+          ) : marketData.length > 0 ? (
+            marketData.map((item, index) => (
+              <TickerItem key={item.symbol} data={item} index={index} />
+            ))
+          ) : (
+            <div className="flex-shrink-0 bg-card/60 backdrop-blur-sm rounded-lg p-6 md:p-8 border border-border/50 min-w-[240px] md:min-w-[280px] mx-2 text-center glass-effect">
+              <AlertCircle className="w-6 h-6 md:w-8 md:h-8 text-muted-foreground mx-auto mb-2" />
+              <div className="text-muted-foreground text-sm md:text-base">No market data available</div>
+            </div>
+          )}
+        </motion.div>
+      </div>
 
-          {/* Gradient fade edges */}
-          <div className="absolute left-0 top-0 w-8 h-full bg-gradient-to-r from-card to-transparent pointer-events-none z-10" />
-          <div className="absolute right-0 top-0 w-8 h-full bg-gradient-to-l from-card to-transparent pointer-events-none z-10" />
+      {/* Gradient fade edges */}
+      <div className="absolute left-0 top-0 w-6 md:w-8 h-full bg-gradient-to-r from-card to-transparent pointer-events-none z-10" />
+      <div className="absolute right-0 top-0 w-6 md:w-8 h-full bg-gradient-to-l from-card to-transparent pointer-events-none z-10" />
 
-          {/* Market status indicators */}
-          <div className="flex justify-center gap-6 mt-6 pt-4 border-t border-border/30">
-            <div className="text-center">
-              <div className="text-success text-lg font-bold">+1,247</div>
-              <div className="text-muted-foreground text-xs">Gainers</div>
-            </div>
-            <div className="text-center">
-              <div className="text-destructive text-lg font-bold">-892</div>
-              <div className="text-muted-foreground text-xs">Losers</div>
-            </div>
-            <div className="text-center">
-              <div className="text-muted-foreground text-lg font-bold">2,156</div>
-              <div className="text-muted-foreground text-xs">Unchanged</div>
-            </div>
-          </div>
+      {/* Market status indicators - Mobile responsive */}
+      <div className="grid grid-cols-3 gap-4 md:gap-6 mt-4 md:mt-6 pt-4 border-t border-border/30">
+        <div className="text-center">
+          <div className="text-success text-base md:text-lg font-bold">+1,247</div>
+          <div className="text-muted-foreground text-xs">Gainers</div>
+        </div>
+        <div className="text-center">
+          <div className="text-destructive text-base md:text-lg font-bold">-892</div>
+          <div className="text-muted-foreground text-xs">Losers</div>
+        </div>
+        <div className="text-center">
+          <div className="text-muted-foreground text-base md:text-lg font-bold">2,156</div>
+          <div className="text-muted-foreground text-xs">Unchanged</div>
+        </div>
+      </div>
         </CardContent>
       </Card>
     </motion.div>
