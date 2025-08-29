@@ -418,7 +418,7 @@ export const MoneyFlowVisualization: React.FC<MoneyFlowVisualizationProps> = ({
       id: account.id,
       type: 'account',
       position: { x: 400, y: 100 + index * 200 },
-      data: account as Record<string, unknown>,
+      data: { ...account } as Record<string, unknown>,
       draggable: true,
     }));
 
