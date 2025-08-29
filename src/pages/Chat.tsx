@@ -19,6 +19,7 @@ import { QuickReplyButtons } from "@/components/chat/QuickReplyButtons";
 import { LearningModeSelector } from "@/components/chat/LearningModeSelector";
 import { ProgressTracker } from "@/components/chat/ProgressTracker";
 import { PersonalizationPanel } from "@/components/chat/PersonalizationPanel";
+import { VoiceInterface } from "@/components/chat/VoiceInterface";
 
 // Types and hooks
 import { Message, ChartData, QuizQuestion } from "@/types/chat";
@@ -270,6 +271,20 @@ const Chat = () => {
     setIsTyping(false);
     setShowQuickReplies(true);
     
+    // Speak the response if voice is enabled
+    if (window.elinSpeak && settings.voiceEnabled) {
+      // Clean the response text for speech
+      const cleanText = aiResponse.response
+        .replace(/[*#`]/g, '') // Remove markdown characters
+        .replace(/\n+/g, '. ') // Replace line breaks with periods
+        .replace(/•/g, '') // Remove bullet points
+        .substring(0, 300); // Limit length for speech
+      
+      setTimeout(() => {
+        window.elinSpeak?.(cleanText);
+      }, 500);
+    }
+    
     // Update learning progress
     if (messageType === 'lesson') incrementProgress('lessons');
     if (messageType === 'quiz') incrementProgress('quizzes');
@@ -445,25 +460,32 @@ const Chat = () => {
                   isVisible={showQuickReplies && !isTyping && messages.length > 1}
                 />
 
-                {/* Input */}
-                <div className="flex space-x-2">
-                  <Input
-                    value={inputValue}
-                    onChange={(e) => setInputValue(e.target.value)}
-                    onKeyDown={handleKeyPress}
-                    placeholder="Ask about investing, request a lesson, or try 'Show me a chart about portfolio diversification'..."
-                    className="flex-1 bg-background border-border/50 focus:border-education focus:ring-education"
-                    maxLength={2000}
-                    aria-label="Type your message to ELIN"
+                {/* Voice Interface and Input */}
+                <div className="space-y-3 p-4 border-t border-border/30">
+                  <VoiceInterface 
+                    onVoiceInput={(text) => handleSendMessage(text)}
+                    isListening={isTyping}
                   />
-                  <Button 
-                    onClick={() => handleSendMessage()} 
-                    disabled={!inputValue.trim() || isTyping}
-                    aria-label="Send message"
-                    className="bg-education hover:bg-education/90"
-                  >
-                    <Send className="h-4 w-4" />
-                  </Button>
+                  
+                  <div className="flex space-x-2">
+                    <Input
+                      value={inputValue}
+                      onChange={(e) => setInputValue(e.target.value)}
+                      onKeyPress={handleKeyPress}
+                      placeholder="Ask about investing, request a lesson, or try 'Show me a chart about portfolio diversification'..."
+                      className="flex-1 bg-background border-border/50 focus:border-education focus:ring-education"
+                      maxLength={2000}
+                      aria-label="Type your message to ELIN"
+                    />
+                    <Button 
+                      onClick={() => handleSendMessage()} 
+                      disabled={!inputValue.trim() || isTyping}
+                      aria-label="Send message"
+                      className="bg-education hover:bg-education/90"
+                    >
+                      <Send className="h-4 w-4" />
+                    </Button>
+                  </div>
                 </div>
               </CardContent>
             </Card>
