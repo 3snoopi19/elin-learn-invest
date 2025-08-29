@@ -356,14 +356,88 @@ All colors MUST be HSL.
     @apply animate-pulse bg-muted/50 rounded;
   }
   
-  /* Fixed mobile footer spacing */
-  .mobile-content {
-    padding-bottom: 100px; /* Space for bottom navigation */
+/* Floating Action Button */
+.floating-action-btn {
+  @apply fixed bottom-20 right-4 md:bottom-6 md:right-6 z-40 w-14 h-14 bg-primary hover:bg-primary-hover text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center;
+  transform-origin: center;
+}
+
+.floating-action-btn:hover {
+  transform: scale(1.1);
+}
+
+.floating-action-btn:active {
+  transform: scale(0.95);
+}
+
+/* Enhanced Animation Utilities */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
   }
-  
-  @media (min-width: 768px) {
-    .mobile-content {
-      padding-bottom: 0;
-    }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(100px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.6s ease-out;
+}
+
+.animate-slide-in-right {
+  animation: slideInRight 0.5s ease-out;
+}
+
+.animate-scale-in {
+  animation: scaleIn 0.3s ease-out;
+}
+
+/* Staggered Animation Delays */
+.animate-delay-100 { animation-delay: 100ms; }
+.animate-delay-200 { animation-delay: 200ms; }
+.animate-delay-300 { animation-delay: 300ms; }
+.animate-delay-400 { animation-delay: 400ms; }
+.animate-delay-500 { animation-delay: 500ms; }
+
+/* Mobile Performance Optimizations */
+.gpu-accelerated {
+  transform: translateZ(0);
+  will-change: transform;
+  backface-visibility: hidden;
+}
+
+/* Loading States */
+.skeleton-text {
+  @apply bg-gradient-to-r from-muted/50 via-muted/80 to-muted/50 animate-pulse rounded;
+  background-size: 200% 100%;
+}
+
+.skeleton-box {
+  @apply bg-gradient-to-r from-muted/30 via-muted/50 to-muted/30 animate-pulse rounded;
+  background-size: 200% 100%;
+}
 }

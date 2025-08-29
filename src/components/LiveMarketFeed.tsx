@@ -148,10 +148,12 @@ export const LiveMarketFeed = () => {
   const [error, setError] = useState<string | null>(null);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
   const [nextRetryIn, setNextRetryIn] = useState<number>(0);
+  const [isRetrying, setIsRetrying] = useState(false);
 
   const fetchMarketData = useCallback(async () => {
     try {
       setError(null);
+      setIsRetrying(true);
       
       // Diagnostic logging for preview env
       if (process.env.NODE_ENV === 'development') {
@@ -170,26 +172,30 @@ export const LiveMarketFeed = () => {
 
       if (fetchError) {
         console.error('Market data fetch error:', fetchError);
-        throw new Error(fetchError.message || 'API request failed');
+        throw new Error(fetchError.message || 'Market data service unavailable');
       }
 
-      if (data && Array.isArray(data)) {
+      if (data && Array.isArray(data) && data.length > 0) {
         setMarketData(data);
         setLastUpdated(new Date());
         setNextRetryIn(0);
+        setError(null);
       } else {
-        throw new Error('Invalid data format received');
+        throw new Error('No market data available');
       }
     } catch (err) {
       console.error('Error fetching market data:', err);
-      setError('Live data unavailable — retrying in 30s');
+      
+      // Show more user-friendly error messages
+      const errorMessage = err instanceof Error ? err.message : 'Connection failed';
+      setError(`${errorMessage} — next refresh in ${MARKET_FEED_REFRESH_SEC}s`);
       
       // Start countdown for next retry
       setNextRetryIn(MARKET_FEED_REFRESH_SEC);
       
-      // Show fallback data for educational purposes only if no data exists
+      // Show fallback educational data if no real data exists
       if (!marketData.length) {
-        const fallbackData = MARKET_FEED_SYMBOLS.map((symbol) => ({
+        const fallbackData = MARKET_FEED_SYMBOLS.map((symbol, index) => ({
           symbol,
           price: 150 + Math.random() * 300,
           changePct: (Math.random() - 0.5) * 6,
@@ -198,9 +204,11 @@ export const LiveMarketFeed = () => {
           time: Date.now() / 1000
         }));
         setMarketData(fallbackData);
+        setError('Using sample data for educational purposes');
       }
     } finally {
       setLoading(false);
+      setIsRetrying(false);
     }
   }, [marketData.length]);
 
@@ -240,6 +248,7 @@ export const LiveMarketFeed = () => {
 
   const handleRefreshNow = () => {
     setNextRetryIn(0);
+    setError(null);
     fetchMarketData();
   };
 
