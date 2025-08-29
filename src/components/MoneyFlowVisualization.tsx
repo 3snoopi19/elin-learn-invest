@@ -9,7 +9,16 @@ import {
   Position,
   MarkerType,
   Node,
+  Edge,
+  Connection,
   BackgroundVariant,
+  MiniMap,
+  Panel,
+  Handle,
+  getBezierPath,
+  EdgeLabelRenderer,
+  BaseEdge,
+  useReactFlow
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import { 
@@ -38,7 +47,13 @@ import {
   Filter,
   Moon,
   Sun,
-  ArrowRight
+  ArrowRight,
+  Move,
+  Settings,
+  RotateCcw,
+  Bot,
+  Sparkles,
+  Activity
 } from 'lucide-react';
 import { Button } from './ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
@@ -69,12 +84,13 @@ interface Account {
 
 interface NodeData {
   label: string;
-  amount: string;
+  amount: number;
   type?: string;
   category?: string;
   frequency?: string;
   transactions?: Transaction[];
   totalTransactions?: number;
+  icon?: string;
 }
 
 interface MoneyFlowVisualizationProps {
@@ -91,124 +107,87 @@ const mockTransactions: Transaction[] = [
   { id: '5', date: '2024-01-03', amount: -125, description: 'Grocery Shopping', category: 'shopping', type: 'expense' },
 ];
 
-// Transaction History Modal Component
-const TransactionModal = ({ data, type }: { data: NodeData; type: 'income' | 'expense' | 'account' }) => {
-  const transactions = Array.isArray(data.transactions) 
-    ? data.transactions 
-    : mockTransactions.filter(t => {
-        if (type === 'account') return true; // Show all transactions for accounts
-        return t.type === type;
-      }).slice(0, 5);
-  
+// Custom Animated Edge with Amount Display
+const AnimatedMoneyEdge = ({ id, sourceX, sourceY, targetX, targetY, sourcePosition, targetPosition, style, data }: any) => {
+  const [edgePath, labelX, labelY] = getBezierPath({
+    sourceX,
+    sourceY,
+    sourcePosition,
+    targetX,
+    targetY,
+    targetPosition,
+  });
+
   return (
-    <Dialog>
-      <DialogTrigger asChild>
-        <div className="w-full h-full" />
-      </DialogTrigger>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2 text-foreground">
-            {type === 'income' && <TrendingUp className="h-5 w-5 text-success" />}
-            {type === 'expense' && <TrendingDown className="h-5 w-5 text-destructive" />}
-            {type === 'account' && <Wallet className="h-5 w-5 text-secondary" />}
-            {data.label} Transactions
-          </DialogTitle>
-        </DialogHeader>
-        <div className="space-y-3 max-h-80 overflow-y-auto">
-          {transactions.map((transaction) => (
-            <div key={transaction.id} className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
-              <div>
-                <p className="font-medium text-foreground">{transaction.description}</p>
-                <p className="text-sm text-muted-foreground">{transaction.date}</p>
-              </div>
-              <div className={`font-bold ${transaction.amount > 0 ? 'text-success' : 'text-destructive'}`}>
-                {transaction.amount > 0 ? '+' : ''}${Math.abs(transaction.amount).toLocaleString()}
-              </div>
-            </div>
-          ))}
+    <>
+      <BaseEdge 
+        path={edgePath} 
+        style={{ 
+          ...style, 
+          strokeWidth: 3,
+          stroke: 'hsl(var(--primary))',
+          strokeDasharray: '5,5',
+          animation: 'dash 2s linear infinite'
+        }}
+        markerEnd={MarkerType.ArrowClosed}
+      />
+      <EdgeLabelRenderer>
+        <div
+          className="absolute bg-card/95 backdrop-blur-sm border rounded-lg px-2 py-1 text-xs font-semibold text-foreground shadow-lg pointer-events-none"
+          style={{
+            transform: `translate(-50%, -50%) translate(${labelX}px,${labelY}px)`,
+          }}
+        >
+          💰 ${data?.amount || '1,200'}/mo
         </div>
-      </DialogContent>
-    </Dialog>
+      </EdgeLabelRenderer>
+    </>
   );
 };
 
-const IncomeNode = ({ data }: { data: NodeData }) => {
-  const getIcon = (type: string) => {
-    switch (type) {
-      case 'salary':
-        return <Briefcase className="h-6 w-6 text-success" />;
-      case 'freelance':
-        return <Zap className="h-6 w-6 text-success" />;
-      default:
-        return <DollarSign className="h-6 w-6 text-success" />;
+// Custom Node Components
+const IncomeSourceNode = ({ data }: { data: NodeData }) => {
+  const getIcon = () => {
+    switch (data.type) {
+      case 'salary': return '💼';
+      case 'freelance': return '⚡';
+      case 'investment': return '📈';
+      case 'business': return '🏢';
+      default: return '💰';
     }
   };
 
   return (
-    <TooltipProvider>
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <div className="relative">
-            <TransactionModal data={data} type="income" />
-            <div className="group relative px-6 py-4 min-w-[200px] cursor-pointer transform transition-all duration-300 hover:scale-105">
-              {/* Glassmorphism background */}
-              <div className="absolute inset-0 bg-gradient-to-br from-success/10 via-success/5 to-transparent backdrop-blur-xl rounded-2xl border border-success/20 shadow-lg" />
-              <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-              
-              {/* Content */}
-              <div className="relative z-10">
-                <div className="flex items-start gap-3 mb-3">
-                  <div className="p-3 bg-gradient-to-br from-success/20 to-success/10 rounded-xl backdrop-blur-sm border border-success/30 group-hover:scale-110 transition-transform duration-200">
-                    {getIcon(data.type || '')}
-                  </div>
-                  <div className="flex-1">
-                    <h4 className="font-bold text-base text-card-foreground mb-1">{data.label}</h4>
-                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                      <Calendar className="h-3 w-3" />
-                      <span>{data.frequency || 'Monthly'}</span>
-                    </div>
-                  </div>
-                </div>
-                
-                <div className="space-y-2">
-                  <div className="text-2xl font-bold text-success">
-                    +{data.amount}
-                  </div>
-                  <div className="flex items-center justify-between text-xs">
-                    <span className="text-muted-foreground">
-                      {data.totalTransactions || data.transactions?.length || 0} transactions
-                    </span>
-                    <Badge variant="outline" className="text-xs bg-success/10 text-success border-success/20">
-                      Active
-                    </Badge>
-                  </div>
-                  <div className="text-xs text-muted-foreground">
-                    Last: 2 days ago
-                  </div>
-                </div>
-              </div>
-            </div>
+    <div className="group relative">
+      <Handle type="source" position={Position.Right} className="w-3 h-3 bg-success border-2 border-success-foreground" />
+      <div className="min-w-[180px] p-4 bg-gradient-to-br from-success/10 to-success/5 backdrop-blur-xl border border-success/20 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 cursor-move">
+        <div className="flex items-center gap-3 mb-3">
+          <div className="text-2xl">{getIcon()}</div>
+          <div>
+            <h3 className="font-bold text-sm text-foreground">{data.label}</h3>
+            <p className="text-xs text-muted-foreground">{data.frequency}</p>
           </div>
-        </TooltipTrigger>
-        <TooltipContent className="bg-card/95 backdrop-blur-sm border border-success/20">
-          <p>💰 Click to view transaction history</p>
-        </TooltipContent>
-      </Tooltip>
-    </TooltipProvider>
+        </div>
+        <div className="text-xl font-bold text-success">
+          +${data.amount.toLocaleString()}
+        </div>
+        <div className="flex items-center justify-between mt-2">
+          <span className="text-xs text-muted-foreground">{data.totalTransactions} transactions</span>
+          <Badge variant="outline" className="text-xs bg-success/10 text-success">Active</Badge>
+        </div>
+      </div>
+    </div>
   );
 };
 
 const AccountNode = ({ data }: { data: any }) => {
-  const getIcon = (type: string) => {
-    switch (type) {
-      case 'checking':
-        return <Wallet className="h-6 w-6 text-secondary" />;
-      case 'savings':
-        return <PiggyBank className="h-6 w-6 text-secondary" />;
-      case 'credit':
-        return <CreditCard className="h-6 w-6 text-secondary" />;
-      default:
-        return <Building2 className="h-6 w-6 text-secondary" />;
+  const getIcon = () => {
+    switch (data.type) {
+      case 'checking': return '🏦';
+      case 'savings': return '🐷';
+      case 'credit': return '💳';
+      case 'investment': return '📊';
+      default: return '🏛️';
     }
   };
 
@@ -217,155 +196,147 @@ const AccountNode = ({ data }: { data: any }) => {
       style: 'currency',
       currency: 'USD',
       minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(Math.abs(amount));
+    }).format(amount);
   };
 
   return (
-    <TooltipProvider>
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <div className="relative">
-            <TransactionModal data={data} type="account" />
-            <div className="group relative px-6 py-4 min-w-[220px] cursor-pointer transform transition-all duration-300 hover:scale-105">
-              {/* Glassmorphism background */}
-              <div className="absolute inset-0 bg-gradient-to-br from-secondary/10 via-secondary/5 to-transparent backdrop-blur-xl rounded-2xl border border-secondary/20 shadow-lg" />
-              <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-              
-              {/* Content */}
-              <div className="relative z-10">
-                <div className="flex items-start gap-3 mb-3">
-                  <div className="p-3 bg-gradient-to-br from-secondary/20 to-secondary/10 rounded-xl backdrop-blur-sm border border-secondary/30 group-hover:scale-110 transition-transform duration-200">
-                    {getIcon(data.type)}
-                  </div>
-                  <div className="flex-1">
-                    <h4 className="font-bold text-base text-card-foreground mb-1">{data.name}</h4>
-                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                      <Building2 className="h-3 w-3" />
-                      <span>{data.institution}</span>
-                    </div>
-                  </div>
-                </div>
-                
-                <div className="space-y-2">
-                  <div className={`text-2xl font-bold ${data.balance < 0 ? 'text-destructive' : 'text-secondary'}`}>
-                    {formatCurrency(data.balance)}
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs text-muted-foreground">
-                      Last sync: Today
-                    </span>
-                    <Badge 
-                      variant="outline" 
-                      className={cn(
-                        "text-xs border",
-                        data.balance > 5000 
-                          ? "bg-success/10 text-success border-success/20" 
-                          : data.balance < 0 
-                          ? "bg-destructive/10 text-destructive border-destructive/20"
-                          : "bg-warning/10 text-warning border-warning/20"
-                      )}
-                    >
-                      {data.balance > 5000 ? 'Healthy' : data.balance < 0 ? 'Credit' : 'Low'}
-                    </Badge>
-                  </div>
-                </div>
-              </div>
-            </div>
+    <div className="group relative">
+      <Handle type="target" position={Position.Left} className="w-3 h-3 bg-secondary border-2 border-secondary-foreground" />
+      <Handle type="source" position={Position.Right} className="w-3 h-3 bg-secondary border-2 border-secondary-foreground" />
+      <div className="min-w-[200px] p-4 bg-gradient-to-br from-secondary/10 to-secondary/5 backdrop-blur-xl border border-secondary/20 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 cursor-move">
+        <div className="flex items-center gap-3 mb-3">
+          <div className="text-2xl">{getIcon()}</div>
+          <div>
+            <h3 className="font-bold text-sm text-foreground">{data.name}</h3>
+            <p className="text-xs text-muted-foreground">{data.institution}</p>
           </div>
-        </TooltipTrigger>
-        <TooltipContent className="bg-card/95 backdrop-blur-sm border border-secondary/20">
-          <p>🏦 Click to view account transactions</p>
-        </TooltipContent>
-      </Tooltip>
-    </TooltipProvider>
+        </div>
+        <div className={`text-xl font-bold ${data.balance < 0 ? 'text-destructive' : 'text-secondary'}`}>
+          {formatCurrency(data.balance)}
+        </div>
+        <div className="flex items-center justify-between mt-2">
+          <span className="text-xs text-muted-foreground">Last sync: Today</span>
+          <Badge 
+            variant={data.balance > 5000 ? 'default' : data.balance < 0 ? 'destructive' : 'secondary'}
+            className="text-xs"
+          >
+            {data.balance > 5000 ? 'Healthy' : data.balance < 0 ? 'Credit' : 'Low'}
+          </Badge>
+        </div>
+      </div>
+    </div>
   );
 };
 
 const ExpenseNode = ({ data }: { data: NodeData }) => {
-  const getIcon = (category: string) => {
-    switch (category) {
-      case 'rent':
-        return <Home className="h-6 w-6 text-destructive" />;
-      case 'car':
-        return <Car className="h-6 w-6 text-destructive" />;
-      case 'credit':
-        return <CreditCard className="h-6 w-6 text-destructive" />;
-      case 'shopping':
-        return <ShoppingCart className="h-6 w-6 text-destructive" />;
-      default:
-        return <DollarSign className="h-6 w-6 text-destructive" />;
+  const getIcon = () => {
+    switch (data.category) {
+      case 'housing': return '🏠';
+      case 'food': return '🛒';
+      case 'transportation': return '🚗';
+      case 'entertainment': return '🎬';
+      case 'utilities': return '⚡';
+      case 'healthcare': return '🏥';
+      default: return '💸';
     }
   };
 
-  const getExpenseBadge = (amount: string, category: string) => {
-    const numAmount = parseInt(amount.replace('$', '').replace(',', ''));
-    if (numAmount > 1000) return { label: "High", variant: "destructive" as const };
-    if (category === 'rent') return { label: "Fixed", variant: "secondary" as const };
-    return { label: "Variable", variant: "outline" as const };
-  };
-
   return (
-    <TooltipProvider>
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <div className="relative">
-            <TransactionModal data={data} type="expense" />
-            <div className="group relative px-6 py-4 min-w-[200px] cursor-pointer transform transition-all duration-300 hover:scale-105">
-              {/* Glassmorphism background */}
-              <div className="absolute inset-0 bg-gradient-to-br from-destructive/10 via-destructive/5 to-transparent backdrop-blur-xl rounded-2xl border border-destructive/20 shadow-lg" />
-              <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-              
-              {/* Content */}
-              <div className="relative z-10">
-                <div className="flex items-start gap-3 mb-3">
-                  <div className="p-3 bg-gradient-to-br from-destructive/20 to-destructive/10 rounded-xl backdrop-blur-sm border border-destructive/30 group-hover:scale-110 transition-transform duration-200">
-                    {getIcon(data.category || '')}
-                  </div>
-                  <div className="flex-1">
-                    <h4 className="font-bold text-base text-card-foreground mb-1">{data.label}</h4>
-                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                      <Calendar className="h-3 w-3" />
-                      <span>{data.frequency || 'Monthly'}</span>
-                    </div>
-                  </div>
-                </div>
-                
-                <div className="space-y-2">
-                  <div className="text-2xl font-bold text-destructive">
-                    -{data.amount}
-                  </div>
-                  <div className="flex items-center justify-between text-xs">
-                    <span className="text-muted-foreground">
-                      {data.totalTransactions || data.transactions?.length || 0} transactions
-                    </span>
-                    <Badge 
-                      variant={getExpenseBadge(data.amount, data.category || '').variant}
-                      className="text-xs"
-                    >
-                      {getExpenseBadge(data.amount, data.category || '').label}
-                    </Badge>
-                  </div>
-                  <div className="text-xs text-muted-foreground">
-                    Last: {data.category === 'rent' ? '1 month ago' : '3 days ago'}
-                  </div>
-                </div>
-              </div>
-            </div>
+    <div className="group relative">
+      <Handle type="target" position={Position.Left} className="w-3 h-3 bg-destructive border-2 border-destructive-foreground" />
+      <div className="min-w-[180px] p-4 bg-gradient-to-br from-destructive/10 to-destructive/5 backdrop-blur-xl border border-destructive/20 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 cursor-move">
+        <div className="flex items-center gap-3 mb-3">
+          <div className="text-2xl">{getIcon()}</div>
+          <div>
+            <h3 className="font-bold text-sm text-foreground">{data.label}</h3>
+            <p className="text-xs text-muted-foreground">{data.frequency}</p>
           </div>
-        </TooltipTrigger>
-        <TooltipContent className="bg-card/95 backdrop-blur-sm border border-destructive/20">
-          <p>💸 Click to view expense history</p>
-        </TooltipContent>
-      </Tooltip>
-    </TooltipProvider>
+        </div>
+        <div className="text-xl font-bold text-destructive">
+          -${data.amount.toLocaleString()}
+        </div>
+        <div className="flex items-center justify-between mt-2">
+          <span className="text-xs text-muted-foreground">{data.totalTransactions} transactions</span>
+          <Badge 
+            variant={data.amount > 1000 ? 'destructive' : 'outline'}
+            className="text-xs"
+          >
+            {data.amount > 1000 ? 'High' : data.category === 'housing' ? 'Fixed' : 'Variable'}
+          </Badge>
+        </div>
+      </div>
+    </div>
   );
 };
 
+// Automation Sidebar Component
+const AutomationSidebar = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) => {
+  if (!isOpen) return null;
+
+  return (
+    <div className="absolute top-0 right-0 w-80 h-full bg-card/95 backdrop-blur-xl border-l border-border shadow-2xl z-50 p-6 overflow-y-auto">
+      <div className="flex items-center justify-between mb-6">
+        <h2 className="text-lg font-bold text-foreground">Smart Automations</h2>
+        <Button variant="ghost" size="sm" onClick={onClose}>
+          <X className="h-4 w-4" />
+        </Button>
+      </div>
+      
+      <div className="space-y-4">
+        <Card className="p-4">
+          <CardHeader className="p-0 mb-3">
+            <CardTitle className="text-sm flex items-center gap-2">
+              <Zap className="h-4 w-4 text-primary" />
+              Auto-Save Rule
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-0">
+            <p className="text-xs text-muted-foreground mb-3">
+              When salary arrives → auto-transfer 20% to savings
+            </p>
+            <div className="flex gap-2">
+              <Button size="sm" variant="outline" className="text-xs">Edit</Button>
+              <Button size="sm" variant="ghost" className="text-xs">Pause</Button>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="p-4">
+          <CardHeader className="p-0 mb-3">
+            <CardTitle className="text-sm flex items-center gap-2">
+              <Target className="h-4 w-4 text-secondary" />
+              Bill Pay Alert
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-0">
+            <p className="text-xs text-muted-foreground mb-3">
+              Notify me 3 days before rent is due
+            </p>
+            <div className="flex gap-2">
+              <Button size="sm" variant="outline" className="text-xs">Edit</Button>
+              <Button size="sm" variant="ghost" className="text-xs">Delete</Button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      <Button className="w-full mt-6" size="sm">
+        <Plus className="h-4 w-4 mr-2" />
+        Create New Automation
+      </Button>
+    </div>
+  );
+};
+
+// Node type definitions
 const nodeTypes = {
+  income: IncomeSourceNode,
   account: AccountNode,
-  income: IncomeNode,
   expense: ExpenseNode,
+};
+
+const edgeTypes = {
+  animated: AnimatedMoneyEdge,
 };
 
 export const MoneyFlowVisualization: React.FC<MoneyFlowVisualizationProps> = ({
@@ -378,7 +349,8 @@ export const MoneyFlowVisualization: React.FC<MoneyFlowVisualizationProps> = ({
     }
     return timeframe || "30";
   });
-  const [isDarkMode, setIsDarkMode] = useState(false);
+  
+  const [showAutomationSidebar, setShowAutomationSidebar] = useState(false);
   const [showMobileView, setShowMobileView] = useState(false);
   const [expandedSections, setExpandedSections] = useState({
     income: true,
@@ -394,7 +366,6 @@ export const MoneyFlowVisualization: React.FC<MoneyFlowVisualizationProps> = ({
     }
   }, [selectedTimeframe]);
 
-  // Auto-enable mobile view on mobile devices
   useEffect(() => {
     setShowMobileView(isMobile);
   }, [isMobile]);
@@ -406,737 +377,479 @@ export const MoneyFlowVisualization: React.FC<MoneyFlowVisualizationProps> = ({
     }));
   };
 
-  const initialNodes = useMemo((): Node[] => {
-    // Income sources positioned on the left
+  // Initialize React Flow state
+  const [nodes, setNodes, onNodesChange] = useNodesState([]);
+  const [edges, setEdges, onEdgesChange] = useEdgesState([]);
+
+  // Initialize nodes and edges
+  useEffect(() => {
+    // Income nodes
     const incomeNodes: Node[] = [
       {
         id: 'income-salary',
         type: 'income',
-        position: { x: 0, y: 50 },
+        position: { x: 50, y: 100 },
         data: { 
-          label: 'Salary', 
-          amount: '$4,200', 
+          label: 'Monthly Salary', 
+          amount: 4200,
           type: 'salary',
-          frequency: 'Bi-weekly',
-          transactions: 2
+          frequency: 'Monthly',
+          totalTransactions: 12
         },
-        sourcePosition: Position.Right,
+        draggable: true,
       },
       {
         id: 'income-freelance',
         type: 'income',
-        position: { x: 0, y: 220 },
+        position: { x: 50, y: 300 },
         data: { 
-          label: 'Freelance', 
-          amount: '$800', 
+          label: 'Freelance Work', 
+          amount: 800,
           type: 'freelance',
           frequency: 'Weekly',
-          transactions: 4
+          totalTransactions: 8
         },
-        sourcePosition: Position.Right,
-      },
-      {
-        id: 'income-investment',
-        type: 'income',
-        position: { x: 0, y: 390 },
-        data: { 
-          label: 'Dividends', 
-          amount: '$150', 
-          type: 'investment',
-          frequency: 'Quarterly',
-          transactions: 1
-        },
-        sourcePosition: Position.Right,
-      },
+        draggable: true,
+      }
     ];
 
-    // Bank accounts positioned in the center
+    // Account nodes
     const accountNodes: Node[] = accounts.map((account, index) => ({
       id: account.id,
       type: 'account',
-      position: { x: 350, y: 50 + index * 180 },
-      data: { ...account } as Record<string, unknown>,
-      sourcePosition: Position.Right,
-      targetPosition: Position.Left,
+      position: { x: 400, y: 100 + index * 200 },
+      data: account as Record<string, unknown>,
+      draggable: true,
     }));
 
-    // Expenses positioned on the right
+    // Expense nodes
     const expenseNodes: Node[] = [
       {
         id: 'expense-rent',
         type: 'expense',
-        position: { x: 700, y: 50 },
+        position: { x: 750, y: 100 },
         data: { 
-          label: 'Rent', 
-          amount: '$1,800', 
-          category: 'rent',
+          label: 'Rent & Utilities', 
+          amount: 1800,
+          category: 'housing',
           frequency: 'Monthly',
-          transactions: 1
+          totalTransactions: 2
         },
-        targetPosition: Position.Left,
-      },
-      {
-        id: 'expense-car',
-        type: 'expense',
-        position: { x: 700, y: 220 },
-        data: { 
-          label: 'Car Payment', 
-          amount: '$420', 
-          category: 'car',
-          frequency: 'Monthly',
-          transactions: 1
-        },
-        targetPosition: Position.Left,
+        draggable: true,
       },
       {
         id: 'expense-groceries',
         type: 'expense',
-        position: { x: 700, y: 390 },
+        position: { x: 750, y: 300 },
         data: { 
           label: 'Groceries', 
-          amount: '$650', 
-          category: 'shopping',
+          amount: 650,
+          category: 'food',
           frequency: 'Weekly',
-          transactions: 12
+          totalTransactions: 15
         },
-        targetPosition: Position.Left,
+        draggable: true,
       },
       {
-        id: 'expense-credit',
+        id: 'expense-transport',
         type: 'expense',
-        position: { x: 700, y: 560 },
+        position: { x: 750, y: 500 },
         data: { 
-          label: 'Credit Card', 
-          amount: '$285', 
-          category: 'credit',
+          label: 'Transportation', 
+          amount: 420,
+          category: 'transportation',
           frequency: 'Monthly',
-          transactions: 8
+          totalTransactions: 8
         },
-        targetPosition: Position.Left,
-      },
+        draggable: true,
+      }
     ];
 
-    return [...incomeNodes, ...accountNodes, ...expenseNodes];
-  }, [accounts]);
-
-  const initialEdges = useMemo(() => [
-    // Income flows with enhanced styling
-    {
-      id: 'salary-checking',
-      source: 'income-salary',
-      target: 'acc_1',
-      type: 'smoothstep',
-      animated: true,
-      style: { 
-        stroke: '#10b981', 
-        strokeWidth: 4,
-        strokeDasharray: '0',
+    const initialEdges: Edge[] = [
+      // Income to accounts
+      {
+        id: 'e-salary-checking',
+        source: 'income-salary',
+        target: accounts[0]?.id || 'acc_1',
+        type: 'animated',
+        animated: true,
+        data: { amount: '3200' },
+        style: { stroke: 'hsl(var(--success))' }
       },
-      markerEnd: { type: MarkerType.ArrowClosed, color: '#10b981' },
-      label: 'Direct Deposit',
-      labelStyle: { 
-        fill: '#10b981', 
-        fontWeight: 600, 
-        fontSize: 12,
-        background: 'rgba(255, 255, 255, 0.9)',
-        padding: '2px 8px',
-        borderRadius: '4px',
+      {
+        id: 'e-freelance-savings',
+        source: 'income-freelance',
+        target: accounts[1]?.id || 'acc_2',
+        type: 'animated',
+        animated: true,
+        data: { amount: '800' },
+        style: { stroke: 'hsl(var(--success))' }
       },
-    },
-    {
-      id: 'freelance-checking',
-      source: 'income-freelance',
-      target: 'acc_1',
-      type: 'smoothstep',
-      animated: true,
-      style: { 
-        stroke: '#10b981', 
-        strokeWidth: 3,
+      // Accounts to expenses
+      {
+        id: 'e-checking-rent',
+        source: accounts[0]?.id || 'acc_1',
+        target: 'expense-rent',
+        type: 'animated',
+        animated: true,
+        data: { amount: '1800' },
+        style: { stroke: 'hsl(var(--destructive))' }
       },
-      markerEnd: { type: MarkerType.ArrowClosed, color: '#10b981' },
-      label: 'Bank Transfer',
-      labelStyle: { 
-        fill: '#10b981', 
-        fontWeight: 600, 
-        fontSize: 11,
+      {
+        id: 'e-checking-groceries',
+        source: accounts[0]?.id || 'acc_1',
+        target: 'expense-groceries',
+        type: 'animated',
+        animated: true,
+        data: { amount: '650' },
+        style: { stroke: 'hsl(var(--destructive))' }
       },
-    },
-    {
-      id: 'investment-savings',
-      source: 'income-investment',
-      target: 'acc_2',
-      type: 'smoothstep',
-      animated: true,
-      style: { 
-        stroke: '#10b981', 
-        strokeWidth: 2,
-      },
-      markerEnd: { type: MarkerType.ArrowClosed, color: '#10b981' },
-      label: 'Auto-invest',
-      labelStyle: { 
-        fill: '#10b981', 
-        fontWeight: 600, 
-        fontSize: 11,
-      },
-    },
-    // Internal account transfers
-    {
-      id: 'checking-savings',
-      source: 'acc_1',
-      target: 'acc_2',
-      type: 'smoothstep',
-      animated: true,
-      style: { 
-        stroke: '#3b82f6', 
-        strokeWidth: 3,
-        strokeDasharray: '5,5',
-      },
-      markerEnd: { type: MarkerType.ArrowClosed, color: '#3b82f6' },
-      label: '20% Auto-save',
-      labelStyle: { 
-        fill: '#3b82f6', 
-        fontWeight: 600, 
-        fontSize: 11,
-      },
-    },
-    // Expense flows with enhanced styling
-    {
-      id: 'checking-rent',
-      source: 'acc_1',
-      target: 'expense-rent',
-      type: 'smoothstep',
-      style: { 
-        stroke: '#ef4444', 
-        strokeWidth: 4,
-      },
-      markerEnd: { type: MarkerType.ArrowClosed, color: '#ef4444' },
-      label: 'Auto-pay',
-      labelStyle: { 
-        fill: '#ef4444', 
-        fontWeight: 600, 
-        fontSize: 11,
-      },
-    },
-    {
-      id: 'checking-car',
-      source: 'acc_1',
-      target: 'expense-car',
-      type: 'smoothstep',
-      style: { 
-        stroke: '#ef4444', 
-        strokeWidth: 3,
-      },
-      markerEnd: { type: MarkerType.ArrowClosed, color: '#ef4444' },
-    },
-    {
-      id: 'checking-groceries',
-      source: 'acc_1',
-      target: 'expense-groceries',
-      type: 'smoothstep',
-      style: { 
-        stroke: '#ef4444', 
-        strokeWidth: 3,
-      },
-      markerEnd: { type: MarkerType.ArrowClosed, color: '#ef4444' },
-    },
-    // Credit card flows
-    {
-      id: 'checking-credit-payment',
-      source: 'acc_1',
-      target: 'acc_3',
-      type: 'smoothstep',
-      animated: true,
-      style: { 
-        stroke: '#f59e0b', 
-        strokeWidth: 3,
-      },
-      markerEnd: { type: MarkerType.ArrowClosed, color: '#f59e0b' },
-      label: 'Payment',
-      labelStyle: { 
-        fill: '#f59e0b', 
-        fontWeight: 600, 
-        fontSize: 11,
-      },
-    },
-    {
-      id: 'credit-expense',
-      source: 'acc_3',
-      target: 'expense-credit',
-      type: 'smoothstep',
-      style: { 
-        stroke: '#ef4444', 
-        strokeWidth: 2,
-      },
-      markerEnd: { type: MarkerType.ArrowClosed, color: '#ef4444' },
-    },
-  ], []);
-
-  // Calculate dynamic mobile positioning for better mobile experience
-  const mobileNodes = useMemo(() => {
-    if (!isMobile) return initialNodes;
-    
-    // Mobile layout: vertical stacking with adequate spacing
-    return initialNodes.map((node, index) => {
-      const nodeType = node.type;
-      let yPosition = 50;
-      let xPosition = 50;
-      
-      if (nodeType === 'income') {
-        yPosition = 50 + (index * 200);
-      } else if (nodeType === 'account') {
-        yPosition = 600 + (index * 180);
-      } else if (nodeType === 'expense') {
-        yPosition = 1200 + (index * 200);
+      {
+        id: 'e-checking-transport',
+        source: accounts[0]?.id || 'acc_1',
+        target: 'expense-transport',
+        type: 'animated',
+        animated: true,
+        data: { amount: '420' },
+        style: { stroke: 'hsl(var(--destructive))' }
       }
-      
-      return {
-        ...node,
-        position: { x: xPosition, y: yPosition },
-      };
-    });
-  }, [initialNodes, isMobile]);
+    ];
 
-  const [nodes, setNodes, onNodesChange] = useNodesState(isMobile ? mobileNodes : initialNodes);
-  const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
+    setNodes([...incomeNodes, ...accountNodes, ...expenseNodes]);
+    setEdges(initialEdges);
+  }, [accounts, setNodes, setEdges]);
 
   const onConnect = useCallback(
-    (params: any) => setEdges((eds) => addEdge(params, eds)),
+    (params: Connection) => setEdges((eds) => addEdge({ 
+      ...params, 
+      type: 'animated',
+      animated: true,
+      data: { amount: '500' } 
+    }, eds)),
     [setEdges]
   );
 
-  // Dynamic insights based on data
-  const insights = useMemo(() => {
-    const totalIncome = 5150;
-    const totalExpenses = 3155;
-    const netIncome = totalIncome - totalExpenses;
-    const savingsRate = ((netIncome / totalIncome) * 100).toFixed(1);
-    
-    const topExpense = { name: 'Rent', amount: 1800 };
-    const suggestions = [];
-    
-    if (parseFloat(savingsRate) < 20) {
-      suggestions.push({
-        icon: <AlertCircle className="h-5 w-5 text-warning" />,
-        title: "Low Savings Rate",
-        description: `You're saving ${savingsRate}% - aim for 20%+`,
-        action: "Review expenses"
-      });
-    }
-    
-    if (topExpense.amount > totalIncome * 0.3) {
-      suggestions.push({
-        icon: <Home className="h-5 w-5 text-destructive" />,
-        title: "High Housing Cost",
-        description: "Housing costs over 30% of income",
-        action: "Consider alternatives"
-      });
-    }
+  // Calculate totals for insight cards
+  const totals = useMemo(() => {
+    const totalIncome = 5000; 
+    const totalExpenses = 2870;
+    const netWorth = accounts.reduce((sum, account) => sum + account.balance, 0);
     
     return {
-      totalIncome,
-      totalExpenses,
-      netIncome,
-      savingsRate,
-      topExpense,
-      suggestions
+      income: totalIncome,
+      expenses: totalExpenses,
+      netWorth,
+      cashFlow: totalIncome - totalExpenses
     };
-  }, [selectedTimeframe]);
+  }, [accounts]);
 
-  // Mobile collapsible sections
-  const MobileFlowSection = ({ title, icon, children, sectionKey, color }: {
-    title: string;
-    icon: React.ReactNode;
-    children: React.ReactNode;
-    sectionKey: keyof typeof expandedSections;
-    color: string;
-  }) => (
-    <Collapsible 
-      open={expandedSections[sectionKey]} 
-      onOpenChange={() => toggleSection(sectionKey)}
-      className="space-y-2"
-    >
-      <CollapsibleTrigger asChild>
-        <Button 
-          variant="ghost" 
-          className={`w-full justify-between p-4 h-auto rounded-2xl bg-gradient-to-r ${color} backdrop-blur-sm border`}
-        >
-          <div className="flex items-center gap-3">
-            {icon}
-            <span className="font-semibold">{title}</span>
-          </div>
-          {expandedSections[sectionKey] ? 
-            <ChevronUp className="h-5 w-5" /> : 
-            <ChevronDown className="h-5 w-5" />
-          }
-        </Button>
-      </CollapsibleTrigger>
-      <CollapsibleContent className="space-y-3 px-2">
-        {children}
-      </CollapsibleContent>
-    </Collapsible>
-  );
-
-  return (
-    <div className="w-full space-y-6 relative">
-      {/* Glassmorphism header */}
-      <div className={cn(
-        "relative overflow-hidden rounded-2xl border backdrop-blur-xl",
-        "bg-gradient-to-r from-card/80 via-card/60 to-card/80",
-        isMobile ? 'p-4 space-y-4' : 'p-6'
-      )}>
-        <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-secondary/5 to-success/5 opacity-50" />
-        
-        <div className={cn(
-          "relative z-10",
-          isMobile ? 'space-y-4' : 'flex items-center justify-between'
-        )}>
-          <div className="flex items-center gap-4">
-            <h3 className="text-xl font-bold text-card-foreground">
-              💰 Money Flow
-            </h3>
-            {!isMobile && (
-              <div className="flex items-center gap-4 text-sm">
-                <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-success/10 text-success border border-success/20">
-                  <div className="w-2 h-2 bg-success rounded-full"></div>
-                  <span>Income</span>
-                </div>
-                <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-secondary/10 text-secondary border border-secondary/20">
-                  <div className="w-2 h-2 bg-secondary rounded-full"></div>
-                  <span>Accounts</span>
-                </div>
-                <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-destructive/10 text-destructive border border-destructive/20">
-                  <div className="w-2 h-2 bg-destructive rounded-full"></div>
-                  <span>Expenses</span>
-                </div>
-              </div>
-            )}
+  // Mobile view with collapsible sections
+  if (showMobileView) {
+    return (
+      <div className="space-y-4">
+        {/* Sticky Filter Header */}
+        <div className="sticky top-0 z-20 bg-background/95 backdrop-blur-sm border-b border-border pb-4">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-bold text-foreground">💰 Money Flow</h2>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setShowMobileView(false)}
+              className="text-xs"
+            >
+              <Move className="h-4 w-4 mr-2" />
+              Canvas View
+            </Button>
           </div>
           
-          <div className="flex items-center gap-3">
-            {!isMobile && (
+          <Select value={selectedTimeframe} onValueChange={setSelectedTimeframe}>
+            <SelectTrigger className="w-full bg-card/50 backdrop-blur-sm">
+              <SelectValue placeholder="Select timeframe" />
+            </SelectTrigger>
+            <SelectContent className="bg-card/95 backdrop-blur-xl border-border/50 z-50">
+              <SelectItem value="7">Last 7 Days</SelectItem>
+              <SelectItem value="30">Last 30 Days</SelectItem>
+              <SelectItem value="90">Last 90 Days</SelectItem>
+              <SelectItem value="365">This Year</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        {/* Income Section */}
+        <Collapsible 
+          open={expandedSections.income} 
+          onOpenChange={() => toggleSection('income')}
+        >
+          <CollapsibleTrigger className="flex items-center justify-between w-full p-4 bg-gradient-to-br from-success/10 to-success/5 rounded-2xl border border-success/20">
+            <div className="flex items-center gap-3">
+              <div className="text-2xl">💰</div>
+              <div>
+                <h3 className="font-bold text-success">Income Sources</h3>
+                <p className="text-sm text-muted-foreground">+${totals.income.toLocaleString()}/month</p>
+              </div>
+            </div>
+            {expandedSections.income ? <ChevronUp className="h-5 w-5" /> : <ChevronDown className="h-5 w-5" />}
+          </CollapsibleTrigger>
+          <CollapsibleContent className="mt-4 space-y-3 px-1">
+            <div className="p-4 bg-card/50 rounded-xl border border-success/10">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h4 className="font-semibold text-foreground">Salary</h4>
+                  <p className="text-sm text-muted-foreground">Monthly</p>
+                </div>
+                <div className="text-right">
+                  <div className="text-lg font-bold text-success">+$4,200</div>
+                  <div className="text-xs text-muted-foreground">12 transactions</div>
+                </div>
+              </div>
+            </div>
+            <div className="p-4 bg-card/50 rounded-xl border border-success/10">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h4 className="font-semibold text-foreground">Freelance</h4>
+                  <p className="text-sm text-muted-foreground">Weekly</p>
+                </div>
+                <div className="text-right">
+                  <div className="text-lg font-bold text-success">+$800</div>
+                  <div className="text-xs text-muted-foreground">8 transactions</div>
+                </div>
+              </div>
+            </div>
+          </CollapsibleContent>
+        </Collapsible>
+
+        {/* Summary Cards */}
+        <div className="grid grid-cols-2 gap-4">
+          <Card className="p-4 bg-gradient-to-br from-success/10 to-success/5 border-success/20">
+            <CardContent className="p-0">
+              <div className="flex items-center gap-2 mb-2">
+                <TrendingUp className="h-4 w-4 text-success" />
+                <span className="text-xs font-medium text-success">Total Income</span>
+              </div>
+              <div className="text-xl font-bold text-success">
+                +${totals.income.toLocaleString()}
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="p-4 bg-gradient-to-br from-destructive/10 to-destructive/5 border-destructive/20">
+            <CardContent className="p-0">
+              <div className="flex items-center gap-2 mb-2">
+                <TrendingDown className="h-4 w-4 text-destructive" />
+                <span className="text-xs font-medium text-destructive">Total Expenses</span>
+              </div>
+              <div className="text-xl font-bold text-destructive">
+                -${totals.expenses.toLocaleString()}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Flow Visualization */}
+        <div className="text-center py-8">
+          <div className="text-6xl mb-4">💰➡️🏦➡️💸</div>
+          <p className="text-sm text-muted-foreground">
+            Tap Canvas View for interactive flow diagram
+          </p>
+        </div>
+
+        {/* Floating CTA */}
+        <div className="fixed bottom-6 right-6 z-50">
+          <Button 
+            className="rounded-full h-14 w-14 shadow-2xl bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70"
+            onClick={() => setShowAutomationSidebar(true)}
+          >
+            <Plus className="h-6 w-6" />
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  // Desktop interactive canvas view
+  return (
+    <div className="relative h-[800px] w-full overflow-hidden">
+      {/* Top Control Panel */}
+      <Panel position="top-center" className="z-30">
+        <div className="flex items-center gap-4 bg-card/95 backdrop-blur-xl rounded-2xl border border-border/50 p-4 shadow-2xl">
+          <h2 className="text-lg font-bold text-foreground flex items-center gap-2">
+            <Sparkles className="h-5 w-5 text-primary" />
+            Money Flow Canvas
+          </h2>
+          
+          <div className="h-6 w-px bg-border" />
+          
+          <Select value={selectedTimeframe} onValueChange={setSelectedTimeframe}>
+            <SelectTrigger className="w-40 bg-background/50">
+              <SelectValue placeholder="Timeframe" />
+            </SelectTrigger>
+            <SelectContent className="bg-card/95 backdrop-blur-xl border-border/50 z-50">
+              <SelectItem value="7">Last 7 Days</SelectItem>
+              <SelectItem value="30">Last 30 Days</SelectItem>
+              <SelectItem value="90">Last 90 Days</SelectItem>
+              <SelectItem value="365">This Year</SelectItem>
+            </SelectContent>
+          </Select>
+
+          <div className="h-6 w-px bg-border" />
+
+          <div className="flex items-center gap-2">
+            <Button variant="outline" size="sm" onClick={() => setShowAutomationSidebar(true)}>
+              <Settings className="h-4 w-4 mr-2" />
+              Automations
+            </Button>
+            
+            <Button variant="outline" size="sm">
+              <Bot className="h-4 w-4 mr-2" />
+              Ask ELIN
+            </Button>
+            
+            {isMobile && (
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => setShowMobileView(!showMobileView)}
-                className="bg-card/50 backdrop-blur-sm border"
+                onClick={() => setShowMobileView(true)}
               >
-                <Eye className="h-4 w-4 mr-2" />
-                {showMobileView ? 'Flow View' : 'List View'}
+                <Filter className="h-4 w-4 mr-2" />
+                Mobile
               </Button>
             )}
-            
-            <Select value={selectedTimeframe} onValueChange={setSelectedTimeframe}>
-              <SelectTrigger className={cn(
-                "bg-card/50 backdrop-blur-sm border z-50",
-                isMobile ? 'w-full' : 'w-40'
-              )}>
-                <Filter className="h-4 w-4 mr-2" />
-                <SelectValue placeholder="Timeframe" />
-              </SelectTrigger>
-              <SelectContent className="bg-card/95 backdrop-blur-xl border z-50">
-                <SelectItem value="7">📅 Last 7 days</SelectItem>
-                <SelectItem value="30">📊 Last 30 days</SelectItem>
-                <SelectItem value="90">📈 Last 90 days</SelectItem>
-                <SelectItem value="365">🗓️ Last year</SelectItem>
-              </SelectContent>
-            </Select>
           </div>
         </div>
-      </div>
+      </Panel>
 
-      {/* Conditional Flow/Mobile View */}
-      {showMobileView ? (
-        /* Mobile Collapsible View */
-        <div className="space-y-4">
-          <MobileFlowSection
-            title="Income Sources"
-            icon={<TrendingUp className="h-5 w-5 text-success" />}
-            sectionKey="income"
-            color="from-success/10 to-success/5"
-          >
-            <div className="space-y-3">
-              <IncomeNode data={{
-                label: 'Salary', 
-                amount: '$4,200', 
-                type: 'salary',
-                frequency: 'Bi-weekly',
-                totalTransactions: 2
-              }} />
-              <IncomeNode data={{
-                label: 'Freelance', 
-                amount: '$800', 
-                type: 'freelance',
-                frequency: 'Weekly',
-                totalTransactions: 4
-              }} />
-              <IncomeNode data={{
-                label: 'Dividends', 
-                amount: '$150', 
-                type: 'investment',
-                frequency: 'Quarterly',
-                totalTransactions: 1
-              }} />
-            </div>
-          </MobileFlowSection>
-
-          <div className="flex items-center justify-center py-4">
-            <div className="flex items-center gap-2 text-muted-foreground">
-              <ArrowRight className="h-4 w-4" />
-              <span className="text-sm">Flows to accounts</span>
-              <ArrowRight className="h-4 w-4" />
-            </div>
-          </div>
-
-          <MobileFlowSection
-            title="Accounts"
-            icon={<Wallet className="h-5 w-5 text-secondary" />}
-            sectionKey="accounts"
-            color="from-secondary/10 to-secondary/5"
-          >
-            <div className="space-y-3">
-              {accounts.map(account => (
-                <AccountNode key={account.id} data={account} />
-              ))}
-            </div>
-          </MobileFlowSection>
-
-          <div className="flex items-center justify-center py-4">
-            <div className="flex items-center gap-2 text-muted-foreground">
-              <ArrowRight className="h-4 w-4" />
-              <span className="text-sm">Pays for expenses</span>
-              <ArrowRight className="h-4 w-4" />
-            </div>
-          </div>
-
-          <MobileFlowSection
-            title="Expenses"
-            icon={<TrendingDown className="h-5 w-5 text-destructive" />}
-            sectionKey="expenses"
-            color="from-destructive/10 to-destructive/5"
-          >
-            <div className="space-y-3">
-              <ExpenseNode data={{
-                label: 'Rent', 
-                amount: '$1,800', 
-                category: 'rent',
-                frequency: 'Monthly',
-                totalTransactions: 1
-              }} />
-              <ExpenseNode data={{
-                label: 'Car Payment', 
-                amount: '$420', 
-                category: 'car',
-                frequency: 'Monthly',
-                totalTransactions: 1
-              }} />
-              <ExpenseNode data={{
-                label: 'Groceries', 
-                amount: '$650', 
-                category: 'shopping',
-                frequency: 'Weekly',
-                totalTransactions: 12
-              }} />
-            </div>
-          </MobileFlowSection>
-        </div>
-      ) : (
-        /* Desktop Flow Visualization */
-        <div className={cn(
-          "relative overflow-hidden rounded-2xl border backdrop-blur-xl",
-          "bg-gradient-to-br from-background/80 to-background/60",
-          isMobile ? 'h-[800px]' : 'h-[600px]'
-        )}>
-          <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-secondary/5 opacity-30" />
-          <ReactFlow
-            nodes={nodes}
-            edges={edges}
-            onNodesChange={onNodesChange}
-            onEdgesChange={onEdgesChange}
-            onConnect={onConnect}
-            nodeTypes={nodeTypes}
-            fitView
-            fitViewOptions={{
-              padding: isMobile ? 0.05 : 0.1,
-              includeHiddenNodes: false,
-            }}
-            className="rounded-2xl"
-            proOptions={{ hideAttribution: true }}
-          >
-            <Controls 
-              className="bg-card/90 backdrop-blur-sm border rounded-lg shadow-lg"
-              showZoom={!isMobile}
-              showFitView={true}
-              showInteractive={!isMobile}
-            />
-            <Background 
-              variant={BackgroundVariant.Dots} 
-              gap={isMobile ? 12 : 20} 
-              size={1.5} 
-              className="opacity-20"
-            />
-          </ReactFlow>
-        </div>
-      )}
-
-      {/* Enhanced Summary Stats with Glassmorphism */}
-      <div className={`grid ${isMobile ? 'grid-cols-1' : 'grid-cols-3'} gap-6`}>
-        <Card className="relative overflow-hidden border-0 bg-gradient-to-br from-success/10 via-success/5 to-transparent backdrop-blur-xl">
-          <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent" />
-          <div className="absolute inset-0 border border-success/20 rounded-lg" />
-          <CardContent className="relative p-6">
-            <div className="flex items-start justify-between mb-4">
-              <div className="p-3 bg-gradient-to-br from-success/20 to-success/10 rounded-xl backdrop-blur-sm border border-success/30">
-                <TrendingUp className="h-6 w-6 text-success" />
-              </div>
-              <Badge className="bg-success/10 text-success border-success/20">
-                📈 +12%
-              </Badge>
-            </div>
-            <div className="space-y-1">
-              <div className="text-sm text-muted-foreground">Total Income</div>
-              <div className="text-2xl font-bold text-success">+${insights.totalIncome.toLocaleString()}</div>
-              <div className="text-xs text-muted-foreground">vs last month</div>
-            </div>
-          </CardContent>
-        </Card>
+      {/* React Flow Interactive Canvas */}
+      <ReactFlow
+        nodes={nodes}
+        edges={edges}
+        onNodesChange={onNodesChange}
+        onEdgesChange={onEdgesChange}
+        onConnect={onConnect}
+        nodeTypes={nodeTypes}
+        edgeTypes={edgeTypes}
+        fitView
+        fitViewOptions={{
+          padding: 0.1,
+          includeHiddenNodes: false,
+        }}
+        className="bg-gradient-to-br from-background via-muted/10 to-background"
         
-        <Card className="relative overflow-hidden border-0 bg-gradient-to-br from-secondary/10 via-secondary/5 to-transparent backdrop-blur-xl">
-          <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent" />
-          <div className="absolute inset-0 border border-secondary/20 rounded-lg" />
-          <CardContent className="relative p-6">
-            <div className="flex items-start justify-between mb-4">
-              <div className="p-3 bg-gradient-to-br from-secondary/20 to-secondary/10 rounded-xl backdrop-blur-sm border border-secondary/30">
-                <Target className="h-6 w-6 text-secondary" />
-              </div>
-              <Badge className={cn(
-                "border",
-                parseFloat(insights.savingsRate) >= 20 
-                  ? "bg-success/10 text-success border-success/20"
-                  : "bg-warning/10 text-warning border-warning/20"
-              )}>
-                {parseFloat(insights.savingsRate) >= 20 ? "🎯 On Track" : "⚠️ Below Goal"}
-              </Badge>
-            </div>
-            <div className="space-y-1">
-              <div className="text-sm text-muted-foreground">Savings Rate</div>
-              <div className="text-2xl font-bold text-secondary">{insights.savingsRate}%</div>
-              <div className="text-xs text-muted-foreground">Goal: 20%</div>
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card className="relative overflow-hidden border-0 bg-gradient-to-br from-destructive/10 via-destructive/5 to-transparent backdrop-blur-xl">
-          <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent" />
-          <div className="absolute inset-0 border border-destructive/20 rounded-lg" />
-          <CardContent className="relative p-6">
-            <div className="flex items-start justify-between mb-4">
-              <div className="p-3 bg-gradient-to-br from-destructive/20 to-destructive/10 rounded-xl backdrop-blur-sm border border-destructive/30">
-                <TrendingDown className="h-6 w-6 text-destructive" />
-              </div>
-              <Badge className="bg-destructive/10 text-destructive border-destructive/20">
-                📉 +5%
-              </Badge>
-            </div>
-            <div className="space-y-1">
-              <div className="text-sm text-muted-foreground">Total Expenses</div>
-              <div className="text-2xl font-bold text-destructive">-${insights.totalExpenses.toLocaleString()}</div>
-              <div className="text-xs text-muted-foreground">vs last month</div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+        connectionLineStyle={{ stroke: 'hsl(var(--primary))', strokeWidth: 2 }}
+      >
+        <Background 
+          variant={BackgroundVariant.Dots} 
+          gap={24} 
+          size={1.2}
+          color="hsl(var(--muted-foreground) / 0.2)"
+        />
+        <Controls 
+          className="bg-card/90 backdrop-blur-xl border border-border/50 rounded-xl shadow-lg"
+          showZoom={true}
+          showFitView={true}
+          showInteractive={true}
+        />
+        <MiniMap 
+          className="bg-card/90 backdrop-blur-xl border border-border/50 rounded-xl shadow-lg"
+          nodeColor={(node) => {
+            switch (node.type) {
+              case 'income': return 'hsl(var(--success))';
+              case 'expense': return 'hsl(var(--destructive))';
+              default: return 'hsl(var(--secondary))';
+            }
+          }}
+          maskColor="hsl(var(--muted) / 0.5)"
+        />
+      </ReactFlow>
 
-      {/* Enhanced Smart Insights */}
-      {insights.suggestions.length > 0 && (
-        <div className="space-y-6">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-gradient-to-br from-warning/20 to-warning/10 rounded-xl">
-              <Lightbulb className="h-6 w-6 text-warning" />
-            </div>
-            <h4 className="text-xl font-bold text-card-foreground">
-              💡 Smart Insights
-            </h4>
-            <Badge variant="outline" className="ml-auto">
-              {insights.suggestions.length} suggestions
-            </Badge>
-          </div>
-          
-          <div className={`grid ${isMobile ? 'grid-cols-1' : 'grid-cols-2'} gap-6`}>
-            {insights.suggestions.map((suggestion, index) => (
-              <Card key={index} className="relative overflow-hidden border-0 bg-gradient-to-br from-warning/5 via-card/80 to-transparent backdrop-blur-xl">
-                <div className="absolute inset-0 border border-warning/20 rounded-lg" />
-                <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-warning to-warning/50" />
-                <CardContent className="relative p-6">
-                  <div className="flex items-start gap-4">
-                    <div className="p-3 bg-gradient-to-br from-warning/20 to-warning/10 rounded-xl backdrop-blur-sm border border-warning/30">
-                      {suggestion.icon}
-                    </div>
-                    <div className="flex-1 space-y-2">
-                      <h5 className="font-bold text-card-foreground">{suggestion.title}</h5>
-                      <p className="text-sm text-muted-foreground">{suggestion.description}</p>
-                      <Button 
-                        variant="outline" 
-                        size="sm" 
-                        className="mt-3 bg-card/50 backdrop-blur-sm hover:bg-warning/10"
-                      >
-                        {suggestion.action}
-                      </Button>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+      {/* Bottom Insight Panel */}
+      <Panel position="bottom-center" className="z-30">
+        <div className="grid grid-cols-4 gap-4 bg-card/95 backdrop-blur-xl rounded-2xl border border-border/50 p-6 shadow-2xl">
+          <Card className="bg-gradient-to-br from-success/10 to-success/5 border-success/20">
+            <CardContent className="p-4">
+              <div className="flex items-center gap-2 mb-2">
+                <TrendingUp className="h-4 w-4 text-success" />
+                <span className="text-xs font-medium text-success">Total Income</span>
+              </div>
+              <div className="text-xl font-bold text-success">
+                +${totals.income.toLocaleString()}
+              </div>
+              <Badge variant="outline" className="mt-2 text-xs bg-success/10 text-success border-success/20">
+                📈 Healthy Growth
+              </Badge>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-gradient-to-br from-secondary/10 to-secondary/5 border-secondary/20">
+            <CardContent className="p-4">
+              <div className="flex items-center gap-2 mb-2">
+                <Wallet className="h-4 w-4 text-secondary" />
+                <span className="text-xs font-medium text-secondary">Net Worth</span>
+              </div>
+              <div className="text-xl font-bold text-secondary">
+                ${totals.netWorth.toLocaleString()}
+              </div>
+              <Badge variant="outline" className="mt-2 text-xs bg-secondary/10 text-secondary border-secondary/20">
+                🎯 On Track
+              </Badge>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-gradient-to-br from-destructive/10 to-destructive/5 border-destructive/20">
+            <CardContent className="p-4">
+              <div className="flex items-center gap-2 mb-2">
+                <TrendingDown className="h-4 w-4 text-destructive" />
+                <span className="text-xs font-medium text-destructive">Total Expenses</span>
+              </div>
+              <div className="text-xl font-bold text-destructive">
+                -${totals.expenses.toLocaleString()}
+              </div>
+              <Badge variant="outline" className="mt-2 text-xs bg-warning/10 text-warning border-warning/20">
+                ⚠ Monitor Closely
+              </Badge>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-gradient-to-br from-primary/10 to-primary/5 border-primary/20">
+            <CardContent className="p-4">
+              <div className="flex items-center gap-2 mb-2">
+                <Activity className="h-4 w-4 text-primary" />
+                <span className="text-xs font-medium text-primary">Monthly Surplus</span>
+              </div>
+              <div className={`text-xl font-bold ${totals.cashFlow > 0 ? 'text-success' : 'text-destructive'}`}>
+                {totals.cashFlow > 0 ? '+' : ''}${Math.abs(totals.cashFlow).toLocaleString()}
+              </div>
+              <Badge variant="outline" className="mt-2 text-xs bg-primary/10 text-primary border-primary/20">
+                💡 Optimize Flow
+              </Badge>
+            </CardContent>
+          </Card>
         </div>
-      )}
+      </Panel>
 
-      {/* Enhanced Top Expense Card */}
-      <Card className="relative overflow-hidden border-0 bg-gradient-to-br from-card/80 via-muted/20 to-transparent backdrop-blur-xl">
-        <div className="absolute inset-0 bg-gradient-to-br from-destructive/5 to-transparent" />
-        <div className="absolute inset-0 border border-destructive/20 rounded-lg" />
-        <CardHeader className="relative pb-3">
-          <CardTitle className="flex items-center gap-3 text-card-foreground">
-            <div className="p-2 bg-gradient-to-br from-destructive/20 to-destructive/10 rounded-xl">
-              <Target className="h-5 w-5 text-destructive" />
-            </div>
-            🎯 Top Expense This Month
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="relative">
-          <div className="flex items-center justify-between">
-            <div className="space-y-2">
-              <p className="text-xl font-bold text-card-foreground">{insights.topExpense.name}</p>
-              <div className="flex items-center gap-4">
-                <Badge className="bg-destructive/10 text-destructive border-destructive/20">
-                  {((insights.topExpense.amount / insights.totalIncome) * 100).toFixed(1)}% of income
-                </Badge>
-                <Badge variant="outline" className="text-xs">
-                  Fixed expense
-                </Badge>
-              </div>
-            </div>
-            <div className="text-right">
-              <div className="text-3xl font-bold text-destructive">
-                ${insights.topExpense.amount.toLocaleString()}
-              </div>
-              <div className="text-sm text-muted-foreground mt-1">
-                Due in 15 days
-              </div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Floating CTA Button */}
-      <div className="fixed bottom-6 right-6 z-50">
-        <Button 
-          size="lg"
-          className="rounded-full bg-gradient-to-r from-primary to-secondary hover:from-primary/80 hover:to-secondary/80 shadow-lg backdrop-blur-sm border border-white/20 min-w-0 h-14 w-14 md:w-auto md:h-auto md:px-6 md:py-3"
-        >
-          <Plus className="h-6 w-6 md:mr-2" />
-          <span className="hidden md:inline">New Automation</span>
-        </Button>
+      {/* Floating New Automation Button */}
+      <div className="absolute bottom-32 right-6 z-40">
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button 
+                className="rounded-full h-16 w-16 shadow-2xl bg-gradient-to-r from-primary via-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 hover:scale-110 transition-all duration-300 border-2 border-primary-foreground/20"
+                onClick={() => setShowAutomationSidebar(true)}
+              >
+                <Zap className="h-7 w-7" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="left" className="bg-card/95 backdrop-blur-sm">
+              <p>⚡ Create Smart Automation</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
       </div>
+
+      {/* Automation Sidebar */}
+      <AutomationSidebar 
+        isOpen={showAutomationSidebar} 
+        onClose={() => setShowAutomationSidebar(false)} 
+      />
     </div>
   );
 };
