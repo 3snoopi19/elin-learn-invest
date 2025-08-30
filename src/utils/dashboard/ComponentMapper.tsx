@@ -15,6 +15,7 @@ import { AIInsightsCard } from '@/components/AIInsightsCard';
 import { LearningPathsCard } from '@/components/LearningPathsCard';
 import { SECFilingsExplorer } from '@/components/SECFilingsExplorer';
 import { CreditCardHelperCard } from '@/components/CreditCardHelperCard';
+import { MoneyFlowRouterCard } from '@/components/MoneyFlowRouterCard';
 import { DashboardCard } from '@/components/DashboardCard';
 import { motion } from 'framer-motion';
 
@@ -59,6 +60,7 @@ export const COMPONENT_MAP: Record<string, React.ComponentType<any>> = {
   'LearningPathsCard': LearningPathsCard,
   'SECFilingsExplorer': SECFilingsExplorer,
   'CreditCardHelperCard': CreditCardHelperCard,
+  'MoneyFlowRouterCard': MoneyFlowRouterCard,
   'ChatCard': DashboardCard, // Fallback for cards not yet converted
   'AIPortfolioSimulatorCard': DashboardCard // Will be removed in cleanup
 };

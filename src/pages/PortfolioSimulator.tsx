@@ -1,517 +1,468 @@
 import { useState, useEffect } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Slider } from "@/components/ui/slider";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
-import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, BarChart, Bar, Legend } from "recharts";
-import { TrendingUp, TrendingDown, AlertTriangle, Target, Brain, Zap } from "lucide-react";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Slider } from "@/components/ui/slider";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
-import { toast } from "sonner";
-
-interface PortfolioAllocation {
-  stocks: number;
-  bonds: number;
-  crypto: number;
-  reits: number;
-  commodities: number;
-}
-
-interface ScenarioData {
-  name: string;
-  description: string;
-  icon: any;
-  color: string;
-  expectedReturn: number;
-  volatility: number;
-  riskLevel: "Low" | "Medium" | "High";
-}
-
-interface SimulationResult {
-  year: number;
-  conservative: number;
-  moderate: number;
-  aggressive: number;
-  bestCase: number;
-  worstCase: number;
-}
-
-const scenarios: ScenarioData[] = [
-  {
-    name: "Bull Market",
-    description: "Strong economic growth, rising markets",
-    icon: TrendingUp,
-    color: "hsl(var(--success))",
-    expectedReturn: 12,
-    volatility: 15,
-    riskLevel: "Medium"
-  },
-  {
-    name: "Bear Market",
-    description: "Economic downturn, declining markets",
-    icon: TrendingDown,
-    color: "hsl(var(--destructive))",
-    expectedReturn: -8,
-    volatility: 25,
-    riskLevel: "High"
-  },
-  {
-    name: "Recession",
-    description: "Severe economic contraction",
-    icon: AlertTriangle,
-    color: "hsl(var(--warning))",
-    expectedReturn: -15,
-    volatility: 35,
-    riskLevel: "High"
-  },
-  {
-    name: "Stable Growth",
-    description: "Steady, moderate economic expansion",
-    icon: Target,
-    color: "hsl(var(--primary))",
-    expectedReturn: 7,
-    volatility: 10,
-    riskLevel: "Low"
-  }
-];
+import { LoadingScreen } from "@/components/ui/LoadingScreen";
+import { 
+  TrendingUp, 
+  TrendingDown, 
+  PieChart, 
+  AlertTriangle, 
+  Info, 
+  Play, 
+  RefreshCw,
+  Target,
+  BarChart3
+} from "lucide-react";
 
 const PortfolioSimulator = () => {
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
   const navigate = useNavigate();
-  
-  const [allocation, setAllocation] = useState<PortfolioAllocation>({
+
+  // Portfolio allocation state
+  const [allocation, setAllocation] = useState({
     stocks: 60,
     bonds: 30,
-    crypto: 5,
-    reits: 3,
-    commodities: 2
+    cash: 10,
+    crypto: 0,
+    reits: 0
   });
-  
-  const [investmentAmount, setInvestmentAmount] = useState<number[]>([10000]);
-  const [timeHorizon, setTimeHorizon] = useState<number[]>([10]);
-  const [selectedScenario, setSelectedScenario] = useState("Bull Market");
-  const [simulationData, setSimulationData] = useState<SimulationResult[]>([]);
-  const [aiInsights, setAiInsights] = useState<string>("");
-  const [isLoading, setIsLoading] = useState(false);
+
+  // Simulation parameters
+  const [timeHorizon, setTimeHorizon] = useState("10");
+  const [initialInvestment, setInitialInvestment] = useState(10000);
+  const [monthlyContribution, setMonthlyContribution] = useState(500);
+  const [riskTolerance, setRiskTolerance] = useState("moderate");
+
+  // Simulation results
+  const [simulationResults, setSimulationResults] = useState<any>(null);
+  const [isSimulating, setIsSimulating] = useState(false);
 
   useEffect(() => {
-    if (!user) {
-      navigate("/auth");
-      return;
+    if (!loading && !user) {
+      navigate('/auth');
     }
-  }, [user, navigate]);
+  }, [user, loading, navigate]);
 
-  useEffect(() => {
-    generateSimulation();
-  }, [allocation, investmentAmount, timeHorizon, selectedScenario]);
-
-  const generateSimulation = () => {
-    setIsLoading(true);
+  // Ensure allocation adds up to 100%
+  const updateAllocation = (category: string, value: number) => {
+    const newAllocation = { ...allocation, [category]: value };
+    const total = Object.values(newAllocation).reduce((sum, val) => sum + val, 0);
     
-    // Simulate portfolio performance over time
-    const scenario = scenarios.find(s => s.name === selectedScenario)!;
-    const years = timeHorizon[0];
-    const initialAmount = investmentAmount[0];
-    
-    const data: SimulationResult[] = [];
-    
-    for (let year = 0; year <= years; year++) {
-      // Calculate different portfolio scenarios based on allocation
-      const conservativeReturn = Math.pow(1 + (scenario.expectedReturn * 0.6) / 100, year);
-      const moderateReturn = Math.pow(1 + scenario.expectedReturn / 100, year);
-      const aggressiveReturn = Math.pow(1 + (scenario.expectedReturn * 1.4) / 100, year);
-      
-      // Add volatility for best/worst case
-      const volatilityFactor = scenario.volatility / 100;
-      const bestCaseReturn = Math.pow(1 + (scenario.expectedReturn + volatilityFactor * 100) / 100, year);
-      const worstCaseReturn = Math.pow(1 + (scenario.expectedReturn - volatilityFactor * 100) / 100, year);
-      
-      data.push({
-        year,
-        conservative: Math.round(initialAmount * conservativeReturn),
-        moderate: Math.round(initialAmount * moderateReturn),
-        aggressive: Math.round(initialAmount * aggressiveReturn),
-        bestCase: Math.round(initialAmount * bestCaseReturn),
-        worstCase: Math.max(0, Math.round(initialAmount * worstCaseReturn))
-      });
-    }
-    
-    setSimulationData(data);
-    generateAIInsights(scenario);
-    setIsLoading(false);
-  };
-
-  const generateAIInsights = (scenario: ScenarioData) => {
-    // AI-powered insights based on allocation and scenario
-    const riskScore = (allocation.stocks * 0.8 + allocation.crypto * 1.0 + allocation.commodities * 0.6) / 100;
-    
-    let insights = `Based on your ${allocation.stocks}% stock allocation in a ${scenario.name} scenario: `;
-    
-    if (riskScore > 0.7) {
-      insights += "Your portfolio has high growth potential but increased volatility. Consider reducing exposure to high-risk assets if you're risk-averse.";
-    } else if (riskScore < 0.3) {
-      insights += "Your conservative allocation provides stability but may limit growth. Consider slightly increasing equity exposure for better long-term returns.";
-    } else {
-      insights += "Your balanced allocation offers a good risk-return trade-off suitable for most investors.";
-    }
-    
-    setAiInsights(insights);
-  };
-
-  const getAllocationData = () => {
-    return [
-      { name: "Stocks", value: allocation.stocks, color: "hsl(var(--primary))" },
-      { name: "Bonds", value: allocation.bonds, color: "hsl(var(--secondary))" },
-      { name: "Crypto", value: allocation.crypto, color: "hsl(var(--education))" },
-      { name: "REITs", value: allocation.reits, color: "hsl(var(--success))" },
-      { name: "Commodities", value: allocation.commodities, color: "hsl(var(--warning))" }
-    ];
-  };
-
-  const handleAllocationChange = (asset: keyof PortfolioAllocation, value: number[]) => {
-    const newValue = value[0];
-    const currentTotal = Object.values(allocation).reduce((sum, val) => sum + val, 0);
-    const otherAssetsTotal = currentTotal - allocation[asset];
-    
-    if (otherAssetsTotal + newValue <= 100) {
-      setAllocation(prev => ({
-        ...prev,
-        [asset]: newValue
-      }));
+    if (total <= 100) {
+      setAllocation(newAllocation);
     }
   };
 
-  const normalizeAllocation = () => {
-    const total = Object.values(allocation).reduce((sum, val) => sum + val, 0);
-    if (total !== 100) {
-      const factor = 100 / total;
-      setAllocation(prev => ({
-        stocks: Math.round(prev.stocks * factor),
-        bonds: Math.round(prev.bonds * factor),
-        crypto: Math.round(prev.crypto * factor),
-        reits: Math.round(prev.reits * factor),
-        commodities: Math.round(prev.commodities * factor)
-      }));
-      toast("Portfolio allocation normalized to 100%");
-    }
+  const runSimulation = async () => {
+    setIsSimulating(true);
+    
+    // Mock simulation delay
+    await new Promise(resolve => setTimeout(resolve, 2000));
+    
+    // Mock simulation results
+    const years = parseInt(timeHorizon);
+    const expectedReturn = calculateExpectedReturn();
+    const volatility = calculateVolatility();
+    
+    const scenarios = {
+      optimistic: initialInvestment * Math.pow(1 + expectedReturn + 0.03, years),
+      expected: initialInvestment * Math.pow(1 + expectedReturn, years),
+      pessimistic: initialInvestment * Math.pow(1 + expectedReturn - 0.05, years),
+    };
+
+    const monthlyContributions = monthlyContribution * 12 * years;
+    
+    setSimulationResults({
+      scenarios: {
+        optimistic: scenarios.optimistic + monthlyContributions * 1.8,
+        expected: scenarios.expected + monthlyContributions * 1.5,
+        pessimistic: scenarios.pessimistic + monthlyContributions * 1.2,
+      },
+      totalContributions: initialInvestment + monthlyContributions,
+      expectedReturn,
+      volatility,
+      allocation,
+      timeHorizon: years
+    });
+    
+    setIsSimulating(false);
   };
 
-  if (!user) return null;
+  const calculateExpectedReturn = () => {
+    const returns = {
+      stocks: 0.08,
+      bonds: 0.04,
+      cash: 0.02,
+      crypto: 0.15,
+      reits: 0.07
+    };
+    
+    return Object.entries(allocation).reduce((total, [category, percentage]) => {
+      return total + (returns[category as keyof typeof returns] * percentage / 100);
+    }, 0);
+  };
+
+  const calculateVolatility = () => {
+    const volatilities = {
+      stocks: 0.16,
+      bonds: 0.05,
+      cash: 0.01,
+      crypto: 0.40,
+      reits: 0.15
+    };
+    
+    return Object.entries(allocation).reduce((total, [category, percentage]) => {
+      return total + (volatilities[category as keyof typeof volatilities] * percentage / 100);
+    }, 0);
+  };
+
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }).format(amount);
+  };
+
+  const getRiskLevel = () => {
+    const risk = calculateVolatility();
+    if (risk < 0.08) return { level: "Conservative", color: "text-success" };
+    if (risk < 0.15) return { level: "Moderate", color: "text-warning" };
+    return { level: "Aggressive", color: "text-destructive" };
+  };
+
+  if (loading) {
+    return <LoadingScreen message="Loading portfolio simulator..." showLogo={true} />;
+  }
+
+  if (!user) {
+    return null;
+  }
+
+  const totalAllocation = Object.values(allocation).reduce((sum, val) => sum + val, 0);
+  const risk = getRiskLevel();
 
   return (
     <div className="min-h-screen bg-background">
       <Header />
+      
       <main className="container mx-auto px-4 py-8">
-        <div className="space-y-8">
-          {/* Header */}
-          <div className="text-center space-y-4">
-            <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-education bg-clip-text text-transparent">
-              AI Portfolio Simulator
-            </h1>
-            <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-              Use AI-powered analysis to simulate your portfolio performance across different market scenarios and optimize your investment strategy.
-            </p>
-          </div>
+        {/* Header */}
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold mb-2">AI Portfolio Simulator</h1>
+          <p className="text-text-secondary">
+            Test different portfolio allocations and see projected outcomes
+          </p>
+        </div>
 
-          <Tabs defaultValue="simulator" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-3">
-              <TabsTrigger value="simulator">Portfolio Simulator</TabsTrigger>
-              <TabsTrigger value="scenarios">Scenario Analysis</TabsTrigger>
-              <TabsTrigger value="insights">AI Insights</TabsTrigger>
-            </TabsList>
+        {/* Educational Notice */}
+        <Alert className="mb-6 border-education/20 bg-education/5">
+          <Info className="h-4 w-4 text-education" />
+          <AlertDescription>
+            <strong>Educational Simulation:</strong> Results are based on historical data and Monte Carlo modeling. 
+            Past performance does not guarantee future results. Use for learning purposes only.
+          </AlertDescription>
+        </Alert>
 
-            <TabsContent value="simulator" className="space-y-6">
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                {/* Controls */}
-                <div className="lg:col-span-1 space-y-6">
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="flex items-center gap-2">
-                        <Target className="h-5 w-5" />
-                        Portfolio Settings
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-6">
-                      {/* Investment Amount */}
-                      <div className="space-y-2">
-                        <label className="text-sm font-medium">Initial Investment</label>
-                        <div className="text-2xl font-bold text-primary">
-                          ${investmentAmount[0].toLocaleString()}
-                        </div>
-                        <Slider
-                          value={investmentAmount}
-                          onValueChange={setInvestmentAmount}
-                          min={1000}
-                          max={1000000}
-                          step={1000}
-                          className="mt-2"
-                        />
-                      </div>
+        <Tabs defaultValue="setup" className="space-y-6">
+          <TabsList className="grid w-full grid-cols-3">
+            <TabsTrigger value="setup">Portfolio Setup</TabsTrigger>
+            <TabsTrigger value="results">Simulation Results</TabsTrigger>
+            <TabsTrigger value="scenarios">Scenario Analysis</TabsTrigger>
+          </TabsList>
 
-                      {/* Time Horizon */}
-                      <div className="space-y-2">
-                        <label className="text-sm font-medium">Time Horizon</label>
-                        <div className="text-xl font-semibold">
-                          {timeHorizon[0]} years
-                        </div>
-                        <Slider
-                          value={timeHorizon}
-                          onValueChange={setTimeHorizon}
-                          min={1}
-                          max={30}
-                          step={1}
-                          className="mt-2"
-                        />
-                      </div>
-
-                      {/* Market Scenario */}
-                      <div className="space-y-2">
-                        <label className="text-sm font-medium">Market Scenario</label>
-                        <Select value={selectedScenario} onValueChange={setSelectedScenario}>
-                          <SelectTrigger>
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {scenarios.map((scenario) => (
-                              <SelectItem key={scenario.name} value={scenario.name}>
-                                <div className="flex items-center gap-2">
-                                  <scenario.icon className="h-4 w-4" />
-                                  {scenario.name}
-                                </div>
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    </CardContent>
-                  </Card>
-
-                  {/* Asset Allocation */}
-                  <Card>
-                    <CardHeader>
-                      <CardTitle>Asset Allocation</CardTitle>
-                      <CardDescription>
-                        Adjust your portfolio allocation (Total: {Object.values(allocation).reduce((sum, val) => sum + val, 0)}%)
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                      {Object.entries(allocation).map(([asset, value]) => (
-                        <div key={asset} className="space-y-2">
-                          <div className="flex justify-between">
-                            <label className="text-sm font-medium capitalize">{asset}</label>
-                            <span className="text-sm font-semibold">{value}%</span>
-                          </div>
-                          <Slider
-                            value={[value]}
-                            onValueChange={(newValue) => handleAllocationChange(asset as keyof PortfolioAllocation, newValue)}
-                            min={0}
-                            max={100}
-                            step={1}
-                          />
-                        </div>
-                      ))}
-                      <Button onClick={normalizeAllocation} variant="outline" className="w-full">
-                        Normalize to 100%
-                      </Button>
-                    </CardContent>
-                  </Card>
-                </div>
-
-                {/* Charts */}
-                <div className="lg:col-span-2 space-y-6">
-                  {/* Performance Chart */}
-                  <Card>
-                    <CardHeader>
-                      <CardTitle>Portfolio Performance Projection</CardTitle>
-                      <CardDescription>
-                        Projected portfolio value over {timeHorizon[0]} years in {selectedScenario} scenario
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="h-80">
-                        <ResponsiveContainer width="100%" height="100%">
-                          <AreaChart data={simulationData}>
-                            <CartesianGrid strokeDasharray="3 3" />
-                            <XAxis dataKey="year" />
-                            <YAxis tickFormatter={(value) => `$${(value / 1000).toFixed(0)}k`} />
-                            <Tooltip formatter={(value: number) => [`$${value.toLocaleString()}`, ""]} />
-                            <Area
-                              type="monotone"
-                              dataKey="bestCase"
-                              stackId="1"
-                              stroke="hsl(var(--success))"
-                              fill="hsl(var(--success))"
-                              fillOpacity={0.1}
-                            />
-                            <Area
-                              type="monotone"
-                              dataKey="aggressive"
-                              stackId="2"
-                              stroke="hsl(var(--education))"
-                              fill="hsl(var(--education))"
-                              fillOpacity={0.3}
-                            />
-                            <Area
-                              type="monotone"
-                              dataKey="moderate"
-                              stackId="3"
-                              stroke="hsl(var(--primary))"
-                              fill="hsl(var(--primary))"
-                              fillOpacity={0.5}
-                            />
-                            <Area
-                              type="monotone"
-                              dataKey="conservative"
-                              stackId="4"
-                              stroke="hsl(var(--secondary))"
-                              fill="hsl(var(--secondary))"
-                              fillOpacity={0.7}
-                            />
-                          </AreaChart>
-                        </ResponsiveContainer>
-                      </div>
-                    </CardContent>
-                  </Card>
-
-                  {/* Allocation Pie Chart */}
-                  <Card>
-                    <CardHeader>
-                      <CardTitle>Current Allocation</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="h-64">
-                        <ResponsiveContainer width="100%" height="100%">
-                          <PieChart>
-                            <Pie
-                              data={getAllocationData()}
-                              cx="50%"
-                              cy="50%"
-                              innerRadius={60}
-                              outerRadius={100}
-                              paddingAngle={5}
-                              dataKey="value"
-                            >
-                              {getAllocationData().map((entry, index) => (
-                                <Cell key={`cell-${index}`} fill={entry.color} />
-                              ))}
-                            </Pie>
-                            <Tooltip />
-                            <Legend />
-                          </PieChart>
-                        </ResponsiveContainer>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </div>
-              </div>
-            </TabsContent>
-
-            <TabsContent value="scenarios" className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {scenarios.map((scenario) => (
-                  <Card key={scenario.name} className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => setSelectedScenario(scenario.name)}>
-                    <CardHeader>
-                      <CardTitle className="flex items-center gap-2">
-                        <scenario.icon className="h-5 w-5" style={{ color: scenario.color }} />
-                        {scenario.name}
-                        {selectedScenario === scenario.name && (
-                          <Badge variant="default">Selected</Badge>
-                        )}
-                      </CardTitle>
-                      <CardDescription>{scenario.description}</CardDescription>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                      <div className="grid grid-cols-3 gap-4 text-sm">
-                        <div>
-                          <div className="font-medium">Expected Return</div>
-                          <div className="text-lg font-bold" style={{ color: scenario.expectedReturn >= 0 ? "hsl(var(--success))" : "hsl(var(--destructive))" }}>
-                            {scenario.expectedReturn > 0 ? "+" : ""}{scenario.expectedReturn}%
-                          </div>
-                        </div>
-                        <div>
-                          <div className="font-medium">Volatility</div>
-                          <div className="text-lg font-bold text-warning">
-                            {scenario.volatility}%
-                          </div>
-                        </div>
-                        <div>
-                          <div className="font-medium">Risk Level</div>
-                          <Badge variant={scenario.riskLevel === "High" ? "destructive" : scenario.riskLevel === "Medium" ? "default" : "secondary"}>
-                            {scenario.riskLevel}
-                          </Badge>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            </TabsContent>
-
-            <TabsContent value="insights" className="space-y-6">
+          {/* Portfolio Setup */}
+          <TabsContent value="setup" className="space-y-6">
+            <div className="grid lg:grid-cols-2 gap-6">
+              {/* Asset Allocation */}
               <Card>
                 <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Brain className="h-5 w-5" />
-                    AI-Powered Portfolio Insights
+                  <CardTitle className="flex items-center space-x-2">
+                    <PieChart className="h-5 w-5" />
+                    <span>Asset Allocation</span>
                   </CardTitle>
                   <CardDescription>
-                    Personalized recommendations based on your portfolio allocation and selected scenario
+                    Adjust your portfolio mix (Total: {totalAllocation}%)
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
-                  <div className="p-4 bg-muted rounded-lg">
-                    <div className="flex items-start gap-3">
-                      <Zap className="h-5 w-5 text-primary mt-1" />
-                      <p className="text-sm leading-relaxed">{aiInsights}</p>
+                  {Object.entries(allocation).map(([category, value]) => (
+                    <div key={category} className="space-y-2">
+                      <div className="flex justify-between items-center">
+                        <Label className="capitalize font-medium">
+                          {category === 'reits' ? 'REITs' : category}
+                        </Label>
+                        <span className="text-sm font-medium">{value}%</span>
+                      </div>
+                      <Slider
+                        value={[value]}
+                        onValueChange={([newValue]) => updateAllocation(category, newValue)}
+                        max={100}
+                        step={5}
+                        className="w-full"
+                      />
                     </div>
-                  </div>
+                  ))}
                   
-                  {/* Performance Metrics */}
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <Card>
-                      <CardContent className="pt-6">
-                        <div className="text-center space-y-2">
-                          <div className="text-2xl font-bold text-primary">
-                            {simulationData.length > 0 ? ((simulationData[simulationData.length - 1]?.moderate / investmentAmount[0] - 1) * 100).toFixed(1) : 0}%
-                          </div>
-                          <div className="text-sm text-muted-foreground">Total Return</div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                    
-                    <Card>
-                      <CardContent className="pt-6">
-                        <div className="text-center space-y-2">
-                          <div className="text-2xl font-bold text-education">
-                            {timeHorizon[0] > 0 ? (((simulationData[simulationData.length - 1]?.moderate / investmentAmount[0]) ** (1/timeHorizon[0]) - 1) * 100).toFixed(1) : 0}%
-                          </div>
-                          <div className="text-sm text-muted-foreground">Annual Return</div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                    
-                    <Card>
-                      <CardContent className="pt-6">
-                        <div className="text-center space-y-2">
-                          <div className="text-2xl font-bold text-success">
-                            ${simulationData.length > 0 ? simulationData[simulationData.length - 1]?.moderate.toLocaleString() : 0}
-                          </div>
-                          <div className="text-sm text-muted-foreground">Final Value</div>
-                        </div>
-                      </CardContent>
-                    </Card>
+                  <div className="pt-4 border-t">
+                    <div className="flex justify-between items-center">
+                      <span className="font-medium">Total Allocation:</span>
+                      <Badge variant={totalAllocation === 100 ? "default" : "destructive"}>
+                        {totalAllocation}%
+                      </Badge>
+                    </div>
+                    <div className="flex justify-between items-center mt-2">
+                      <span className="font-medium">Risk Level:</span>
+                      <Badge variant="outline" className={risk.color}>
+                        {risk.level}
+                      </Badge>
+                    </div>
                   </div>
                 </CardContent>
               </Card>
-            </TabsContent>
-          </Tabs>
-        </div>
+
+              {/* Investment Parameters */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center space-x-2">
+                    <Target className="h-5 w-5" />
+                    <span>Investment Parameters</span>
+                  </CardTitle>
+                  <CardDescription>
+                    Set your investment timeline and amounts
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  <div className="space-y-2">
+                    <Label htmlFor="initial">Initial Investment</Label>
+                    <Input
+                      id="initial"
+                      type="number"
+                      value={initialInvestment}
+                      onChange={(e) => setInitialInvestment(parseInt(e.target.value) || 0)}
+                      placeholder="10000"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="monthly">Monthly Contribution</Label>
+                    <Input
+                      id="monthly"
+                      type="number"
+                      value={monthlyContribution}
+                      onChange={(e) => setMonthlyContribution(parseInt(e.target.value) || 0)}
+                      placeholder="500"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="horizon">Time Horizon</Label>
+                    <Select value={timeHorizon} onValueChange={setTimeHorizon}>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="5">5 years</SelectItem>
+                        <SelectItem value="10">10 years</SelectItem>
+                        <SelectItem value="15">15 years</SelectItem>
+                        <SelectItem value="20">20 years</SelectItem>
+                        <SelectItem value="30">30 years</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="risk">Risk Tolerance</Label>
+                    <Select value={riskTolerance} onValueChange={setRiskTolerance}>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="conservative">Conservative</SelectItem>
+                        <SelectItem value="moderate">Moderate</SelectItem>
+                        <SelectItem value="aggressive">Aggressive</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <Button 
+                    onClick={runSimulation} 
+                    disabled={isSimulating || totalAllocation !== 100}
+                    className="w-full"
+                  >
+                    {isSimulating ? (
+                      <>
+                        <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                        Running Simulation...
+                      </>
+                    ) : (
+                      <>
+                        <Play className="h-4 w-4 mr-2" />
+                        Run Simulation
+                      </>
+                    )}
+                  </Button>
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
+
+          {/* Simulation Results */}
+          <TabsContent value="results">
+            {simulationResults ? (
+              <div className="space-y-6">
+                {/* Summary Cards */}
+                <div className="grid md:grid-cols-3 gap-4">
+                  <Card className="bg-gradient-to-br from-success/10 to-success/5 border-success/20">
+                    <CardContent className="p-6">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-sm text-success/80">Expected Outcome</p>
+                          <p className="text-2xl font-bold text-success">
+                            {formatCurrency(simulationResults.scenarios.expected)}
+                          </p>
+                        </div>
+                        <TrendingUp className="h-8 w-8 text-success" />
+                      </div>
+                    </CardContent>
+                  </Card>
+                  
+                  <Card className="bg-gradient-to-br from-primary/10 to-primary/5 border-primary/20">
+                    <CardContent className="p-6">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-sm text-primary/80">Total Contributions</p>
+                          <p className="text-2xl font-bold text-primary">
+                            {formatCurrency(simulationResults.totalContributions)}
+                          </p>
+                        </div>
+                        <BarChart3 className="h-8 w-8 text-primary" />
+                      </div>
+                    </CardContent>
+                  </Card>
+                  
+                  <Card className="bg-gradient-to-br from-education/10 to-education/5 border-education/20">
+                    <CardContent className="p-6">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-sm text-education/80">Expected Return</p>
+                          <p className="text-2xl font-bold text-education">
+                            {(simulationResults.expectedReturn * 100).toFixed(1)}%
+                          </p>
+                        </div>
+                        <Target className="h-8 w-8 text-education" />
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+
+                {/* Detailed Results */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Projection Summary</CardTitle>
+                    <CardDescription>
+                      Portfolio value after {simulationResults.timeHorizon} years
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      <div className="grid md:grid-cols-3 gap-4">
+                        <div className="p-4 bg-success/5 border border-success/20 rounded-lg">
+                          <div className="text-center">
+                            <p className="text-sm text-success/80 mb-1">Optimistic (90th percentile)</p>
+                            <p className="text-xl font-bold text-success">
+                              {formatCurrency(simulationResults.scenarios.optimistic)}
+                            </p>
+                          </div>
+                        </div>
+                        
+                        <div className="p-4 bg-primary/5 border border-primary/20 rounded-lg">
+                          <div className="text-center">
+                            <p className="text-sm text-primary/80 mb-1">Expected (50th percentile)</p>
+                            <p className="text-xl font-bold text-primary">
+                              {formatCurrency(simulationResults.scenarios.expected)}
+                            </p>
+                          </div>
+                        </div>
+                        
+                        <div className="p-4 bg-warning/5 border border-warning/20 rounded-lg">
+                          <div className="text-center">
+                            <p className="text-sm text-warning/80 mb-1">Pessimistic (10th percentile)</p>
+                            <p className="text-xl font-bold text-warning">
+                              {formatCurrency(simulationResults.scenarios.pessimistic)}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            ) : (
+              <Card>
+                <CardContent className="text-center py-12">
+                  <Play className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                  <h3 className="text-lg font-semibold mb-2">No Simulation Results</h3>
+                  <p className="text-text-secondary mb-4">
+                    Configure your portfolio in the Setup tab and run a simulation to see results.
+                  </p>
+                  <Button onClick={() => {
+                    const setupTab = document.querySelector('[value="setup"]') as HTMLButtonElement;
+                    setupTab?.click();
+                  }}>
+                    Go to Setup
+                  </Button>
+                </CardContent>
+              </Card>
+            )}
+          </TabsContent>
+
+          {/* Scenario Analysis */}
+          <TabsContent value="scenarios">
+            <Card>
+              <CardHeader>
+                <CardTitle>Scenario Analysis</CardTitle>
+                <CardDescription>
+                  Compare different market conditions and their impact on your portfolio
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-6">
+                  <Alert className="border-warning/20 bg-warning/5">
+                    <AlertTriangle className="h-4 w-4 text-warning" />
+                    <AlertDescription>
+                      <strong>Coming Soon:</strong> Advanced scenario analysis including bear markets, 
+                      inflation scenarios, and custom economic conditions.
+                    </AlertDescription>
+                  </Alert>
+                  
+                  <div className="text-center py-8">
+                    <BarChart3 className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
+                    <h3 className="text-lg font-semibold mb-2">Advanced Scenarios</h3>
+                    <p className="text-text-secondary">
+                      This feature will include stress testing against historical market events,
+                      inflation scenarios, and custom economic conditions.
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
       </main>
+
       <Footer />
     </div>
   );

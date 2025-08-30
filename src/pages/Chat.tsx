@@ -24,6 +24,7 @@ import { VoiceInterface } from "@/components/chat/VoiceInterface";
 // Types and hooks
 import { Message, ChartData, QuizQuestion } from "@/types/chat";
 import { useLearningProgress } from "@/hooks/useLearningProgress";
+import { LoadingScreen } from "@/components/ui/LoadingScreen";
 
 const Chat = () => {
   const { user, loading } = useAuth();
@@ -318,7 +319,7 @@ const Chat = () => {
   };
 
   if (loading) {
-    return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
+    return <LoadingScreen message="Loading chat..." showLogo={true} />;
   }
 
   if (!user) {

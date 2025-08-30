@@ -125,16 +125,16 @@ export const Header = () => {
                       <User className="h-5 w-5" />
                     </Button>
                   </SheetTrigger>
-                  <SheetContent side="right" className="w-64">
-                    <div className="flex flex-col space-y-3 mt-8">
-                      <div className="px-4 py-2">
-                        <p className="text-sm font-medium text-text-heading">
-                          {user.user_metadata?.first_name || 'User'}
-                        </p>
-                        <p className="text-xs text-muted-foreground">
-                          {user.email}
-                        </p>
-                      </div>
+                    <SheetContent side="right" className="w-64 bg-background border-border">
+                      <div className="flex flex-col space-y-3 mt-8">
+                        <div className="px-4 py-2">
+                          <p className="text-sm font-medium text-text-heading">
+                            {user.user_metadata?.first_name || 'User'}
+                          </p>
+                          <p className="text-xs text-text-secondary">
+                            {user.email}
+                          </p>
+                        </div>
                       
                       {/* Show navigation links on tablet/small desktop */}
                       <div className="lg:hidden border-t pt-3">
@@ -164,13 +164,13 @@ export const Header = () => {
                       <User className="h-5 w-5" />
                     </Button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-56">
-                    <DropdownMenuItem onClick={() => navigate('/settings')}>
+                  <DropdownMenuContent align="end" className="w-56 bg-popover border border-border shadow-lg backdrop-blur-sm">
+                    <DropdownMenuItem onClick={() => navigate('/settings')} className="hover:bg-muted/80 focus:bg-muted/80">
                       <User className="h-4 w-4 mr-2" />
                       Settings
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={handleSignOut}>
+                    <DropdownMenuItem onClick={handleSignOut} className="hover:bg-destructive/10 focus:bg-destructive/10 text-destructive">
                       <LogOut className="h-4 w-4 mr-2" />
                       Sign Out
                     </DropdownMenuItem>

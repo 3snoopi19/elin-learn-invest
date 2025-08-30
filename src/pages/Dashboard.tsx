@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
@@ -14,6 +14,7 @@ import { OnboardingCarousel } from "@/components/onboarding/OnboardingCarousel";
 import { ProgressBadges } from "@/components/gamification/ProgressBadges";
 import { DailyLearningFeed } from "@/components/feed/DailyLearningFeed";
 import { MarketSentimentGauge } from "@/components/market/MarketSentimentGauge";
+import { LoadingScreen } from "@/components/ui/LoadingScreen";
 const Dashboard = () => {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
@@ -24,8 +25,8 @@ const Dashboard = () => {
   const [showLearningFeed, setShowLearningFeed] = useState(true);
   const { toast } = useToast();
 
-  // Get deduplicated dashboard cards
-  const dashboardCards = dedupeCards(DASHBOARD_CARDS);
+  // Get deduplicated dashboard cards (memoized to prevent infinite renders)
+  const dashboardCards = useMemo(() => dedupeCards(DASHBOARD_CARDS), []);
 
   // Check if user just completed the quiz or is new
   useEffect(() => {
@@ -82,7 +83,7 @@ const Dashboard = () => {
   };
 
   if (loading) {
-    return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
+    return <LoadingScreen message="Loading dashboard..." showLogo={true} />;
   }
 
   if (!user) {

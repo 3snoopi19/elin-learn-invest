@@ -13,6 +13,7 @@ import { useEffect } from "react";
 import { Search, FileText, Building2, Calendar, ExternalLink, AlertCircle } from "lucide-react";
 import { secEdgarService, type Filing } from "@/services/secEdgar";
 import { marketDataProvider } from "@/services/marketDataProvider";
+import { LoadingScreen } from "@/components/ui/LoadingScreen";
 
 const Filings = () => {
   const { user, loading } = useAuth();
@@ -78,7 +79,7 @@ const Filings = () => {
   };
 
   if (loading) {
-    return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
+    return <LoadingScreen message="Loading SEC filings..." showLogo={true} />;
   }
 
   if (!user) {
