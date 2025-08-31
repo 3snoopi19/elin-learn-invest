@@ -347,14 +347,16 @@ All colors MUST be HSL.
       0 1px 4px hsla(220, 13%, 9%, 0.04);
   }
   
-  /* Mobile Content Wrapper */
+  /* Mobile Content Wrapper - Enhanced for better spacing */
   .mobile-content {
-    margin-bottom: 80px; /* Space for bottom navigation */
+    margin-bottom: 88px; /* Increased space for bottom navigation + safe area */
+    padding-bottom: env(safe-area-inset-bottom, 8px);
   }
   
   @media (min-width: 768px) {
     .mobile-content {
       margin-bottom: 0;
+      padding-bottom: 0;
     }
   }
   
@@ -426,10 +428,17 @@ All colors MUST be HSL.
     @apply animate-pulse bg-muted/50 rounded;
   }
   
-/* Floating Action Button */
+/* Floating Action Button - Enhanced positioning */
 .floating-action-btn {
-  @apply fixed bottom-20 right-4 md:bottom-6 md:right-6 z-40 w-14 h-14 bg-primary hover:bg-primary-hover text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center;
+  @apply fixed bottom-28 right-4 md:bottom-6 md:right-6 z-40 w-14 h-14 bg-primary hover:bg-primary-hover text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center;
   transform-origin: center;
+  bottom: calc(88px + env(safe-area-inset-bottom, 8px)); /* Above bottom nav */
+}
+
+@media (min-width: 768px) {
+  .floating-action-btn {
+    bottom: 24px; /* Standard desktop positioning */
+  }
 }
 
 .floating-action-btn:hover {

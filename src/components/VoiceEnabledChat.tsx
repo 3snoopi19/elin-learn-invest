@@ -1,14 +1,17 @@
-import { useState, useRef, useEffect } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
-import { Mic, MicOff, Volume2, VolumeX, Send, Bot, User, Settings, HelpCircle } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
-import { useToast } from "@/components/ui/use-toast";
-import { supabase } from "@/integrations/supabase/client";
-import { QuickPromptsPanel } from "@/components/chat/QuickPromptsPanel";
-import { cn } from "@/lib/utils";
+import { useState, useRef, useEffect } from 'react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Mic, MicOff, Send, Volume2, VolumeX, Bot, User, Loader2, HelpCircle } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { toast } from 'sonner';
+import { TypingIndicator } from './chat/TypingIndicator';
+import { ErrorMessage } from './chat/ErrorMessage';
+import { QuickPromptsPanel } from './chat/QuickPromptsPanel';
+import { supabase } from '@/integrations/supabase/client';
+import { cn } from '@/lib/utils';
 
 interface Message {
   id: string;
@@ -43,7 +46,6 @@ export const VoiceEnabledChat = () => {
   const [audioLevel, setAudioLevel] = useState(0);
   const [transcript, setTranscript] = useState('');
 
-  const { toast } = useToast();
   const recognitionRef = useRef<any>(null);
   const synthRef = useRef<SpeechSynthesis | null>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
@@ -54,7 +56,7 @@ export const VoiceEnabledChat = () => {
   useEffect(() => {
     // Speech Recognition Setup
     if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
-      const SpeechRecognition = window.webkitSpeechRecognition || window.SpeechRecognition;
+      const SpeechRecognition = (window as any).webkitSpeechRecognition || (window as any).SpeechRecognition;
       recognitionRef.current = new SpeechRecognition();
       
       recognitionRef.current.continuous = true;
@@ -85,11 +87,7 @@ export const VoiceEnabledChat = () => {
       recognitionRef.current.onerror = (event: any) => {
         console.error('Speech recognition error:', event.error);
         setIsListening(false);
-        toast({
-          title: "Voice Error",
-          description: "Could not process voice input. Please try again.",
-          variant: "destructive"
-        });
+        toast.error("Could not process voice input. Please try again.");
       };
 
       recognitionRef.current.onend = () => {
@@ -111,7 +109,7 @@ export const VoiceEnabledChat = () => {
         audioContextRef.current.close();
       }
     };
-  }, [toast]);
+  }, []);
 
   // Audio level monitoring
   const startAudioMonitoring = async () => {
@@ -138,11 +136,7 @@ export const VoiceEnabledChat = () => {
       updateAudioLevel();
     } catch (error) {
       console.error('Error accessing microphone:', error);
-      toast({
-        title: "Microphone Error",
-        description: "Could not access microphone. Please check permissions.",
-        variant: "destructive"
-      });
+      toast.error("Could not access microphone. Please check permissions.");
     }
   };
 
@@ -154,10 +148,7 @@ export const VoiceEnabledChat = () => {
       recognitionRef.current.start();
       startAudioMonitoring();
       
-      toast({
-        title: "Voice Activated",
-        description: "Listening... Speak now!"
-      });
+      toast.success("Listening... Speak now!");
     }
   };
 
@@ -274,11 +265,7 @@ export const VoiceEnabledChat = () => {
       
       setMessages(prev => [...prev, errorMessage]);
       
-      toast({
-        title: "Connection Error",
-        description: "Unable to reach ELIN. Please try again.",
-        variant: "destructive"
-      });
+      toast.error("Unable to reach ELIN. Please try again.");
     } finally {
       setIsTyping(false);
     }
@@ -287,6 +274,13 @@ export const VoiceEnabledChat = () => {
   const handleQuickPrompt = (prompt: string) => {
     setShowQuickPrompts(false);
     handleSendMessage(prompt);
+  };
+
+  const retryConnection = () => {
+    setConnectionError(null);
+    if (inputValue.trim()) {
+      handleSendMessage();
+    }
   };
 
   // Auto-scroll to bottom
@@ -309,9 +303,9 @@ export const VoiceEnabledChat = () => {
 
   return (
     <div className="max-w-4xl mx-auto">
-      <Card className="h-[600px] flex flex-col">
+      <Card className="h-[600px] flex flex-col professional-card">
         <CardHeader className="border-b">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <CardTitle className="flex items-center gap-2">
               <Bot className="w-6 h-6 text-primary" />
               Voice-Enabled ELIN Chat
@@ -377,6 +371,15 @@ export const VoiceEnabledChat = () => {
           isVisible={showQuickPrompts}
         />
 
+        {/* Error Display */}
+        {connectionError && (
+          <ErrorMessage
+            message={connectionError}
+            onRetry={retryConnection}
+            className="mx-4 mt-4"
+          />
+        )}
+
         {/* Messages Area */}
         <CardContent className="flex-1 overflow-y-auto p-4 space-y-4">
           <AnimatePresence>
@@ -388,59 +391,42 @@ export const VoiceEnabledChat = () => {
                 exit={{ opacity: 0, y: -20 }}
                 className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
               >
-                  <div
-                    className={cn(
-                      "max-w-[85%] p-4 rounded-xl shadow-sm",
-                      message.sender === 'user'
-                        ? 'bg-primary text-primary-foreground ml-auto'
-                        : 'bg-card border border-border text-card-foreground'
-                    )}
-                  >
-                  <div className="flex items-center gap-2 mb-1">
-                    {message.sender === 'user' ? (
-                      <User className="w-4 h-4" />
-                    ) : (
-                      <Bot className="w-4 h-4" />
-                    )}
-                    <span className="text-xs opacity-70">
-                      {message.sender === 'user' ? 'You' : 'ELIN'}
-                    </span>
-                    {message.isVoice && (
-                      <Badge variant="secondary" className="text-xs">
-                        Voice
-                      </Badge>
-                    )}
-                  </div>
-                    <p className="text-sm leading-relaxed whitespace-pre-wrap break-words">
-                      {message.content}
-                    </p>
-                  <div className="text-xs opacity-50 mt-2">
-                    {message.timestamp.toLocaleTimeString()}
-                  </div>
+                <div
+                  className={cn(
+                    "max-w-[85%] p-4 rounded-xl shadow-sm",
+                    message.sender === 'user'
+                      ? 'bg-primary text-primary-foreground ml-auto'
+                      : 'bg-card border border-border text-card-foreground'
+                  )}
+                >
+                <div className="flex items-center gap-2 mb-1">
+                  {message.sender === 'user' ? (
+                    <User className="w-4 h-4" />
+                  ) : (
+                    <Bot className="w-4 h-4" />
+                  )}
+                  <span className="text-xs opacity-70">
+                    {message.sender === 'user' ? 'You' : 'ELIN'}
+                  </span>
+                  {message.isVoice && (
+                    <Badge variant="secondary" className="text-xs">
+                      Voice
+                    </Badge>
+                  )}
                 </div>
+                  <p className="text-sm leading-relaxed whitespace-pre-wrap break-words">
+                    {message.content}
+                  </p>
+                <div className="text-xs opacity-50 mt-2">
+                  {message.timestamp.toLocaleTimeString()}
+                </div>
+              </div>
               </motion.div>
             ))}
           </AnimatePresence>
 
           {/* Typing Indicator */}
-          {isTyping && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="flex justify-start"
-            >
-              <div className="bg-muted p-3 rounded-lg">
-                <div className="flex items-center gap-2">
-                  <Bot className="w-4 h-4" />
-                  <div className="flex space-x-1">
-                    <div className="w-2 h-2 bg-primary rounded-full animate-bounce" />
-                    <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: '0.1s' }} />
-                    <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: '0.2s' }} />
-                  </div>
-                </div>
-              </div>
-            </motion.div>
-          )}
+          {isTyping && <TypingIndicator />}
 
           {/* Live Transcript */}
           {transcript && (
@@ -468,7 +454,7 @@ export const VoiceEnabledChat = () => {
                 onChange={(e) => setInputValue(e.target.value)}
                 placeholder="Type your message or use voice..."
                 onKeyPress={(e) => e.key === 'Enter' && !e.shiftKey && handleSendMessage()}
-                className="pr-12"
+                className="pr-12 mobile-text-sm"
               />
             </div>
 
@@ -480,7 +466,7 @@ export const VoiceEnabledChat = () => {
               onMouseUp={stopListening}
               onTouchStart={startListening}
               onTouchEnd={stopListening}
-              className={`relative ${isListening ? "bg-destructive hover:bg-destructive/90" : ""}`}
+              className={`relative mobile-button touch-target ${isListening ? "bg-destructive hover:bg-destructive/90" : ""}`}
             >
               {isListening ? (
                 <MicOff className="w-4 h-4" />
@@ -505,8 +491,9 @@ export const VoiceEnabledChat = () => {
               onClick={() => handleSendMessage()}
               disabled={!inputValue.trim()}
               size="sm"
+              className="mobile-button touch-target"
             >
-              <Send className="w-4 h-4" />
+              {isTyping ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
             </Button>
 
             {/* Stop Speaking Button */}
@@ -515,14 +502,15 @@ export const VoiceEnabledChat = () => {
                 variant="outline"
                 size="sm"
                 onClick={stopSpeaking}
-                className="text-destructive border-destructive"
+                className="text-destructive border-destructive mobile-button touch-target"
               >
                 <VolumeX className="w-4 h-4" />
               </Button>
             )}
           </div>
           
-          <div className="text-xs text-text-muted mt-2 flex items-center justify-between">
+          {/* Enhanced disclaimer with better contrast */}
+          <div className="text-xs text-text-secondary mt-2 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 bg-muted/20 p-2 rounded border border-border/30">
             <span>Hold the mic button to speak, or ask one of the questions above</span>
             <div className="flex items-center gap-2">
               {voiceSettings.voiceEnabled && (
@@ -532,6 +520,11 @@ export const VoiceEnabledChat = () => {
               )}
             </div>
           </div>
+          
+          {/* Main disclaimer */}
+          <p className="text-xs text-text-secondary text-center mt-3 bg-muted/20 p-2 rounded border border-border/30">
+            ELIN provides educational information only. Always consult with licensed professionals for personalized financial advice.
+          </p>
         </div>
       </Card>
     </div>
