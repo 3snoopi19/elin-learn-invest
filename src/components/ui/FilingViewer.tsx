@@ -11,7 +11,9 @@ import {
   Brain,
   Eye,
   Clock,
-  Building2
+  Building2,
+  TrendingUp,
+  TrendingDown
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Skeleton } from "@/components/ui/skeleton";
