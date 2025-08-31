@@ -3,10 +3,12 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Mic, MicOff, Volume2, VolumeX, Send, Bot, User, Settings } from "lucide-react";
+import { Mic, MicOff, Volume2, VolumeX, Send, Bot, User, Settings, HelpCircle } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { QuickPromptsPanel } from "@/components/chat/QuickPromptsPanel";
+import { cn } from "@/lib/utils";
 
 interface Message {
   id: string;
@@ -29,6 +31,9 @@ export const VoiceEnabledChat = () => {
   const [isListening, setIsListening] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
+  const [isConnected, setIsConnected] = useState(true);
+  const [connectionError, setConnectionError] = useState<string | null>(null);
+  const [showQuickPrompts, setShowQuickPrompts] = useState(false);
   const [voiceSettings, setVoiceSettings] = useState<VoiceSettings>({
     voiceEnabled: false,
     autoSpeak: true,
@@ -216,7 +221,7 @@ export const VoiceEnabledChat = () => {
     }
   };
 
-  // Send message function
+  // Send message function with improved error handling
   const handleSendMessage = async (messageText?: string, isVoiceMessage = false) => {
     const textToSend = messageText || inputValue.trim();
     if (!textToSend) return;
@@ -232,8 +237,10 @@ export const VoiceEnabledChat = () => {
     setMessages(prev => [...prev, userMessage]);
     setInputValue('');
     setIsTyping(true);
+    setConnectionError(null);
 
     try {
+      setIsConnected(true);
       const { data, error } = await supabase.functions.invoke('chat-with-elin', {
         body: { message: textToSend }
       });
@@ -242,7 +249,7 @@ export const VoiceEnabledChat = () => {
 
       const elinMessage: Message = {
         id: (Date.now() + 1).toString(),
-        content: data.response,
+        content: data.response || "I'm having trouble processing that request. Please try again.",
         sender: 'elin',
         timestamp: new Date()
       };
@@ -251,17 +258,35 @@ export const VoiceEnabledChat = () => {
       
       // Auto-speak response if enabled
       if (voiceSettings.voiceEnabled && voiceSettings.autoSpeak) {
-        setTimeout(() => speakText(data.response), 500);
+        setTimeout(() => speakText(data.response || elinMessage.content), 500);
       }
-    } catch (error) {
+    } catch (error: any) {
+      setIsConnected(false);
+      setConnectionError(error.message || 'Connection failed');
+      
+      // Add error message to chat
+      const errorMessage: Message = {
+        id: (Date.now() + 2).toString(),
+        content: "I'm experiencing connection issues. Please check your internet connection and try again. If the problem persists, our chat service may be temporarily unavailable.",
+        sender: 'elin',
+        timestamp: new Date()
+      };
+      
+      setMessages(prev => [...prev, errorMessage]);
+      
       toast({
-        title: "Error",
-        description: "Failed to get response from ELIN",
+        title: "Connection Error",
+        description: "Unable to reach ELIN. Please try again.",
         variant: "destructive"
       });
     } finally {
       setIsTyping(false);
     }
+  };
+
+  const handleQuickPrompt = (prompt: string) => {
+    setShowQuickPrompts(false);
+    handleSendMessage(prompt);
   };
 
   // Auto-scroll to bottom
@@ -307,21 +332,50 @@ export const VoiceEnabledChat = () => {
                 )}
               </Button>
 
-              {/* Voice Status */}
-              {isListening && (
-                <Badge variant="default" className="animate-pulse">
-                  Listening...
+              {/* Connection Status */}
+              {connectionError ? (
+                <Badge variant="destructive" className="animate-pulse">
+                  Connection Error
                 </Badge>
+              ) : !isConnected ? (
+                <Badge variant="secondary" className="animate-pulse">
+                  Reconnecting...
+                </Badge>
+              ) : (
+                <>
+                  {/* Voice Status */}
+                  {isListening && (
+                    <Badge variant="default" className="animate-pulse">
+                      Listening...
+                    </Badge>
+                  )}
+                  
+                  {isSpeaking && (
+                    <Badge variant="secondary" className="animate-pulse">
+                      Speaking...
+                    </Badge>
+                  )}
+                </>
               )}
               
-              {isSpeaking && (
-                <Badge variant="secondary" className="animate-pulse">
-                  Speaking...
-                </Badge>
-              )}
+              {/* Quick Prompts Toggle */}
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowQuickPrompts(!showQuickPrompts)}
+                className={showQuickPrompts ? "bg-primary/10 border-primary" : ""}
+              >
+                <HelpCircle className="w-4 h-4" />
+              </Button>
             </div>
           </div>
         </CardHeader>
+
+        {/* Quick Prompts Panel */}
+        <QuickPromptsPanel 
+          onPromptSelect={handleQuickPrompt}
+          isVisible={showQuickPrompts}
+        />
 
         {/* Messages Area */}
         <CardContent className="flex-1 overflow-y-auto p-4 space-y-4">
@@ -334,13 +388,14 @@ export const VoiceEnabledChat = () => {
                 exit={{ opacity: 0, y: -20 }}
                 className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
               >
-                <div
-                  className={`max-w-[70%] p-3 rounded-lg ${
-                    message.sender === 'user'
-                      ? 'bg-primary text-primary-foreground'
-                      : 'bg-muted text-foreground'
-                  }`}
-                >
+                  <div
+                    className={cn(
+                      "max-w-[85%] p-4 rounded-xl shadow-sm",
+                      message.sender === 'user'
+                        ? 'bg-primary text-primary-foreground ml-auto'
+                        : 'bg-card border border-border text-card-foreground'
+                    )}
+                  >
                   <div className="flex items-center gap-2 mb-1">
                     {message.sender === 'user' ? (
                       <User className="w-4 h-4" />
@@ -356,7 +411,9 @@ export const VoiceEnabledChat = () => {
                       </Badge>
                     )}
                   </div>
-                  <p className="text-sm leading-relaxed">{message.content}</p>
+                    <p className="text-sm leading-relaxed whitespace-pre-wrap break-words">
+                      {message.content}
+                    </p>
                   <div className="text-xs opacity-50 mt-2">
                     {message.timestamp.toLocaleTimeString()}
                   </div>
@@ -465,8 +522,8 @@ export const VoiceEnabledChat = () => {
             )}
           </div>
           
-          <div className="text-xs text-muted-foreground mt-2 flex items-center justify-between">
-            <span>Hold the mic button to speak, or type your message</span>
+          <div className="text-xs text-text-muted mt-2 flex items-center justify-between">
+            <span>Hold the mic button to speak, or ask one of the questions above</span>
             <div className="flex items-center gap-2">
               {voiceSettings.voiceEnabled && (
                 <Badge variant="default" className="text-xs bg-success/20 text-success border-success/30">

@@ -145,8 +145,8 @@ const Dashboard = () => {
           </div>
         </div>
 
-        {/* Main Dashboard Grid - Mobile responsive */}
-        <div className="grid grid-cols-1 xl:grid-cols-12 gap-6 mb-8">
+        {/* Main Dashboard Grid - Mobile responsive with consistent spacing */}
+        <div className="grid grid-cols-1 xl:grid-cols-12 gap-4 md:gap-6 mb-6 md:mb-8">
           
           {/* Portfolio Overview - Full width on mobile, 8/12 on desktop */}
           <div className="xl:col-span-8 space-y-6">
@@ -171,8 +171,8 @@ const Dashboard = () => {
           </div>
         </div>
 
-        {/* Secondary Row - Responsive grid with proper spacing */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6 mb-8">
+        {/* Secondary Row - Responsive grid with unified spacing */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 md:gap-6 mb-6 md:mb-8">
           <div className="sm:col-span-1">
             <MarketSentimentGauge />
           </div>

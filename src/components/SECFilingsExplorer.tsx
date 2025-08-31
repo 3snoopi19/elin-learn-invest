@@ -14,10 +14,13 @@ import {
   X,
   Filter,
   Download,
-  ExternalLink
+  ExternalLink,
+  TrendingUp,
+  TrendingDown
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { formatDistanceToNow } from "date-fns";
+import { FilingViewer } from "@/components/ui/FilingViewer";
 
 // Mock SEC filings data
 const filings = [
@@ -109,6 +112,7 @@ export const SECFilingsExplorer = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedTickers, setSelectedTickers] = useState<string[]>(["AAPL", "TSLA"]);
   const [isSummarizing, setIsSummarizing] = useState<number | null>(null);
+  const [selectedFiling, setSelectedFiling] = useState<typeof filings[0] | null>(null);
 
   const toggleTicker = (ticker: string) => {
     setSelectedTickers(prev => 
@@ -286,6 +290,7 @@ export const SECFilingsExplorer = () => {
                           size="sm"
                           variant="default"
                           className="shadow-md"
+                          onClick={() => setSelectedFiling(filing)}
                         >
                           <Eye className="w-3 h-3 mr-1" />
                           Quick View
@@ -360,7 +365,16 @@ export const SECFilingsExplorer = () => {
             </div>
           </div>
         </div>
-      </Card>
+        </Card>
+
+        {/* Filing Viewer Modal */}
+        {selectedFiling && (
+          <FilingViewer 
+            filing={selectedFiling}
+            isOpen={!!selectedFiling}
+            onClose={() => setSelectedFiling(null)}
+          />
+        )}
 
       {/* Custom scrollbar styles */}
       <style>{`

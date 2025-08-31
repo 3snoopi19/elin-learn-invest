@@ -3,9 +3,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { Calendar, DollarSign, TrendingUp, AlertCircle, CheckCircle } from "lucide-react";
+import { Calendar, DollarSign, TrendingUp, AlertCircle, CheckCircle, HelpCircle } from "lucide-react";
 import { motion } from "framer-motion";
 import { cn } from '@/lib/utils';
+import { CreditPaymentSlider } from "@/components/ui/CreditPaymentSlider";
+import { OnboardingTooltip } from "@/components/onboarding/OnboardingTooltips";
 
 interface CreditCard {
   id: string;
@@ -99,7 +101,9 @@ export const CreditInterestVisualization = ({ card }: CreditInterestVisualizatio
       {/* Credit Utilization - Mobile Responsive */}
       <div className="space-y-3">
         <div className="flex items-center justify-between">
-          <span className="text-sm md:text-base font-medium">Credit Utilization</span>
+          <span className="text-sm md:text-base font-medium flex items-center gap-1">
+            Credit Utilization
+          </span>
           <span className="text-sm md:text-base text-muted-foreground">{utilizationPercent.toFixed(1)}%</span>
         </div>
         <Progress 
@@ -209,23 +213,15 @@ export const CreditInterestVisualization = ({ card }: CreditInterestVisualizatio
           </CardTitle>
         </CardHeader>
         <CardContent className="pt-0">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="text-center mobile-card p-4">
-              <div className="text-lg md:text-xl font-bold text-destructive">
-                {formatCurrency(monthlyInterest * 12)}
-              </div>
-              <div className="text-xs md:text-sm text-muted-foreground">
-                Annual interest if paying minimum
-              </div>
-            </div>
-            <div className="text-center mobile-card p-4">
-              <div className="text-lg md:text-xl font-bold text-success">
-                $0
-              </div>
-              <div className="text-xs md:text-sm text-muted-foreground">
-                Annual interest if paying statement
-              </div>
-            </div>
+          <div className="space-y-4">
+            {/* Enhanced Payment Slider */}
+            <CreditPaymentSlider 
+              card={card}
+              onPaymentChange={(amount) => {
+                setCustomAmount(amount);
+                setSelectedPayment('custom');
+              }}
+            />
           </div>
         </CardContent>
       </Card>

@@ -261,14 +261,14 @@ export const EnhancedLearningPaths = () => {
                   </Button>
                 </div>
 
-                <div>
-                  <CardTitle className="text-lg mb-2 group-hover:text-primary transition-colors">
-                    {path.title}
-                  </CardTitle>
-                  <p className="text-sm text-muted-foreground line-clamp-2 mb-3">
-                    {path.description}
-                  </p>
-                </div>
+                  <div>
+                    <h4 className="font-medium text-text-heading mb-2 group-hover:text-primary transition-colors">
+                      {path.title}
+                    </h4>
+                    <p className="text-text-muted text-sm leading-relaxed">
+                      {path.description}
+                    </p>
+                  </div>
 
                 {/* Progress Bar */}
                 <div className="space-y-2">

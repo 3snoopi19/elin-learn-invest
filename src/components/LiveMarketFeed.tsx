@@ -149,6 +149,7 @@ export const LiveMarketFeed = () => {
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
   const [nextRetryIn, setNextRetryIn] = useState<number>(0);
   const [isRetrying, setIsRetrying] = useState(false);
+  const [showOfflineMessage, setShowOfflineMessage] = useState(false);
 
   const fetchMarketData = useCallback(async () => {
     try {
@@ -174,7 +175,7 @@ export const LiveMarketFeed = () => {
         // Get existing data for smooth transitions
         const existing = marketData.find(item => item.symbol === symbol);
         const basePrice = existing?.price || (Math.random() * 200 + 100);
-        const change = (Math.random() - 0.5) * 10; // Small realistic changes
+        const change = (Math.random() - 0.5) * 4; // Smaller, more realistic changes
         
         return {
           symbol,
@@ -188,10 +189,14 @@ export const LiveMarketFeed = () => {
       
       setMarketData(fallbackData);
       setLastUpdated(new Date());
+      setNextRetryIn(0);
       
-      // Only show error if we have no data at all
+      // Only show error if we have no data at all and it's first load
       if (marketData.length === 0) {
         setError('Demo mode - Using sample market data for educational purposes');
+        setShowOfflineMessage(true);
+        // Auto-hide offline message after 5 seconds
+        setTimeout(() => setShowOfflineMessage(false), 5000);
       }
       
     } catch (err) {
@@ -209,6 +214,8 @@ export const LiveMarketFeed = () => {
         }));
         setMarketData(fallbackData);
         setError('Demo mode - Educational market data');
+        setShowOfflineMessage(true);
+        setTimeout(() => setShowOfflineMessage(false), 8000);
       }
     } finally {
       setLoading(false);
@@ -297,18 +304,29 @@ export const LiveMarketFeed = () => {
         </CardHeader>
 
         <CardContent className="relative">
-          {error && (
+          {/* Improved Error Display */}
+          {error && showOfflineMessage && (
             <div className="bg-warning/10 border border-warning/20 rounded-lg p-3 mb-4">
               <div className="flex items-center justify-between">
-                <span className="text-warning text-sm">{error}</span>
+                <div className="flex items-center gap-2">
+                  <AlertCircle className="w-4 h-4 text-warning" />
+                  <span className="text-warning text-sm">{error}</span>
+                </div>
                 <Button 
                   onClick={handleRefreshNow}
                   size="sm"
                   variant="outline"
+                  disabled={isRetrying}
                   className="h-7 px-3 text-xs border-warning/20 text-warning hover:bg-warning/10"
                 >
-                  <RefreshCw className="w-3 h-3 mr-1" />
-                  Refresh now
+                  {isRetrying ? (
+                    <RefreshCw className="w-3 h-3 animate-spin" />
+                  ) : (
+                    <>
+                      <RefreshCw className="w-3 h-3 mr-1" />
+                      Refresh
+                    </>
+                  )}
                 </Button>
               </div>
             </div>

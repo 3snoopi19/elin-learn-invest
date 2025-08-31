@@ -173,7 +173,7 @@ export const LearningPathsCard = () => {
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex-1">
                     <div className="flex items-center gap-3 mb-2">
-                      <h4 className="text-foreground font-bold text-lg group-hover:text-primary transition-colors">
+                      <h4 className="text-text-heading font-bold text-lg group-hover:text-primary transition-colors">
                         {path.title}
                       </h4>
                       <Badge 
@@ -183,7 +183,7 @@ export const LearningPathsCard = () => {
                         {path.difficulty}
                       </Badge>
                     </div>
-                    <p className="text-muted-foreground text-sm mb-3">
+                    <p className="text-text-muted text-sm mb-3">
                       {path.description}
                     </p>
                   </div>
@@ -219,11 +219,11 @@ export const LearningPathsCard = () => {
                 {/* Next Lesson & Actions */}
                 <div className="flex items-center justify-between">
                   <div className="flex-1">
-                    <p className="text-text-secondary text-sm">
-                      <span className="text-muted-foreground">Next: </span>
+                    <p className="text-text-muted text-sm">
+                      <span className="text-text-secondary">Next: </span>
                       {path.nextLesson}
                     </p>
-                    <p className="text-muted-foreground text-xs mt-1">
+                    <p className="text-text-muted text-xs mt-1">
                       Last accessed {path.lastAccessed}
                     </p>
                   </div>
@@ -259,15 +259,15 @@ export const LearningPathsCard = () => {
             <div className="grid grid-cols-3 gap-4 text-center">
               <div>
                 <div className="text-success text-2xl font-bold">24</div>
-                <div className="text-muted-foreground text-sm">Lessons Completed</div>
+                <div className="text-text-muted text-sm">Lessons Completed</div>
               </div>
               <div>
                 <div className="text-accent text-2xl font-bold">8.5h</div>
-                <div className="text-muted-foreground text-sm">Learning Time</div>
+                <div className="text-text-muted text-sm">Learning Time</div>
               </div>
               <div>
                 <div className="text-education text-2xl font-bold">3</div>
-                <div className="text-muted-foreground text-sm">Certificates Earned</div>
+                <div className="text-text-muted text-sm">Certificates Earned</div>
               </div>
             </div>
           </div>
