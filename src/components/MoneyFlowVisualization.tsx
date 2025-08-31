@@ -160,20 +160,32 @@ const IncomeSourceNode = ({ data }: { data: NodeData }) => {
   return (
     <div className="group relative">
       <Handle type="source" position={Position.Right} className="w-3 h-3 bg-success border-2 border-success-foreground" />
-      <div className="min-w-[180px] p-4 bg-gradient-to-br from-success/10 to-success/5 backdrop-blur-xl border border-success/20 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 cursor-move">
+      <div className="min-w-[180px] p-4 professional-card bg-gradient-to-br from-success/10 to-success/5 border-success/20 cursor-move hover:shadow-xl hover:border-success/30 transition-all duration-300 hover:scale-[1.02] hover:-translate-y-1">
         <div className="flex items-center gap-3 mb-3">
-          <div className="text-2xl">{getIcon()}</div>
+          <div className="text-2xl animate-pulse-subtle">{getIcon()}</div>
           <div>
-            <h3 className="font-bold text-sm text-foreground">{data.label}</h3>
-            <p className="text-xs text-muted-foreground">{data.frequency}</p>
+            <h3 className="font-bold text-sm text-text-heading">{data.label}</h3>
+            <p className="text-xs text-text-secondary">{data.frequency}</p>
           </div>
         </div>
-        <div className="text-xl font-bold text-success">
+        <div className="text-xl font-bold text-success mb-2">
           +${data.amount.toLocaleString()}
         </div>
-        <div className="flex items-center justify-between mt-2">
-          <span className="text-xs text-muted-foreground">{data.totalTransactions} transactions</span>
-          <Badge variant="outline" className="text-xs bg-success/10 text-success">Active</Badge>
+        <div className="flex items-center justify-between mt-3">
+          <span className="text-xs text-text-muted">{data.totalTransactions} transactions</span>
+          <Badge variant="outline" className="text-xs bg-success/15 text-success border-success/30">
+            Active
+          </Badge>
+        </div>
+        
+        {/* Hover Action */}
+        <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 mt-3 flex gap-1">
+          <Button size="sm" variant="ghost" className="text-xs h-6 px-2 text-success hover:bg-success/10">
+            Details
+          </Button>
+          <Button size="sm" variant="ghost" className="text-xs h-6 px-2 text-success hover:bg-success/10">
+            Edit
+          </Button>
         </div>
       </div>
     </div>
@@ -204,33 +216,40 @@ const AccountNode = ({ data }: { data: any }) => {
       <Handle type="target" position={Position.Left} className="w-3 h-3 bg-secondary border-2 border-secondary-foreground" />
       <Handle type="source" position={Position.Right} className="w-3 h-3 bg-secondary border-2 border-secondary-foreground" />
             {/* Enhanced Money Flow Visualization */}
-            <div className="min-w-[200px] p-4 bg-gradient-to-br from-secondary/10 to-secondary/5 backdrop-blur-xl border border-secondary/20 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 cursor-move">
+            <div className="min-w-[200px] p-4 professional-card bg-gradient-to-br from-secondary/10 to-secondary/5 border-secondary/20 cursor-move hover:shadow-xl hover:border-secondary/30 transition-all duration-300 hover:scale-[1.02] hover:-translate-y-1">
               <div className="flex items-center gap-3 mb-3">
-                <div className="text-2xl">{getIcon()}</div>
+                <div className="text-2xl animate-pulse-subtle">{getIcon()}</div>
                 <div>
-                  <h3 className="font-bold text-sm text-foreground">{data.name}</h3>
-                  <p className="text-xs text-muted-foreground">{data.institution}</p>
+                  <h3 className="font-bold text-sm text-text-heading">{data.name}</h3>
+                  <p className="text-xs text-text-secondary">{data.institution}</p>
                 </div>
               </div>
-              <div className={`text-xl font-bold ${data.balance < 0 ? 'text-destructive' : 'text-secondary'}`}>
+              <div className={`text-xl font-bold mb-2 ${data.balance < 0 ? 'text-destructive' : 'text-secondary'}`}>
                 {formatCurrency(data.balance)}
               </div>
-              <div className="flex items-center justify-between mt-2">
-                <span className="text-xs text-muted-foreground">Last sync: Today</span>
+              <div className="flex items-center justify-between mt-3">
+                <span className="text-xs text-text-muted">Last sync: Today</span>
                 <Badge 
-                  variant={data.balance > 5000 ? 'default' : data.balance < 0 ? 'destructive' : 'secondary'}
-                  className="text-xs"
+                  variant="outline"
+                  className={cn(
+                    "text-xs border",
+                    data.balance > 5000 
+                      ? "bg-success/15 text-success border-success/30"
+                      : data.balance < 0 
+                      ? "bg-destructive/15 text-destructive border-destructive/30" 
+                      : "bg-warning/15 text-warning border-warning/30"
+                  )}
                 >
                   {data.balance > 5000 ? 'Healthy' : data.balance < 0 ? 'Credit' : 'Low'}
                 </Badge>
               </div>
               
-              {/* Quick Actions for Enhanced Interactivity */}
-              <div className="mt-3 flex gap-1">
-                <Button size="sm" variant="ghost" className="text-xs h-6 px-2">
+              {/* Enhanced Quick Actions with Hover States */}
+              <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 mt-3 flex gap-1">
+                <Button size="sm" variant="ghost" className="text-xs h-6 px-2 text-secondary hover:bg-secondary/10">
                   View
                 </Button>
-                <Button size="sm" variant="ghost" className="text-xs h-6 px-2">
+                <Button size="sm" variant="ghost" className="text-xs h-6 px-2 text-secondary hover:bg-secondary/10">
                   Transfer  
                 </Button>
               </div>
@@ -255,25 +274,40 @@ const ExpenseNode = ({ data }: { data: NodeData }) => {
   return (
     <div className="group relative">
       <Handle type="target" position={Position.Left} className="w-3 h-3 bg-destructive border-2 border-destructive-foreground" />
-      <div className="min-w-[180px] p-4 bg-gradient-to-br from-destructive/10 to-destructive/5 backdrop-blur-xl border border-destructive/20 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 cursor-move">
+      <div className="min-w-[180px] p-4 professional-card bg-gradient-to-br from-destructive/10 to-destructive/5 border-destructive/20 cursor-move hover:shadow-xl hover:border-destructive/30 transition-all duration-300 hover:scale-[1.02] hover:-translate-y-1">
         <div className="flex items-center gap-3 mb-3">
           <div className="text-2xl">{getIcon()}</div>
           <div>
-            <h3 className="font-bold text-sm text-foreground">{data.label}</h3>
-            <p className="text-xs text-muted-foreground">{data.frequency}</p>
+            <h3 className="font-bold text-sm text-text-heading">{data.label}</h3>
+            <p className="text-xs text-text-secondary">{data.frequency}</p>
           </div>
         </div>
-        <div className="text-xl font-bold text-destructive">
+        <div className="text-xl font-bold text-destructive mb-2">
           -${data.amount.toLocaleString()}
         </div>
-        <div className="flex items-center justify-between mt-2">
-          <span className="text-xs text-muted-foreground">{data.totalTransactions} transactions</span>
+        <div className="flex items-center justify-between mt-3">
+          <span className="text-xs text-text-muted">{data.totalTransactions} transactions</span>
           <Badge 
-            variant={data.amount > 1000 ? 'destructive' : 'outline'}
-            className="text-xs"
+            variant="outline"
+            className={cn(
+              "text-xs border",
+              data.amount > 1000 
+                ? "bg-destructive/15 text-destructive border-destructive/30" 
+                : "bg-muted/10 text-text-secondary border-border"
+            )}
           >
             {data.amount > 1000 ? 'High' : data.category === 'housing' ? 'Fixed' : 'Variable'}
           </Badge>
+        </div>
+        
+        {/* Hover Actions */}
+        <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 mt-3 flex gap-1">
+          <Button size="sm" variant="ghost" className="text-xs h-6 px-2 text-destructive hover:bg-destructive/10">
+            Analyze
+          </Button>
+          <Button size="sm" variant="ghost" className="text-xs h-6 px-2 text-destructive hover:bg-destructive/10">
+            Reduce
+          </Button>
         </div>
       </div>
     </div>
@@ -586,53 +620,59 @@ export const MoneyFlowVisualization: React.FC<MoneyFlowVisualizationProps> = ({
           </Select>
         </div>
 
-        {/* Income Section */}
+        {/* Enhanced Income Section */}
         <Collapsible 
           open={expandedSections.income} 
           onOpenChange={() => toggleSection('income')}
         >
-          <CollapsibleTrigger className="flex items-center justify-between w-full p-4 bg-gradient-to-br from-success/10 to-success/5 rounded-2xl border border-success/20">
+          <CollapsibleTrigger className="flex items-center justify-between w-full p-4 professional-card bg-gradient-to-br from-success/10 to-success/5 border-success/20 hover:border-success/30 hover:shadow-lg transition-all duration-200 touch-target">
             <div className="flex items-center gap-3">
-              <div className="text-2xl">💰</div>
+              <div className="text-2xl animate-pulse-subtle">💰</div>
               <div>
                 <h3 className="font-bold text-success">Income Sources</h3>
-                <p className="text-sm text-muted-foreground">+${totals.income.toLocaleString()}/month</p>
+                <p className="text-sm text-text-secondary">+${totals.income.toLocaleString()}/month</p>
               </div>
             </div>
-            {expandedSections.income ? <ChevronUp className="h-5 w-5" /> : <ChevronDown className="h-5 w-5" />}
+            {expandedSections.income ? <ChevronUp className="h-5 w-5 text-success" /> : <ChevronDown className="h-5 w-5 text-success" />}
           </CollapsibleTrigger>
           <CollapsibleContent className="mt-4 space-y-3 px-1">
-            <div className="p-4 bg-card/50 rounded-xl border border-success/10">
+            <div className="p-4 mobile-card bg-gradient-to-br from-success/5 to-card border-success/10 hover:border-success/20 transition-colors duration-200">
               <div className="flex items-center justify-between">
-                <div>
-                  <h4 className="font-semibold text-foreground">Salary</h4>
-                  <p className="text-sm text-muted-foreground">Monthly</p>
+                <div className="flex items-center gap-3">
+                  <div className="text-lg">💼</div>
+                  <div>
+                    <h4 className="font-semibold text-text-heading">Salary</h4>
+                    <p className="text-sm text-text-secondary">Monthly</p>
+                  </div>
                 </div>
                 <div className="text-right">
                   <div className="text-lg font-bold text-success">+$4,200</div>
-                  <div className="text-xs text-muted-foreground">12 transactions</div>
+                  <div className="text-xs text-text-muted">12 transactions</div>
                 </div>
               </div>
             </div>
-            <div className="p-4 bg-card/50 rounded-xl border border-success/10">
+            <div className="p-4 mobile-card bg-gradient-to-br from-success/5 to-card border-success/10 hover:border-success/20 transition-colors duration-200">
               <div className="flex items-center justify-between">
-                <div>
-                  <h4 className="font-semibold text-foreground">Freelance</h4>
-                  <p className="text-sm text-muted-foreground">Weekly</p>
+                <div className="flex items-center gap-3">
+                  <div className="text-lg">⚡</div>
+                  <div>
+                    <h4 className="font-semibold text-text-heading">Freelance</h4>
+                    <p className="text-sm text-text-secondary">Weekly</p>
+                  </div>
                 </div>
                 <div className="text-right">
                   <div className="text-lg font-bold text-success">+$800</div>
-                  <div className="text-xs text-muted-foreground">8 transactions</div>
+                  <div className="text-xs text-text-muted">8 transactions</div>
                 </div>
               </div>
             </div>
           </CollapsibleContent>
         </Collapsible>
 
-        {/* Summary Cards */}
+        {/* Enhanced Summary Cards */}
         <div className="grid grid-cols-2 gap-4">
-          <Card className="p-4 bg-gradient-to-br from-success/10 to-success/5 border-success/20">
-            <CardContent className="p-0">
+          <Card className="mobile-card bg-gradient-to-br from-success/10 to-success/5 border-success/20 hover:border-success/30 hover:shadow-lg transition-all duration-200">
+            <CardContent className="p-4">
               <div className="flex items-center gap-2 mb-2">
                 <TrendingUp className="h-4 w-4 text-success" />
                 <span className="text-xs font-medium text-success">Total Income</span>
@@ -640,17 +680,27 @@ export const MoneyFlowVisualization: React.FC<MoneyFlowVisualizationProps> = ({
               <div className="text-xl font-bold text-success">
                 +${totals.income.toLocaleString()}
               </div>
+              <div className="mt-2">
+                <Badge variant="outline" className="text-xs bg-success/15 text-success border-success/30">
+                  📈 +12% vs last month
+                </Badge>
+              </div>
             </CardContent>
           </Card>
 
-          <Card className="p-4 bg-gradient-to-br from-destructive/10 to-destructive/5 border-destructive/20">
-            <CardContent className="p-0">
+          <Card className="mobile-card bg-gradient-to-br from-destructive/10 to-destructive/5 border-destructive/20 hover:border-destructive/30 hover:shadow-lg transition-all duration-200">
+            <CardContent className="p-4">
               <div className="flex items-center gap-2 mb-2">
                 <TrendingDown className="h-4 w-4 text-destructive" />
                 <span className="text-xs font-medium text-destructive">Total Expenses</span>
               </div>
               <div className="text-xl font-bold text-destructive">
                 -${totals.expenses.toLocaleString()}
+              </div>
+              <div className="mt-2">
+                <Badge variant="outline" className="text-xs bg-warning/15 text-warning border-warning/30">
+                  ⚠ +5% vs last month
+                </Badge>
               </div>
             </CardContent>
           </Card>

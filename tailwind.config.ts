@@ -22,6 +22,10 @@ export default {
 				'inter': ['Inter', 'sans-serif'],
 				'sans': ['Inter', 'system-ui', 'sans-serif'],
 			},
+			backgroundImage: {
+				'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
+				'gradient-conic': 'conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))',
+			},
 			colors: {
 				border: 'hsl(var(--border))',
 				input: 'hsl(var(--input))',
@@ -82,7 +86,7 @@ export default {
 				'portfolio-cash': 'hsl(var(--portfolio-cash))',
 				'portfolio-crypto': 'hsl(var(--portfolio-crypto))',
 				'portfolio-alternatives': 'hsl(var(--portfolio-alternatives))',
-				'insights-bg': 'hsl(var(--insights-bg))',
+				'background-subtle': 'hsl(var(--background-subtle))',
 				sidebar: {
 					DEFAULT: 'hsl(var(--sidebar-background))',
 					foreground: 'hsl(var(--sidebar-foreground))',
