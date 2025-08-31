@@ -203,27 +203,38 @@ const AccountNode = ({ data }: { data: any }) => {
     <div className="group relative">
       <Handle type="target" position={Position.Left} className="w-3 h-3 bg-secondary border-2 border-secondary-foreground" />
       <Handle type="source" position={Position.Right} className="w-3 h-3 bg-secondary border-2 border-secondary-foreground" />
-      <div className="min-w-[200px] p-4 bg-gradient-to-br from-secondary/10 to-secondary/5 backdrop-blur-xl border border-secondary/20 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 cursor-move">
-        <div className="flex items-center gap-3 mb-3">
-          <div className="text-2xl">{getIcon()}</div>
-          <div>
-            <h3 className="font-bold text-sm text-foreground">{data.name}</h3>
-            <p className="text-xs text-muted-foreground">{data.institution}</p>
-          </div>
-        </div>
-        <div className={`text-xl font-bold ${data.balance < 0 ? 'text-destructive' : 'text-secondary'}`}>
-          {formatCurrency(data.balance)}
-        </div>
-        <div className="flex items-center justify-between mt-2">
-          <span className="text-xs text-muted-foreground">Last sync: Today</span>
-          <Badge 
-            variant={data.balance > 5000 ? 'default' : data.balance < 0 ? 'destructive' : 'secondary'}
-            className="text-xs"
-          >
-            {data.balance > 5000 ? 'Healthy' : data.balance < 0 ? 'Credit' : 'Low'}
-          </Badge>
-        </div>
-      </div>
+            {/* Enhanced Money Flow Visualization */}
+            <div className="min-w-[200px] p-4 bg-gradient-to-br from-secondary/10 to-secondary/5 backdrop-blur-xl border border-secondary/20 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 cursor-move">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="text-2xl">{getIcon()}</div>
+                <div>
+                  <h3 className="font-bold text-sm text-foreground">{data.name}</h3>
+                  <p className="text-xs text-muted-foreground">{data.institution}</p>
+                </div>
+              </div>
+              <div className={`text-xl font-bold ${data.balance < 0 ? 'text-destructive' : 'text-secondary'}`}>
+                {formatCurrency(data.balance)}
+              </div>
+              <div className="flex items-center justify-between mt-2">
+                <span className="text-xs text-muted-foreground">Last sync: Today</span>
+                <Badge 
+                  variant={data.balance > 5000 ? 'default' : data.balance < 0 ? 'destructive' : 'secondary'}
+                  className="text-xs"
+                >
+                  {data.balance > 5000 ? 'Healthy' : data.balance < 0 ? 'Credit' : 'Low'}
+                </Badge>
+              </div>
+              
+              {/* Quick Actions for Enhanced Interactivity */}
+              <div className="mt-3 flex gap-1">
+                <Button size="sm" variant="ghost" className="text-xs h-6 px-2">
+                  View
+                </Button>
+                <Button size="sm" variant="ghost" className="text-xs h-6 px-2">
+                  Transfer  
+                </Button>
+              </div>
+            </div>
     </div>
   );
 };

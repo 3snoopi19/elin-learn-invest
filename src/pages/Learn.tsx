@@ -9,6 +9,8 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { BookOpen, Clock, Trophy, TrendingUp, Shield, DollarSign, BarChart3, Target, Play, FileText, Download, CheckCircle, Video, PenTool, ArrowLeft } from "lucide-react";
 import { useState } from "react";
 import { LessonContent } from "@/components/learn/LessonContent";
+import { LearningPathsCard } from "@/components/LearningPathsCard";
+import { EnhancedLearningPaths } from "@/components/EnhancedLearningPaths";
 import { courseContent } from "@/data/courseContent";
 
 const Learn = () => {
@@ -216,8 +218,9 @@ const Learn = () => {
         </div>
 
         <Tabs defaultValue="overview" className="space-y-8">
-          <TabsList className="grid w-full grid-cols-2">
+          <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="overview">Course Overview</TabsTrigger>
+            <TabsTrigger value="enhanced">Enhanced Paths</TabsTrigger>
             <TabsTrigger value="materials">Study Materials</TabsTrigger>
           </TabsList>
 
@@ -335,6 +338,10 @@ const Learn = () => {
                 );
               })}
             </div>
+          </TabsContent>
+
+          <TabsContent value="enhanced" className="space-y-6">
+            <EnhancedLearningPaths />
           </TabsContent>
 
           <TabsContent value="materials" className="space-y-6">
