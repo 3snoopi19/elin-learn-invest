@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { PieChart, Pie, Cell, ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip } from "recharts";
 import { TrendingUp, TrendingDown, BarChart3, PieChart as PieChartIcon } from "lucide-react";
 import { motion } from "framer-motion";
+import { cn } from "@/lib/utils";
 
 // Portfolio allocation data with neon colors
 const allocationData = [
@@ -69,7 +70,7 @@ export const PortfolioOverviewCard = ({
       transition={{ duration: 0.5, delay: 0.1 }}
       className="w-full"
     >
-      <Card className="professional-card border-0 bg-gradient-to-br from-card via-card/95 to-background-subtle/50 shadow-2xl hover:shadow-3xl transition-all duration-500">
+      <Card className="professional-card border-0 shadow-2xl hover:shadow-3xl transition-all duration-500">
         <CardHeader className="pb-4 md:pb-6">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <CardTitle className="text-xl md:text-2xl font-bold text-text-heading flex items-center gap-3">
@@ -129,19 +130,20 @@ export const PortfolioOverviewCard = ({
               </div>
             </div>
             
-            <div className="mobile-card p-4 bg-gradient-to-br from-muted/30 to-muted/10 border-border/30">
-              <p className="text-text-secondary text-xs md:text-sm mb-1 font-medium">Diversification</p>
+            <div className="mobile-card p-4 bg-gradient-to-br from-muted/20 to-muted/5 border-border/20">
+              <p className="text-text-muted text-xs md:text-sm mb-1 font-medium">Diversification</p>
               <div className="flex items-center gap-2 flex-wrap">
                 <span className="text-text-heading text-lg md:text-xl font-bold">{diversificationScore}</span>
                 <Badge 
                   variant="secondary"
-                  className={`text-xs ${
+                  className={cn(
+                    "text-xs font-medium",
                     diversificationScore >= 80 
                       ? 'bg-success/20 text-success border-success/30' 
                       : diversificationScore >= 60
                       ? 'bg-warning/20 text-warning border-warning/30'
                       : 'bg-destructive/20 text-destructive border-destructive/30'
-                  }`}
+                  )}
                 >
                   {diversificationScore >= 80 ? 'Excellent' : diversificationScore >= 60 ? 'Good' : 'Poor'}
                 </Badge>
@@ -193,11 +195,12 @@ export const PortfolioOverviewCard = ({
                     {allocationData.map((item, index) => (
                       <motion.div
                         key={item.name}
-                        className={`flex items-center justify-between p-3 rounded-lg cursor-pointer transition-colors touch-target ${
+                        className={cn(
+                          "flex items-center justify-between p-3 rounded-lg cursor-pointer transition-all duration-300 touch-target border", 
                           activeIndex === index 
-                            ? 'bg-primary/10 border border-primary/30' 
-                            : 'bg-muted/30 hover:bg-muted/50 border border-border/30'
-                        }`}
+                            ? 'bg-primary/10 border-primary/30 shadow-md' 
+                            : 'bg-muted/20 hover:bg-muted/30 border-border/20 hover:border-border/40'
+                        )}
                         onMouseEnter={() => setActiveIndex(index)}
                         onMouseLeave={() => setActiveIndex(null)}
                         onClick={() => setActiveIndex(activeIndex === index ? null : index)}
@@ -230,13 +233,13 @@ export const PortfolioOverviewCard = ({
                       dataKey="date" 
                       axisLine={false}
                       tickLine={false}
-                      tick={{ fill: 'hsl(var(--text-secondary))', fontSize: 11 }}
+                      tick={{ fill: 'hsl(var(--text-muted))', fontSize: 11 }}
                       interval="preserveStartEnd"
                     />
                     <YAxis 
                       axisLine={false}
                       tickLine={false}
-                      tick={{ fill: 'hsl(var(--text-secondary))', fontSize: 11 }}
+                      tick={{ fill: 'hsl(var(--text-muted))', fontSize: 11 }}
                       tickFormatter={(value) => `$${(value / 1000).toFixed(0)}k`}
                       width={45}
                     />
@@ -253,8 +256,9 @@ export const PortfolioOverviewCard = ({
                         backgroundColor: 'hsl(var(--card))',
                         border: '1px solid hsl(var(--border))',
                         borderRadius: '8px',
-                        color: 'hsl(var(--card-foreground))',
-                        fontSize: '12px'
+                        color: 'hsl(var(--text-heading))',
+                        fontSize: '12px',
+                        boxShadow: '0 4px 12px rgba(0,0,0,0.15)'
                       }}
                       formatter={(value: any) => [`$${value.toLocaleString()}`, 'Portfolio Value']}
                     />

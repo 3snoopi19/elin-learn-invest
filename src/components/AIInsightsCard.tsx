@@ -89,21 +89,21 @@ export const AIInsightsCard = () => {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, delay: 0.4 }}
     >
-      <Card className="relative overflow-hidden border-0 neon-card">
-        {/* Animated border effect */}
-        <div className="absolute inset-0 bg-gradient-to-r from-education/30 via-primary/30 to-accent/30 rounded-lg blur-sm animate-pulse" />
-        <div className="absolute inset-[1px] bg-card rounded-lg" />
+      <Card className="professional-card border-0 shadow-2xl hover:shadow-3xl transition-all duration-500">
+        {/* Enhanced animated border effect */}
+        <div className="absolute inset-0 bg-gradient-to-r from-education/20 via-primary/20 to-accent/20 rounded-xl opacity-50 animate-pulse" />
+        <div className="absolute inset-[1px] bg-card rounded-xl" />
         
         <CardHeader className="relative pb-4">
           <div className="flex items-center gap-3">
             <div className="relative p-2 bg-education/20 rounded-lg">
               <Brain className="w-6 h-6 text-education" />
-              {/* Pulsing effect */}
-              <div className="absolute inset-0 bg-education/20 rounded-lg animate-ping" />
+              {/* Subtle pulsing effect */}
+              <div className="absolute inset-0 bg-education/10 rounded-lg animate-ping opacity-75" />
             </div>
             <div className="flex-1">
               <CardTitle className="text-2xl font-bold text-text-heading">AI Insights</CardTitle>
-              <p className="text-text-secondary text-sm">Personalized recommendations powered by ELIN</p>
+              <p className="text-text-muted text-sm">Personalized recommendations powered by ELIN</p>
             </div>
             <div className="flex items-center gap-2">
               <div className="w-2 h-2 bg-education rounded-full animate-pulse" />
@@ -121,10 +121,10 @@ export const AIInsightsCard = () => {
               <motion.div
                 key={insight.id}
                 layout
-                className="group relative p-4 rounded-lg bg-card/50 border border-border/50 hover:border-border transition-all duration-300 glass-effect"
+                className="group relative p-4 rounded-lg mobile-card hover:border-border/70 transition-all duration-300"
               >
-                {/* Hover glow effect */}
-                <div className="absolute inset-0 rounded-lg bg-gradient-to-r from-transparent via-foreground/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                {/* Subtle hover glow effect */}
+                <div className="absolute inset-0 rounded-lg bg-gradient-to-r from-transparent via-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                 
                 <div className="relative">
                   {/* Header */}
@@ -146,7 +146,7 @@ export const AIInsightsCard = () => {
                             {insight.priority}
                           </Badge>
                         </div>
-                        <p className="text-text-secondary text-sm leading-relaxed">
+                        <p className="text-text-muted text-sm leading-relaxed">
                           {insight.description}
                         </p>
                       </div>
@@ -155,7 +155,7 @@ export const AIInsightsCard = () => {
                     {/* Confidence Score */}
                     <div className="text-right ml-4 flex-shrink-0">
                       <div className="text-accent font-bold text-lg">{insight.confidence}%</div>
-                      <div className="text-muted-foreground text-xs">confidence</div>
+                      <div className="text-text-muted text-xs">confidence</div>
                     </div>
                   </div>
 
