@@ -68,9 +68,7 @@ export default function CreditCoach() {
 
   return (
     <MobileOptimizedLayout>
-      <Header />
-      
-      <main className="flex-1 container mx-auto px-4 py-8 max-w-7xl">
+      <main className="container mx-auto mobile-container py-6 md:py-8 max-w-7xl">
         <div className="mb-8">
           <div className="flex items-center gap-3 mb-4">
             <div className="p-2 bg-primary/10 rounded-lg">

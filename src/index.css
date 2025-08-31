@@ -198,26 +198,34 @@ All colors MUST be HSL.
 }
 
 @layer components {
-  /* Enhanced card styles with restored depth and gradients */
+  /* Enhanced neon glow card with improved gradients */
   .neon-card {
-    @apply bg-card/90 backdrop-blur-xl border border-border/50 rounded-xl;
-    background: linear-gradient(135deg, hsl(var(--card)) 0%, hsl(var(--card)/95%) 100%);
+    @apply bg-card/95 backdrop-blur-xl border border-border/50 rounded-xl;
+    background: linear-gradient(135deg, 
+      hsl(var(--card)) 0%, 
+      hsl(var(--background-subtle)) 30%, 
+      hsl(var(--card)) 100%
+    );
     box-shadow: 
-      0 4px 12px hsla(220, 13%, 9%, 0.08),
-      0 2px 6px hsla(220, 13%, 9%, 0.06),
-      inset 0 1px 0 hsla(var(--foreground), 0.08);
+      0 4px 16px hsla(220, 13%, 9%, 0.12),
+      0 2px 8px hsla(220, 13%, 9%, 0.08),
+      inset 0 1px 0 hsla(var(--foreground), 0.1);
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
   
   .neon-card:hover {
     @apply border-primary/30;
-    background: linear-gradient(135deg, hsl(var(--card)) 0%, hsl(var(--primary)/5%) 100%);
+    background: linear-gradient(135deg, 
+      hsl(var(--card)) 0%, 
+      hsl(var(--primary)/8%) 30%, 
+      hsl(var(--card)) 100%
+    );
     box-shadow: 
-      0 8px 32px hsla(220, 13%, 9%, 0.12),
-      0 4px 16px hsla(220, 13%, 9%, 0.08),
-      0 0 0 1px hsla(var(--primary), 0.15),
-      inset 0 1px 0 hsla(var(--primary), 0.1);
-    transform: translateY(-2px);
+      0 12px 40px hsla(220, 13%, 9%, 0.16),
+      0 6px 20px hsla(220, 13%, 9%, 0.12),
+      0 0 0 1px hsla(var(--primary), 0.2),
+      inset 0 1px 0 hsla(var(--primary), 0.15);
+    transform: translateY(-3px);
   }
 
   /* Enhanced professional card with depth */

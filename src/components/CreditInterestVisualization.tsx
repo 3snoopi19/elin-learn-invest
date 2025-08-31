@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Calendar, DollarSign, TrendingUp, AlertCircle, CheckCircle } from "lucide-react";
 import { motion } from "framer-motion";
+import { cn } from '@/lib/utils';
 
 interface CreditCard {
   id: string;
@@ -77,74 +78,76 @@ export const CreditInterestVisualization = ({ card }: CreditInterestVisualizatio
   };
 
   return (
-    <div className="space-y-6">
-      {/* Card Overview */}
-      <div className="grid grid-cols-2 gap-4">
-        <div className="text-center p-3 bg-muted/30 rounded-lg">
-          <div className="text-lg font-bold text-foreground">
+    <div className="space-y-4 md:space-y-6">
+      {/* Mobile-First Card Overview */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="mobile-card p-4 bg-gradient-to-br from-muted/30 to-muted/10 border-border/30">
+          <div className="text-text-secondary text-xs md:text-sm mb-1 font-medium">Current Balance</div>
+          <div className="text-lg md:text-xl font-bold text-foreground">
             {formatCurrency(card.currentBalance)}
           </div>
-          <div className="text-xs text-muted-foreground">Current Balance</div>
         </div>
         
-        <div className="text-center p-3 bg-muted/30 rounded-lg">
-          <div className="text-lg font-bold text-foreground">
+        <div className="mobile-card p-4 bg-gradient-to-br from-muted/30 to-muted/10 border-border/30">
+          <div className="text-text-secondary text-xs md:text-sm mb-1 font-medium">Days Until Due</div>
+          <div className="text-lg md:text-xl font-bold text-foreground">
             {daysUntilDue} days
           </div>
-          <div className="text-xs text-muted-foreground">Until Due</div>
         </div>
       </div>
 
-      {/* Credit Utilization */}
-      <div className="space-y-2">
+      {/* Credit Utilization - Mobile Responsive */}
+      <div className="space-y-3">
         <div className="flex items-center justify-between">
-          <span className="text-sm font-medium">Credit Utilization</span>
-          <span className="text-sm text-muted-foreground">{utilizationPercent.toFixed(1)}%</span>
+          <span className="text-sm md:text-base font-medium">Credit Utilization</span>
+          <span className="text-sm md:text-base text-muted-foreground">{utilizationPercent.toFixed(1)}%</span>
         </div>
         <Progress 
           value={utilizationPercent} 
-          className="h-2"
+          className="h-2 md:h-3"
           style={{
             '--progress-color': utilizationPercent > 30 ? 'hsl(var(--destructive))' : 'hsl(var(--success))'
           } as React.CSSProperties}
         />
-        <div className="text-xs text-muted-foreground">
+        <div className="text-xs md:text-sm text-muted-foreground">
           {utilizationPercent > 30 ? 'High utilization may impact credit score' : 'Healthy utilization level'}
         </div>
       </div>
 
-      {/* Payment Scenarios */}
-      <div className="space-y-3">
-        <h4 className="font-medium text-sm">Payment Options</h4>
+      {/* Payment Scenarios - Mobile Responsive */}
+      <div className="space-y-4">
+        <h4 className="font-medium text-sm md:text-base">Payment Options</h4>
         
         {paymentScenarios.map((scenario) => (
           <motion.div
             key={scenario.type}
-            className={`p-4 rounded-lg border-2 cursor-pointer transition-all ${
+            className={cn(
+              "p-4 rounded-xl border-2 cursor-pointer transition-all duration-300 mobile-card touch-target",
               selectedPayment === scenario.type 
-                ? 'border-primary bg-primary/5' 
-                : 'border-border hover:border-primary/50'
-            }`}
+                ? 'border-primary bg-primary/5 shadow-lg' 
+                : 'border-border hover:border-primary/50 hover:shadow-md'
+            )}
             onClick={() => setSelectedPayment(scenario.type as 'minimum' | 'statement' | 'custom')}
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
+            whileHover={{ scale: 1.01 }}
+            whileTap={{ scale: 0.99 }}
           >
-            <div className="flex items-start justify-between">
-              <div className="flex items-start gap-3">
-                <div className={`p-1 rounded ${
+            <div className="flex items-start justify-between gap-3">
+              <div className="flex items-start gap-3 min-w-0 flex-1">
+                <div className={cn(
+                  "p-2 rounded-full flex-shrink-0",
                   scenario.color === 'success' ? 'bg-success/20 text-success' : 'bg-destructive/20 text-destructive'
-                }`}>
+                )}>
                   {scenario.icon}
                 </div>
-                <div>
-                  <div className="font-medium text-sm">{scenario.label}</div>
-                  <div className="text-xs text-muted-foreground mt-1">
+                <div className="min-w-0 flex-1">
+                  <div className="font-medium text-sm md:text-base">{scenario.label}</div>
+                  <div className="text-xs md:text-sm text-muted-foreground mt-1">
                     {scenario.description}
                   </div>
                 </div>
               </div>
-              <div className="text-right">
-                <div className="font-bold text-sm">{formatCurrency(scenario.amount)}</div>
+              <div className="text-right flex-shrink-0">
+                <div className="font-bold text-sm md:text-base">{formatCurrency(scenario.amount)}</div>
                 {scenario.interestCost > 0 && (
                   <div className="text-xs text-destructive">
                     +{formatCurrency(scenario.interestCost)} interest
@@ -157,9 +160,9 @@ export const CreditInterestVisualization = ({ card }: CreditInterestVisualizatio
               <motion.div
                 initial={{ opacity: 0, height: 0 }}
                 animate={{ opacity: 1, height: 'auto' }}
-                className="mt-3 pt-3 border-t border-border"
+                className="mt-4 pt-4 border-t border-border"
               >
-                <div className="grid grid-cols-2 gap-4 text-xs">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs md:text-sm">
                   <div>
                     <div className="text-muted-foreground">Remaining Balance</div>
                     <div className="font-medium">
@@ -177,51 +180,49 @@ export const CreditInterestVisualization = ({ card }: CreditInterestVisualizatio
         ))}
       </div>
 
-      {/* Recommendation */}
-      <div className="bg-gradient-to-r from-success/10 to-success/5 border border-success/20 rounded-lg p-4">
+      {/* Recommendation - Enhanced Mobile */}
+      <div className="professional-card bg-gradient-to-r from-success/10 to-success/5 border-success/20 p-4 md:p-6">
         <div className="flex items-start gap-3">
-          <CheckCircle className="w-5 h-5 text-success mt-0.5" />
-          <div>
-            <div className="font-medium text-sm text-success">
+          <CheckCircle className="w-5 h-5 text-success mt-1 flex-shrink-0" />
+          <div className="min-w-0 flex-1">
+            <div className="font-medium text-sm md:text-base text-success mb-2">
               Recommended: Pay Statement Balance
             </div>
-            <div className="text-xs text-muted-foreground mt-1">
+            <div className="text-xs md:text-sm text-muted-foreground mb-4">
               Pay {formatCurrency(card.statementBalance)} by {formatDate(card.dueDate)} to avoid 
               {formatCurrency(monthlyInterest)} in interest charges this month.
             </div>
-            <div className="mt-3">
-              <Button size="sm" className="bg-success hover:bg-success/90">
-                <DollarSign className="w-4 h-4 mr-1" />
-                Set Payment: {formatCurrency(card.statementBalance)}
-              </Button>
-            </div>
+            <Button size="sm" className="bg-success hover:bg-success/90 w-full sm:w-auto mobile-button">
+              <DollarSign className="w-4 h-4 mr-2" />
+              Set Payment: {formatCurrency(card.statementBalance)}
+            </Button>
           </div>
         </div>
       </div>
 
-      {/* Interest Savings Visualization */}
-      <Card className="bg-gradient-to-br from-primary/5 to-success/5 border-primary/20">
+      {/* Interest Savings Visualization - Mobile Enhanced */}
+      <Card className="professional-card bg-gradient-to-br from-primary/5 to-success/5 border-primary/20">
         <CardHeader className="pb-3">
-          <CardTitle className="text-sm flex items-center gap-2">
+          <CardTitle className="text-sm md:text-base flex items-center gap-2">
             <TrendingUp className="w-4 h-4" />
             Annual Impact
           </CardTitle>
         </CardHeader>
         <CardContent className="pt-0">
-          <div className="grid grid-cols-2 gap-4">
-            <div className="text-center">
-              <div className="text-lg font-bold text-destructive">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="text-center mobile-card p-4">
+              <div className="text-lg md:text-xl font-bold text-destructive">
                 {formatCurrency(monthlyInterest * 12)}
               </div>
-              <div className="text-xs text-muted-foreground">
+              <div className="text-xs md:text-sm text-muted-foreground">
                 Annual interest if paying minimum
               </div>
             </div>
-            <div className="text-center">
-              <div className="text-lg font-bold text-success">
+            <div className="text-center mobile-card p-4">
+              <div className="text-lg md:text-xl font-bold text-success">
                 $0
               </div>
-              <div className="text-xs text-muted-foreground">
+              <div className="text-xs md:text-sm text-muted-foreground">
                 Annual interest if paying statement
               </div>
             </div>

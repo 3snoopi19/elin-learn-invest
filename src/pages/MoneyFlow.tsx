@@ -1,4 +1,4 @@
-import { MoneyFlowVisualization } from "@/components/MoneyFlowVisualization";
+import { MoneyFlowVisualizationV2 } from "@/components/MoneyFlowVisualizationV2";
 import { MoneyFlowInsights } from "@/components/MoneyFlowInsights";
 import { MobileOptimizedLayout } from "@/components/ui/MobileOptimizedLayout";
 import { ResponsiveContainer } from "@/components/ui/ResponsiveContainer";
@@ -59,9 +59,9 @@ export default function MoneyFlowPage() {
               className="animate-fade-in-up"
             />
             
-            {/* Main Visualization */}
+            {/* Main Visualization - Enhanced for Sequence.io style */}
             <div className="professional-card p-4 md:p-6 bg-gradient-to-br from-background via-background-subtle to-background animate-fade-in-up animate-delay-200">
-              <MoneyFlowVisualization 
+              <MoneyFlowVisualizationV2
                 accounts={mockAccounts} 
                 timeframe="30"
               />
