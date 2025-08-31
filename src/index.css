@@ -349,8 +349,8 @@ All colors MUST be HSL.
   
   /* Mobile Content Wrapper - Enhanced for better spacing */
   .mobile-content {
-    margin-bottom: 88px; /* Increased space for bottom navigation + safe area */
-    padding-bottom: env(safe-area-inset-bottom, 8px);
+    margin-bottom: 96px; /* Increased space for larger bottom navigation */
+    padding-bottom: env(safe-area-inset-bottom, 12px);
   }
   
   @media (min-width: 768px) {
@@ -432,7 +432,7 @@ All colors MUST be HSL.
 .floating-action-btn {
   @apply fixed bottom-28 right-4 md:bottom-6 md:right-6 z-40 w-14 h-14 bg-primary hover:bg-primary-hover text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center;
   transform-origin: center;
-  bottom: calc(88px + env(safe-area-inset-bottom, 8px)); /* Above bottom nav */
+  bottom: calc(96px + env(safe-area-inset-bottom, 12px)); /* Above enhanced bottom nav */
 }
 
 @media (min-width: 768px) {

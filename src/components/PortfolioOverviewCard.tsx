@@ -106,34 +106,34 @@ export const PortfolioOverviewCard = ({
 
         <CardContent className="p-4 md:p-6">
           {/* Key Metrics Row - Mobile Responsive */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 md:gap-6 mb-6">
-            <div className="mobile-card p-4 bg-gradient-to-br from-muted/30 to-muted/10 border-border/30">
+          <div className="mobile-grid gap-3 md:gap-4 mb-6">
+            <div className="mobile-card p-4 bg-gradient-to-br from-primary/5 to-background border-primary/10">
               <p className="text-text-secondary text-xs md:text-sm mb-1 font-medium">Total Value</p>
-              <p className="text-text-heading text-lg md:text-xl font-bold">
+              <p className="text-text-heading text-lg md:text-2xl font-bold">
                 ${totalValue.toLocaleString()}
               </p>
             </div>
             
-            <div className="mobile-card p-4 bg-gradient-to-br from-muted/30 to-muted/10 border-border/30">
+            <div className="mobile-card p-4 bg-gradient-to-br from-secondary/5 to-background border-secondary/10">
               <p className="text-text-secondary text-xs md:text-sm mb-1 font-medium">30-Day Change</p>
               <div className={`flex items-center gap-2 ${
                 isPositive ? 'text-success' : 'text-destructive'
               }`}>
                 {isPositive ? (
-                  <TrendingUp className="w-3 h-3 md:w-4 md:h-4 shrink-0" />
+                  <TrendingUp className="w-4 h-4 md:w-5 md:h-5 shrink-0" />
                 ) : (
-                  <TrendingDown className="w-3 h-3 md:w-4 md:h-4 shrink-0" />
+                  <TrendingDown className="w-4 h-4 md:w-5 md:h-5 shrink-0" />
                 )}
-                <span className="text-lg md:text-xl font-bold">
+                <span className="text-lg md:text-2xl font-bold">
                   {isPositive ? '+' : ''}{changePercent}%
                 </span>
               </div>
             </div>
             
-            <div className="mobile-card p-4 bg-gradient-to-br from-muted/20 to-muted/5 border-border/20">
-              <p className="text-text-muted text-xs md:text-sm mb-1 font-medium">Diversification</p>
+            <div className="mobile-card p-4 bg-gradient-to-br from-accent/5 to-background border-accent/10">
+              <p className="text-text-secondary text-xs md:text-sm mb-1 font-medium">Diversification</p>
               <div className="flex items-center gap-2 flex-wrap">
-                <span className="text-text-heading text-lg md:text-xl font-bold">{diversificationScore}</span>
+                <span className="text-text-heading text-lg md:text-2xl font-bold">{diversificationScore}</span>
                 <Badge 
                   variant="secondary"
                   className={cn(
@@ -152,19 +152,19 @@ export const PortfolioOverviewCard = ({
           </div>
 
           {/* Chart Section - Mobile Responsive */}
-          <div className="min-h-[300px] md:h-80">
+          <div className="min-h-[320px] md:min-h-[400px]">
             {viewMode === 'allocation' ? (
-              <div className="flex flex-col lg:flex-row items-center justify-between h-full gap-6">
+              <div className="flex flex-col lg:flex-row items-start justify-between h-full gap-6">
                 {/* Pie Chart */}
-                <div className="flex-1 w-full lg:w-auto">
-                  <ResponsiveContainer width="100%" height={280}>
+                <div className="flex-1 w-full min-h-[280px]">
+                  <ResponsiveContainer width="100%" height="100%">
                     <PieChart>
                       <Pie
                         data={allocationData}
                         cx="50%"
                         cy="50%"
-                        innerRadius={window.innerWidth < 768 ? 40 : 60}
-                        outerRadius={window.innerWidth < 768 ? 80 : 120}
+                        innerRadius={50}
+                        outerRadius={100}
                         paddingAngle={2}
                         dataKey="value"
                         onMouseEnter={handlePieHover}
@@ -177,7 +177,7 @@ export const PortfolioOverviewCard = ({
                             stroke={activeIndex === index ? entry.color : 'transparent'}
                             strokeWidth={activeIndex === index ? 3 : 0}
                             style={{
-                              filter: activeIndex === index ? 'brightness(1.2)' : 'none',
+                              filter: activeIndex === index ? 'brightness(1.2) drop-shadow(0 0 8px rgba(255,255,255,0.3))' : 'none',
                               transition: 'all 0.3s ease'
                             }}
                           />
@@ -189,31 +189,33 @@ export const PortfolioOverviewCard = ({
                 </div>
 
                 {/* Legend - Mobile Responsive */}
-                <div className="w-full lg:w-48 lg:pl-6">
-                  <h4 className="text-text-heading font-semibold mb-4 text-sm md:text-base">Asset Allocation</h4>
-                  <div className="grid grid-cols-2 lg:grid-cols-1 gap-2 md:gap-3">
+                <div className="w-full lg:w-56 space-y-4">
+                  <h4 className="text-text-heading font-semibold text-sm md:text-base">Asset Allocation</h4>
+                  <div className="space-y-2">
                     {allocationData.map((item, index) => (
                       <motion.div
                         key={item.name}
                         className={cn(
                           "flex items-center justify-between p-3 rounded-lg cursor-pointer transition-all duration-300 touch-target border", 
                           activeIndex === index 
-                            ? 'bg-primary/10 border-primary/30 shadow-md' 
-                            : 'bg-muted/20 hover:bg-muted/30 border-border/20 hover:border-border/40'
+                            ? 'bg-primary/10 border-primary/30 shadow-md scale-105' 
+                            : 'bg-muted/20 hover:bg-muted/30 border-border/20 hover:border-border/40 hover:scale-102'
                         )}
                         onMouseEnter={() => setActiveIndex(index)}
                         onMouseLeave={() => setActiveIndex(null)}
                         onClick={() => setActiveIndex(activeIndex === index ? null : index)}
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
                       >
                         <div className="flex items-center gap-3 min-w-0 flex-1">
                           <div 
-                            className="w-3 h-3 rounded-full shrink-0" 
+                            className="w-4 h-4 rounded-full shrink-0 border-2 border-white/20" 
                             style={{ backgroundColor: item.color }}
                           />
-                          <span className="text-text-heading text-xs md:text-sm font-medium truncate">{item.name}</span>
+                          <span className="text-text-heading text-sm font-medium truncate">{item.name}</span>
                         </div>
                         <div className="text-right shrink-0">
-                          <div className="text-text-heading font-semibold text-xs md:text-sm">{item.value}%</div>
+                          <div className="text-text-heading font-bold text-sm">{item.value}%</div>
                           <div className="text-text-muted text-xs">
                             ${(item.amount / 1000).toFixed(0)}k
                           </div>

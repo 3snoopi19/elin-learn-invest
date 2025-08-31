@@ -146,10 +146,9 @@ const Dashboard = () => {
         </div>
 
         {/* Main Dashboard Grid - Mobile responsive with consistent spacing */}
-        <div className="grid grid-cols-1 xl:grid-cols-12 gap-4 md:gap-6 mb-6 md:mb-8">
-          
-          {/* Portfolio Overview - Full width on mobile, 8/12 on desktop */}
-          <div className="xl:col-span-8 space-y-6">
+        <div className="mobile-grid mb-6 md:mb-8">
+          {/* Portfolio Overview - Full width stacked layout */}
+          <div className="lg:col-span-2">
             <DashboardCardRenderer
               componentName="PortfolioOverviewCard"
               props={{
@@ -159,8 +158,8 @@ const Dashboard = () => {
             />
           </div>
           
-          {/* AI Insights - Full width on mobile, 4/12 on desktop */}
-          <div className="xl:col-span-4 space-y-6">
+          {/* AI Insights - Full width on mobile */}
+          <div className="lg:col-span-1">
             <DashboardCardRenderer
               componentName="AIInsightsCard"
               props={{
@@ -172,102 +171,96 @@ const Dashboard = () => {
         </div>
 
         {/* Secondary Row - Responsive grid with unified spacing */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 md:gap-6 mb-6 md:mb-8">
-          <div className="sm:col-span-1">
-            <MarketSentimentGauge />
-          </div>
-          <div className="sm:col-span-1">
-            <DashboardCardRenderer
-              componentName="LiveMarketFeed"
-              props={{
-                animationDelay: 0.2,
-                ...dashboardCards.find(c => c.component === 'LiveMarketFeed')?.props
-              }}
-            />
-          </div>
-          <div className="sm:col-span-2 xl:col-span-1">
-            <DashboardCardRenderer
-              componentName="RecentActivityCard"
-              props={{
-                animationDelay: 0.3,
-                ...dashboardCards.find(c => c.component === 'RecentActivityCard')?.props
-              }}
-            />
-          </div>
-          <div className="sm:col-span-2 xl:col-span-1">
-            <DashboardCardRenderer
-              componentName="CreditCardHelperCard"
-              props={{
-                animationDelay: 0.4,
-                ...dashboardCards.find(c => c.component === 'CreditCardHelperCard')?.props
-              }}
-            />
-          </div>
+        <div className="mobile-grid mb-6 md:mb-8">
+          <MarketSentimentGauge />
+          <DashboardCardRenderer
+            componentName="LiveMarketFeed"
+            props={{
+              animationDelay: 0.2,
+              ...dashboardCards.find(c => c.component === 'LiveMarketFeed')?.props
+            }}
+          />
+          <DashboardCardRenderer
+            componentName="RecentActivityCard"
+            props={{
+              animationDelay: 0.3,
+              ...dashboardCards.find(c => c.component === 'RecentActivityCard')?.props
+            }}
+          />
+          <DashboardCardRenderer
+            componentName="CreditCardHelperCard"
+            props={{
+              animationDelay: 0.4,
+              ...dashboardCards.find(c => c.component === 'CreditCardHelperCard')?.props
+            }}
+          />
         </div>
 
         {/* Learning & Tools Row - Mobile responsive */}
-        <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-8">
-          <DashboardCardRenderer
-            componentName="LearningPathsCard"
-            props={{
-              animationDelay: 0.5,
-              ...dashboardCards.find(c => c.component === 'LearningPathsCard')?.props
-            }}
-          />
-          <DashboardCardRenderer
-            componentName="SECFilingsExplorer"
-            props={{
-              animationDelay: 0.6,
-              ...dashboardCards.find(c => c.component === 'SECFilingsExplorer')?.props
-            }}
-          />
+        <div className="mobile-grid mb-8">
+          <div className="md:col-span-2">
+            <DashboardCardRenderer
+              componentName="LearningPathsCard"
+              props={{
+                animationDelay: 0.5,
+                ...dashboardCards.find(c => c.component === 'LearningPathsCard')?.props
+              }}
+            />
+          </div>
+          <div className="md:col-span-1">
+            <DashboardCardRenderer
+              componentName="SECFilingsExplorer"
+              props={{
+                animationDelay: 0.6,
+                ...dashboardCards.find(c => c.component === 'SECFilingsExplorer')?.props
+              }}
+            />
+          </div>
         </div>
 
         {/* Enhanced Features Row - Mobile responsive */}
-        <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 mb-8">
+        <div className="mobile-grid mb-8">
           {/* Progress Badges */}
-          <div className="xl:col-span-1">
-            <div className="professional-card p-6 h-full">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="mobile-subheading">Achievement Progress</h3>
+          <div className="mobile-card p-4 md:p-6 h-full">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="mobile-subheading">Achievement Progress</h3>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowProgressBadges(!showProgressBadges)}
+                className="mobile-button"
+                aria-label={showProgressBadges ? "Hide progress badges" : "Show progress badges"}
+              >
+                {showProgressBadges ? "Hide" : "View All"}
+              </Button>
+            </div>
+            {showProgressBadges ? (
+              <ProgressBadges />
+            ) : (
+              <div className="text-center py-8">
+                <div className="text-3xl mb-3">🏆</div>
+                <p className="mobile-body mb-4 text-text-secondary">
+                  Track your learning achievements
+                </p>
                 <Button
-                  variant="outline"
                   size="sm"
-                  onClick={() => setShowProgressBadges(!showProgressBadges)}
-                  className="mobile-button"
-                  aria-label={showProgressBadges ? "Hide progress badges" : "Show progress badges"}
+                  onClick={() => setShowProgressBadges(true)}
+                  className="bg-primary hover:bg-primary-hover mobile-button"
                 >
-                  {showProgressBadges ? "Hide" : "View All"}
+                  View Badges
                 </Button>
               </div>
-              {showProgressBadges ? (
-                <ProgressBadges />
-              ) : (
-                <div className="text-center py-8">
-                  <div className="text-3xl mb-3">🏆</div>
-                  <p className="mobile-body mb-4 text-text-secondary">
-                    Track your learning achievements
-                  </p>
-                  <Button
-                    size="sm"
-                    onClick={() => setShowProgressBadges(true)}
-                    className="bg-primary hover:bg-primary-hover mobile-button"
-                  >
-                    View Badges
-                  </Button>
-                </div>
-              )}
-            </div>
+            )}
           </div>
 
           {/* Daily Learning Feed */}
-          <div className="xl:col-span-2">
+          <div className="md:col-span-2">
             {showLearningFeed && <DailyLearningFeed />}
           </div>
         </div>
 
         {/* Quick Actions Grid - Mobile optimized */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 md:gap-6 pb-20 md:pb-0">
+        <div className="mobile-grid pb-24 md:pb-8">
           {[
             {
               title: "Chat with ELIN",
