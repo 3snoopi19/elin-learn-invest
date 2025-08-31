@@ -65,7 +65,8 @@ export const DashboardCard = ({
   };
 
   const baseCardClasses = cn(
-    "group relative rounded-2xl p-5 md:p-6 border border-border bg-card/80 backdrop-blur-sm shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer focus:outline-none focus:ring-2 focus:ring-ring hover:-translate-y-1 hover:border-primary/20",
+    "group relative rounded-xl p-5 md:p-6 border border-border bg-card shadow-md hover:shadow-lg transition-all duration-200 cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-background hover:-translate-y-0.5 hover:border-primary/30 active:scale-98 touch-target",
+    featured && "border-primary/20 shadow-lg shadow-primary/10",
     className
   );
 
@@ -91,28 +92,28 @@ export const DashboardCard = ({
         )}
 
         {/* Header */}
-        <div className="flex items-start justify-between mb-4 relative z-10">
+        <div className="flex items-start justify-between mb-4">
           <div className="flex items-center gap-3">
             {/* Icon Chip */}
-            <div className="rounded-xl bg-muted/50 p-3 backdrop-blur border border-border/50 group-hover:border-primary/20 transition-colors">
+            <div className="rounded-lg bg-primary/10 p-3 border border-primary/20 group-hover:border-primary/40 transition-colors">
               {icon}
             </div>
             <div>
               <div className="flex items-center gap-2 mb-1">
-                <h3 className="text-lg md:text-xl font-semibold">{title}</h3>
+                <h3 className="text-lg md:text-xl font-semibold text-text-heading">{title}</h3>
                 {badge && (
                   <Badge variant={badge.variant || "default"} className="text-xs">
                     {badge.label}
                   </Badge>
                 )}
               </div>
-              <p className="text-sm text-muted-foreground">{subtitle}</p>
+              <p className="text-sm text-text-secondary">{subtitle}</p>
             </div>
           </div>
           
           {/* Stats Chip */}
           {statChip && (
-            <div className="hidden md:flex items-center gap-1 px-3 py-1 bg-muted rounded-full text-xs text-muted-foreground">
+            <div className="hidden md:flex items-center gap-1 px-3 py-1 bg-muted rounded-full text-xs text-text-muted">
               {statChip.label}
             </div>
           )}
@@ -120,18 +121,18 @@ export const DashboardCard = ({
 
         {/* Body Content */}
         {children && (
-          <div className="mb-4 relative z-10">
+          <div className="mb-4">
             {children}
           </div>
         )}
 
         {/* Footer Actions */}
-        <div className="flex flex-wrap items-center gap-3 md:gap-4 justify-between md:justify-start relative z-10">
+        <div className="flex flex-wrap items-center gap-3 md:gap-4 justify-between md:justify-start">
           <div className="flex flex-col sm:flex-row gap-2">
             {/* Primary Action */}
             <Button 
               size="lg"
-              className="h-11 px-5 rounded-xl font-medium"
+              className="h-11 px-5 rounded-lg font-medium min-h-[44px]"
               onClick={(e) => {
                 e.stopPropagation();
                 primaryAction.onClick(e);
@@ -147,7 +148,7 @@ export const DashboardCard = ({
                 <Button 
                   variant="outline"
                   size="lg"
-                  className="h-11 px-5 rounded-xl font-medium focus-visible:ring-2 focus-visible:ring-emerald-400/70"
+                  className="h-11 px-5 rounded-lg font-medium min-h-[44px] focus-visible:ring-2 focus-visible:ring-primary"
                   onClick={(e) => {
                     e.stopPropagation();
                     secondaryAction.onClick(e);
@@ -169,22 +170,20 @@ export const DashboardCard = ({
             )}
           </div>
           
-          {/* Tertiary Action & Settings */}
-          {(tertiaryAction || !featured) && (
-            <div className="flex items-center gap-2 text-xs text-muted-foreground ml-auto">
-              {tertiaryAction && (
-                <Button 
-                  variant="ghost"
-                  size="sm"
-                  className="text-xs text-muted-foreground hover:text-foreground"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    tertiaryAction.onClick(e);
-                  }}
-                >
-                  {tertiaryAction.label}
-                </Button>
-              )}
+          {/* Tertiary Action */}
+          {tertiaryAction && (
+            <div className="flex items-center gap-2 text-xs text-text-muted ml-auto">
+              <Button 
+                variant="ghost"
+                size="sm"
+                className="text-xs text-text-muted hover:text-text-body min-h-[36px]"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  tertiaryAction.onClick(e);
+                }}
+              >
+                {tertiaryAction.label}
+              </Button>
             </div>
           )}
         </div>

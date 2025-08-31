@@ -9,22 +9,22 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    /* Dark crypto dashboard theme - primary theme */
-    --background: 220 13% 9%;           /* Rich charcoal #0f1419 */
-    --foreground: 220 9% 97%;           /* Near white #f8fafc */
-    --card: 220 13% 11%;                /* Card background #1a1f2e */
-    --card-foreground: 220 9% 97%;      /* Card text */
+    /* Unified design system with white base and neon accents */
+    --background: 220 9% 98%;            /* Clean white #f9fafb */
+    --foreground: 220 13% 9%;            /* Dark text for contrast */
+    --card: 0 0% 100%;                   /* Pure white cards */
+    --card-foreground: 220 13% 9%;       /* Dark text on white cards */
     --popover: 220 13% 11%;
     --popover-foreground: 220 9% 97%;
     
-    /* Brand color palette - neon accents */
-    --primary: 142 76% 36%;             /* Neon green #16a34a */
-    --primary-foreground: 220 9% 97%;
-    --primary-hover: 142 76% 30%;
+    /* Brand color palette - growth and info signals */
+    --primary: 142 76% 36%;             /* Growth green #16a34a */
+    --primary-foreground: 0 0% 100%;    /* White text on green */
+    --primary-hover: 142 76% 32%;       /* Darker green on hover */
     
-    /* Secondary neon blue */
-    --secondary: 217 91% 60%;           /* Bright blue #3b82f6 */
-    --secondary-foreground: 220 9% 97%;
+    /* Info/links blue */
+    --secondary: 217 91% 60%;           /* Info blue #3b82f6 */
+    --secondary-foreground: 0 0% 100%;  /* White text on blue */
     
     /* Success/financial green variations */
     --success: 134 61% 41%;
@@ -38,12 +38,12 @@ All colors MUST be HSL.
     --education: 217 91% 60%;
     --education-foreground: 220 9% 97%;
     
-    /* Text hierarchy tokens - WCAG compliant contrast */
-    --text-heading: 220 9% 97%;        /* White/near-white - high contrast */
-    --text-body: 220 9% 95%;           /* Primary text - excellent readability */
-    --text-secondary: 220 9% 85%;      /* Secondary text - good contrast */
-    --text-muted: 220 9% 70%;          /* Muted text - minimum WCAG AA contrast */
-    --text-emphasis: 220 9% 100%;      /* Pure white for emphasis */
+    /* Text hierarchy tokens - WCAG compliant contrast on white */
+    --text-heading: 220 13% 9%;        /* Dark charcoal - high contrast */
+    --text-body: 220 13% 15%;          /* Primary text - excellent readability */
+    --text-secondary: 220 9% 40%;      /* Secondary text - good contrast */
+    --text-muted: 220 9% 55%;          /* Muted text - minimum WCAG AA contrast */
+    --text-emphasis: 220 13% 5%;       /* Very dark for emphasis */
     
     /* Progress bar colors - neon themed */
     --progress-completed: 142 76% 36%;
@@ -61,14 +61,14 @@ All colors MUST be HSL.
     --accent: 180 100% 50%;             /* Neon teal #00ffff */
     --accent-foreground: 220 13% 9%;
     
-    --muted: 220 13% 15%;               /* Muted elements */
-    --muted-foreground: 220 9% 70%;     /* Muted text */
+    --muted: 220 13% 90%;               /* Light muted elements */
+    --muted-foreground: 220 9% 55%;     /* Muted text */
     
     --destructive: 0 84% 60%;           /* Red */
-    --destructive-foreground: 220 9% 97%;
+    --destructive-foreground: 0 0% 100%;
     
-    --border: 220 13% 18%;              /* Subtle borders */
-    --input: 220 13% 15%;
+    --border: 220 13% 85%;              /* Light subtle borders */
+    --input: 0 0% 100%;
     --ring: 142 76% 36%;                /* Focus ring green */
     --radius: 0.75rem;
     
@@ -90,7 +90,7 @@ All colors MUST be HSL.
   }
 
   .dark {
-    /* Dark mode - matches our primary theme */
+    /* Dark mode - keep existing dark theme for theme switching */
     --background: 220 13% 9%;
     --foreground: 220 9% 97%;
     --card: 220 13% 11%;
@@ -98,22 +98,22 @@ All colors MUST be HSL.
     --popover: 220 13% 11%;
     --popover-foreground: 220 9% 97%;
     --primary: 142 76% 36%;
-    --primary-foreground: 220 9% 97%;
+    --primary-foreground: 0 0% 100%;
     --secondary: 217 91% 60%;
-    --secondary-foreground: 220 9% 97%;
+    --secondary-foreground: 0 0% 100%;
     --muted: 220 13% 15%;
     --muted-foreground: 220 9% 70%;
     --accent: 180 100% 50%;
     --accent-foreground: 220 13% 9%;
     --destructive: 0 84% 60%;
-    --destructive-foreground: 220 9% 97%;
+    --destructive-foreground: 0 0% 100%;
     --border: 220 13% 18%;
     --input: 220 13% 15%;
     --ring: 142 76% 36%;
     --sidebar-background: 220 13% 9%;
     --sidebar-foreground: 220 9% 97%;
     --sidebar-primary: 142 76% 36%;
-    --sidebar-primary-foreground: 220 9% 97%;
+    --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 220 13% 15%;
     --sidebar-accent-foreground: 220 9% 97%;
     --sidebar-border: 220 13% 18%;
@@ -127,12 +127,12 @@ All colors MUST be HSL.
   }
   
   html {
-    @apply dark; /* Force dark mode as default */
+    /* Clean light theme as default */
   }
   
   body {
     @apply bg-background text-foreground font-inter antialiased;
-    background: linear-gradient(135deg, hsl(var(--background)), hsl(220 13% 7%));
+    background: linear-gradient(135deg, hsl(var(--background)), hsl(220 9% 96%));
     min-height: 100vh;
   }
 
