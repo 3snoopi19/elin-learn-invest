@@ -146,10 +146,10 @@ const Dashboard = () => {
         </div>
 
         {/* Main Dashboard Grid - Mobile responsive */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 md:gap-6 mb-6 md:mb-8">
+        <div className="grid grid-cols-1 xl:grid-cols-12 gap-6 mb-8">
           
-          {/* Portfolio Overview - Full width on mobile */}
-          <div className="lg:col-span-8">
+          {/* Portfolio Overview - Full width on mobile, 8/12 on desktop */}
+          <div className="xl:col-span-8 space-y-6">
             <DashboardCardRenderer
               componentName="PortfolioOverviewCard"
               props={{
@@ -159,8 +159,8 @@ const Dashboard = () => {
             />
           </div>
           
-          {/* AI Insights - Full width on mobile */}
-          <div className="lg:col-span-4">
+          {/* AI Insights - Full width on mobile, 4/12 on desktop */}
+          <div className="xl:col-span-4 space-y-6">
             <DashboardCardRenderer
               componentName="AIInsightsCard"
               props={{
@@ -171,8 +171,8 @@ const Dashboard = () => {
           </div>
         </div>
 
-        {/* Secondary Row - Stacked on mobile */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-6 md:mb-8">
+        {/* Secondary Row - Responsive grid with proper spacing */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6 mb-8">
           <div className="sm:col-span-1">
             <MarketSentimentGauge />
           </div>
@@ -185,7 +185,7 @@ const Dashboard = () => {
               }}
             />
           </div>
-          <div className="sm:col-span-2 lg:col-span-1">
+          <div className="sm:col-span-2 xl:col-span-1">
             <DashboardCardRenderer
               componentName="RecentActivityCard"
               props={{
@@ -194,7 +194,7 @@ const Dashboard = () => {
               }}
             />
           </div>
-          <div className="sm:col-span-2 lg:col-span-1">
+          <div className="sm:col-span-2 xl:col-span-1">
             <DashboardCardRenderer
               componentName="CreditCardHelperCard"
               props={{
@@ -206,7 +206,7 @@ const Dashboard = () => {
         </div>
 
         {/* Learning & Tools Row - Mobile responsive */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6 mb-6 md:mb-8">
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-8">
           <DashboardCardRenderer
             componentName="LearningPathsCard"
             props={{
@@ -224,12 +224,12 @@ const Dashboard = () => {
         </div>
 
         {/* Enhanced Features Row - Mobile responsive */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6 mb-6 md:mb-8">
+        <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 mb-8">
           {/* Progress Badges */}
-          <div className="lg:col-span-1">
-            <div className="bg-card border rounded-lg p-4">
+          <div className="xl:col-span-1">
+            <div className="professional-card p-6 h-full">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold">Achievement Progress</h3>
+                <h3 className="mobile-subheading">Achievement Progress</h3>
                 <Button
                   variant="outline"
                   size="sm"
@@ -243,9 +243,9 @@ const Dashboard = () => {
               {showProgressBadges ? (
                 <ProgressBadges />
               ) : (
-                <div className="text-center py-6 md:py-8">
-                  <div className="text-2xl mb-2">🏆</div>
-                  <p className="text-sm text-muted-foreground mb-3">
+                <div className="text-center py-8">
+                  <div className="text-3xl mb-3">🏆</div>
+                  <p className="mobile-body mb-4 text-text-secondary">
                     Track your learning achievements
                   </p>
                   <Button
@@ -261,13 +261,13 @@ const Dashboard = () => {
           </div>
 
           {/* Daily Learning Feed */}
-          <div className="lg:col-span-2">
+          <div className="xl:col-span-2">
             {showLearningFeed && <DailyLearningFeed />}
           </div>
         </div>
 
         {/* Quick Actions Grid - Mobile optimized */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 md:gap-6 pb-20 md:pb-0">
           {[
             {
               title: "Chat with ELIN",
@@ -311,25 +311,25 @@ const Dashboard = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3, delay: 0.7 + index * 0.1 }}
-              className={`professional-card cursor-pointer bg-gradient-to-br ${action.gradient} ${action.hover} group p-4 md:p-6 hover:-translate-y-1 touch-target`}
+              className={`professional-card cursor-pointer bg-gradient-to-br ${action.gradient} ${action.hover} group p-6 hover:-translate-y-1 touch-target`}
               onClick={() => navigate(action.route)}
             >
-              <div className="flex flex-col items-center text-center space-y-3 md:space-y-4">
-                <div className="w-8 h-8 md:w-12 md:h-12 rounded-lg md:rounded-xl bg-card/50 flex items-center justify-center group-hover:scale-110 transition-transform">
+              <div className="flex flex-col items-center text-center space-y-4">
+                <div className="w-12 h-12 rounded-xl bg-card/50 flex items-center justify-center group-hover:scale-110 transition-transform">
                   {/* Icon component would be rendered here based on action.icon */}
-                  <div className="w-4 h-4 md:w-6 md:h-6 bg-primary/60 rounded" />
+                  <div className="w-6 h-6 bg-primary/60 rounded" />
                 </div>
-                <div className="space-y-1 md:space-y-2">
-                  <h3 className="font-semibold text-sm md:text-base text-text-heading group-hover:text-primary transition-colors">
+                <div className="space-y-2">
+                  <h3 className="font-semibold mobile-body text-text-heading group-hover:text-primary transition-colors">
                     {action.title}
                   </h3>
-                  <p className="text-xs md:text-sm text-text-secondary hidden sm:block">
+                  <p className="mobile-caption text-text-secondary hidden sm:block">
                     {action.subtitle}
                   </p>
                 </div>
                 <Button
                   size="sm"
-                  className={`${action.buttonColor} text-white border-0 opacity-0 group-hover:opacity-100 transition-opacity mobile-button w-full md:w-auto`}
+                  className={`${action.buttonColor} text-white border-0 opacity-0 group-hover:opacity-100 transition-opacity mobile-button w-full`}
                 >
                   Open
                 </Button>

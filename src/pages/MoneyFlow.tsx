@@ -39,9 +39,9 @@ export default function MoneyFlowPage() {
 
   return (
     <MobileOptimizedLayout>
-      <ResponsiveContainer size="full" className="py-4 md:py-8">
+      <ResponsiveContainer size="full" className="py-6 md:py-8">
         <div className="max-w-7xl mx-auto mobile-container">
-          <MobileStack spacing="normal" className="mb-6 md:mb-8">
+          <MobileStack spacing="normal" className="mb-8">
             
             {/* Enhanced Header Section */}
             <MobileSection 
@@ -60,7 +60,7 @@ export default function MoneyFlowPage() {
             />
             
             {/* Main Visualization */}
-            <div className="professional-card p-2 md:p-4 bg-gradient-to-br from-background via-background-subtle to-background animate-fade-in-up animate-delay-200">
+            <div className="professional-card p-4 md:p-6 bg-gradient-to-br from-background via-background-subtle to-background animate-fade-in-up animate-delay-200">
               <MoneyFlowVisualization 
                 accounts={mockAccounts} 
                 timeframe="30"

@@ -67,78 +67,75 @@ export const PortfolioOverviewCard = ({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, delay: 0.1 }}
+      className="w-full"
     >
-          <Card className="professional-card border-0 bg-gradient-to-br from-card via-card to-slate-900 shadow-xl">
-            {/* Enhanced neon glow border */}
-            <div className="absolute inset-0 bg-gradient-to-r from-primary/20 via-accent/20 to-primary/20 rounded-lg blur-sm" />
-            <div className="absolute inset-[1px] bg-gradient-to-br from-card via-card to-slate-900 rounded-lg" />
-            
-            <CardHeader className="relative pb-4">
-              <div className="flex items-center justify-between">
-                <CardTitle className="text-2xl font-bold text-text-heading flex items-center gap-3">
-                  <div className="p-2 bg-primary/20 rounded-lg">
-                    <PieChartIcon className="w-6 h-6 text-primary" />
-                  </div>
-                  Portfolio Overview
-                </CardTitle>
-                
-                {/* View Mode Toggle */}
-                <div className="flex bg-muted/30 rounded-lg p-1 border border-border/30">
-                  <Button
-                    variant={viewMode === 'allocation' ? 'default' : 'ghost'}
-                    size="sm"
-                    onClick={() => setViewMode('allocation')}
-                    className="flex items-center gap-2"
-                  >
-                    <PieChartIcon className="w-4 h-4" />
-                    Allocation
-                  </Button>
-                  <Button
-                    variant={viewMode === 'performance' ? 'default' : 'ghost'}
-                    size="sm"
-                    onClick={() => setViewMode('performance')}
-                    className="flex items-center gap-2"
-                  >
-                    <BarChart3 className="w-4 h-4" />
-                    Performance
-                  </Button>
-                </div>
+      <Card className="professional-card border-0 bg-gradient-to-br from-card via-card/95 to-background-subtle/50 shadow-2xl hover:shadow-3xl transition-all duration-500">
+        <CardHeader className="pb-4 md:pb-6">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <CardTitle className="text-xl md:text-2xl font-bold text-text-heading flex items-center gap-3">
+              <div className="p-2 bg-primary/20 rounded-lg shrink-0">
+                <PieChartIcon className="w-5 h-5 md:w-6 md:h-6 text-primary" />
               </div>
-            </CardHeader>
+              Portfolio Overview
+            </CardTitle>
+            
+            {/* View Mode Toggle - Mobile Optimized */}
+            <div className="flex bg-muted/30 rounded-lg p-1 border border-border/30 self-start md:self-auto">
+              <Button
+                variant={viewMode === 'allocation' ? 'default' : 'ghost'}
+                size="sm"
+                onClick={() => setViewMode('allocation')}
+                className="flex items-center gap-2 text-xs md:text-sm px-2 md:px-3 py-1.5 min-h-[36px]"
+              >
+                <PieChartIcon className="w-3 h-3 md:w-4 md:h-4" />
+                <span className="hidden sm:inline">Allocation</span>
+              </Button>
+              <Button
+                variant={viewMode === 'performance' ? 'default' : 'ghost'}
+                size="sm"
+                onClick={() => setViewMode('performance')}
+                className="flex items-center gap-2 text-xs md:text-sm px-2 md:px-3 py-1.5 min-h-[36px]"
+              >
+                <BarChart3 className="w-3 h-3 md:w-4 md:h-4" />
+                <span className="hidden sm:inline">Performance</span>
+              </Button>
+            </div>
+          </div>
+        </CardHeader>
 
-        <CardContent className="relative">
-          {/* Key Metrics Row */}
-          <div className="grid grid-cols-3 gap-6 mb-6">
-            <div className="professional-card p-4 bg-gradient-to-br from-muted/30 to-muted/10 border-border/30">
-              <p className="text-text-secondary text-sm mb-1 font-medium">Total Value</p>
-              <p className="text-text-heading text-xl font-bold">
+        <CardContent className="p-4 md:p-6">
+          {/* Key Metrics Row - Mobile Responsive */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 md:gap-6 mb-6">
+            <div className="mobile-card p-4 bg-gradient-to-br from-muted/30 to-muted/10 border-border/30">
+              <p className="text-text-secondary text-xs md:text-sm mb-1 font-medium">Total Value</p>
+              <p className="text-text-heading text-lg md:text-xl font-bold">
                 ${totalValue.toLocaleString()}
               </p>
             </div>
             
-            <div className="professional-card p-4 bg-gradient-to-br from-muted/30 to-muted/10 border-border/30">
-              <p className="text-text-secondary text-sm mb-1 font-medium">30-Day Change</p>
+            <div className="mobile-card p-4 bg-gradient-to-br from-muted/30 to-muted/10 border-border/30">
+              <p className="text-text-secondary text-xs md:text-sm mb-1 font-medium">30-Day Change</p>
               <div className={`flex items-center gap-2 ${
                 isPositive ? 'text-success' : 'text-destructive'
               }`}>
                 {isPositive ? (
-                  <TrendingUp className="w-4 h-4" />
+                  <TrendingUp className="w-3 h-3 md:w-4 md:h-4 shrink-0" />
                 ) : (
-                  <TrendingDown className="w-4 h-4" />
+                  <TrendingDown className="w-3 h-3 md:w-4 md:h-4 shrink-0" />
                 )}
-                <span className="text-xl font-bold">
+                <span className="text-lg md:text-xl font-bold">
                   {isPositive ? '+' : ''}{changePercent}%
                 </span>
               </div>
             </div>
             
-            <div className="professional-card p-4 bg-gradient-to-br from-muted/30 to-muted/10 border-border/30">
-              <p className="text-text-secondary text-sm mb-1 font-medium">Diversification</p>
-              <div className="flex items-center gap-2">
-                <span className="text-text-heading text-xl font-bold">{diversificationScore}</span>
+            <div className="mobile-card p-4 bg-gradient-to-br from-muted/30 to-muted/10 border-border/30">
+              <p className="text-text-secondary text-xs md:text-sm mb-1 font-medium">Diversification</p>
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="text-text-heading text-lg md:text-xl font-bold">{diversificationScore}</span>
                 <Badge 
                   variant="secondary"
-                  className={`${
+                  className={`text-xs ${
                     diversificationScore >= 80 
                       ? 'bg-success/20 text-success border-success/30' 
                       : diversificationScore >= 60
@@ -152,20 +149,20 @@ export const PortfolioOverviewCard = ({
             </div>
           </div>
 
-          {/* Chart Section */}
-          <div className="h-80">
+          {/* Chart Section - Mobile Responsive */}
+          <div className="min-h-[300px] md:h-80">
             {viewMode === 'allocation' ? (
-              <div className="flex items-center justify-between h-full">
+              <div className="flex flex-col lg:flex-row items-center justify-between h-full gap-6">
                 {/* Pie Chart */}
-                <div className="flex-1">
-                  <ResponsiveContainer width="100%" height="100%">
+                <div className="flex-1 w-full lg:w-auto">
+                  <ResponsiveContainer width="100%" height={280}>
                     <PieChart>
                       <Pie
                         data={allocationData}
                         cx="50%"
                         cy="50%"
-                        innerRadius={60}
-                        outerRadius={120}
+                        innerRadius={window.innerWidth < 768 ? 40 : 60}
+                        outerRadius={window.innerWidth < 768 ? 80 : 120}
                         paddingAngle={2}
                         dataKey="value"
                         onMouseEnter={handlePieHover}
@@ -189,32 +186,33 @@ export const PortfolioOverviewCard = ({
                   </ResponsiveContainer>
                 </div>
 
-                {/* Legend */}
-                <div className="w-48 pl-6">
-                  <h4 className="text-white font-semibold mb-4">Asset Allocation</h4>
-                  <div className="space-y-3">
+                {/* Legend - Mobile Responsive */}
+                <div className="w-full lg:w-48 lg:pl-6">
+                  <h4 className="text-text-heading font-semibold mb-4 text-sm md:text-base">Asset Allocation</h4>
+                  <div className="grid grid-cols-2 lg:grid-cols-1 gap-2 md:gap-3">
                     {allocationData.map((item, index) => (
                       <motion.div
                         key={item.name}
-                        className={`flex items-center justify-between p-3 rounded-lg cursor-pointer transition-colors ${
+                        className={`flex items-center justify-between p-3 rounded-lg cursor-pointer transition-colors touch-target ${
                           activeIndex === index 
-                            ? 'bg-slate-700/50 border border-slate-600' 
-                            : 'bg-slate-800/30 hover:bg-slate-700/30'
+                            ? 'bg-primary/10 border border-primary/30' 
+                            : 'bg-muted/30 hover:bg-muted/50 border border-border/30'
                         }`}
                         onMouseEnter={() => setActiveIndex(index)}
                         onMouseLeave={() => setActiveIndex(null)}
+                        onClick={() => setActiveIndex(activeIndex === index ? null : index)}
                       >
-                        <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-3 min-w-0 flex-1">
                           <div 
-                            className="w-3 h-3 rounded-full" 
+                            className="w-3 h-3 rounded-full shrink-0" 
                             style={{ backgroundColor: item.color }}
                           />
-                          <span className="text-white text-sm font-medium">{item.name}</span>
+                          <span className="text-text-heading text-xs md:text-sm font-medium truncate">{item.name}</span>
                         </div>
-                        <div className="text-right">
-                          <div className="text-white font-semibold">{item.value}%</div>
-                          <div className="text-slate-400 text-xs">
-                            ${item.amount.toLocaleString()}
+                        <div className="text-right shrink-0">
+                          <div className="text-text-heading font-semibold text-xs md:text-sm">{item.value}%</div>
+                          <div className="text-text-muted text-xs">
+                            ${(item.amount / 1000).toFixed(0)}k
                           </div>
                         </div>
                       </motion.div>
@@ -223,37 +221,40 @@ export const PortfolioOverviewCard = ({
                 </div>
               </div>
             ) : (
-              /* Performance Chart */
+              /* Performance Chart - Mobile Responsive */
               <div>
-                <h4 className="text-white font-semibold mb-4">30-Day Performance</h4>
-                <ResponsiveContainer width="100%" height={250}>
-                  <LineChart data={performanceData}>
+                <h4 className="text-text-heading font-semibold mb-4 text-sm md:text-base">30-Day Performance</h4>
+                <ResponsiveContainer width="100%" height={220}>
+                  <LineChart data={performanceData} margin={{ top: 5, right: 5, left: 5, bottom: 5 }}>
                     <XAxis 
                       dataKey="date" 
                       axisLine={false}
                       tickLine={false}
-                      tick={{ fill: '#94a3b8', fontSize: 12 }}
+                      tick={{ fill: 'hsl(var(--text-secondary))', fontSize: 11 }}
+                      interval="preserveStartEnd"
                     />
                     <YAxis 
                       axisLine={false}
                       tickLine={false}
-                      tick={{ fill: '#94a3b8', fontSize: 12 }}
+                      tick={{ fill: 'hsl(var(--text-secondary))', fontSize: 11 }}
                       tickFormatter={(value) => `$${(value / 1000).toFixed(0)}k`}
+                      width={45}
                     />
                     <Line 
                       type="monotone" 
                       dataKey="value" 
-                      stroke="#16a34a"
+                      stroke="hsl(var(--success))"
                       strokeWidth={3}
-                      dot={{ fill: '#16a34a', strokeWidth: 2, r: 4 }}
-                      activeDot={{ r: 6, fill: '#16a34a', stroke: '#fff', strokeWidth: 2 }}
+                      dot={{ fill: 'hsl(var(--success))', strokeWidth: 2, r: 3 }}
+                      activeDot={{ r: 5, fill: 'hsl(var(--success))', stroke: 'hsl(var(--card))', strokeWidth: 2 }}
                     />
                     <Tooltip 
                       contentStyle={{
-                        backgroundColor: '#1e293b',
-                        border: '1px solid #475569',
+                        backgroundColor: 'hsl(var(--card))',
+                        border: '1px solid hsl(var(--border))',
                         borderRadius: '8px',
-                        color: '#fff'
+                        color: 'hsl(var(--card-foreground))',
+                        fontSize: '12px'
                       }}
                       formatter={(value: any) => [`$${value.toLocaleString()}`, 'Portfolio Value']}
                     />

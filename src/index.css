@@ -133,7 +133,12 @@ All colors MUST be HSL.
   
   body {
     @apply bg-background text-foreground font-inter antialiased;
-    background: linear-gradient(135deg, hsl(var(--background)), hsl(var(--background-subtle)));
+    background: linear-gradient(135deg, 
+      hsl(var(--background)) 0%, 
+      hsl(var(--background-subtle)) 40%, 
+      hsl(var(--card)) 80%, 
+      hsl(var(--background)) 100%
+    );
     background-attachment: fixed;
     min-height: 100vh;
   }
@@ -218,21 +223,29 @@ All colors MUST be HSL.
   /* Enhanced professional card with depth */
   .professional-card {
     @apply bg-card border border-border/60 rounded-xl transition-all duration-300;
-    background: linear-gradient(135deg, hsl(var(--card)) 0%, hsl(var(--background-subtle)) 100%);
+    background: linear-gradient(135deg, 
+      hsl(var(--card)) 0%, 
+      hsl(var(--background-subtle)) 50%, 
+      hsl(var(--card)) 100%
+    );
     box-shadow: 
+      0 4px 16px hsla(220, 13%, 9%, 0.1),
       0 2px 8px hsla(220, 13%, 9%, 0.06),
-      0 1px 3px hsla(220, 13%, 9%, 0.04),
-      inset 0 1px 0 hsla(0, 0%, 100%, 0.8);
+      inset 0 1px 0 hsla(0, 0%, 100%, 0.1);
   }
   
   .professional-card:hover {
     @apply border-primary/25 -translate-y-1;
-    background: linear-gradient(135deg, hsl(var(--card)) 0%, hsl(var(--primary)/8%) 100%);
+    background: linear-gradient(135deg, 
+      hsl(var(--card)) 0%, 
+      hsl(var(--primary)/8%) 50%, 
+      hsl(var(--card)) 100%
+    );
     box-shadow: 
-      0 6px 20px hsla(220, 13%, 9%, 0.1),
-      0 2px 8px hsla(220, 13%, 9%, 0.06),
-      0 0 0 1px hsla(var(--primary), 0.12),
-      inset 0 1px 0 hsla(var(--primary), 0.08);
+      0 8px 32px hsla(220, 13%, 9%, 0.15),
+      0 4px 16px hsla(220, 13%, 9%, 0.08),
+      0 0 0 1px hsla(var(--primary), 0.15),
+      inset 0 1px 0 hsla(var(--primary), 0.1);
   }
   
   /* Enhanced button styles using semantic tokens */
@@ -297,6 +310,7 @@ All colors MUST be HSL.
   /* Enhanced mobile-first responsive design utilities */
   .mobile-container {
     @apply px-4 md:px-6 lg:px-8;
+    padding-bottom: env(safe-area-inset-bottom, 80px); /* Space for bottom nav */
   }
   
   .mobile-grid {
@@ -307,15 +321,27 @@ All colors MUST be HSL.
     @apply professional-card p-4 md:p-6 rounded-xl;
     background: linear-gradient(135deg, hsl(var(--card)) 0%, hsl(var(--background-subtle)) 100%);
     box-shadow: 
-      0 3px 12px hsla(220, 13%, 9%, 0.08),
-      0 1px 4px hsla(220, 13%, 9%, 0.04);
+      0 4px 16px hsla(220, 13%, 9%, 0.1),
+      0 2px 8px hsla(220, 13%, 9%, 0.06),
+      inset 0 1px 0 hsla(0, 0%, 100%, 0.1);
   }
   
   .mobile-card:active {
     transform: translateY(1px);
     box-shadow: 
-      0 1px 6px hsla(220, 13%, 9%, 0.06),
-      0 1px 2px hsla(220, 13%, 9%, 0.04);
+      0 2px 8px hsla(220, 13%, 9%, 0.08),
+      0 1px 4px hsla(220, 13%, 9%, 0.04);
+  }
+  
+  /* Mobile Content Wrapper */
+  .mobile-content {
+    margin-bottom: 80px; /* Space for bottom navigation */
+  }
+  
+  @media (min-width: 768px) {
+    .mobile-content {
+      margin-bottom: 0;
+    }
   }
   
   .mobile-text-sm {
@@ -400,11 +426,11 @@ All colors MUST be HSL.
   transform: scale(0.95);
 }
 
-/* Enhanced Animation Utilities */
+  /* Enhanced Animation Utilities */
 @keyframes fadeInUp {
   from {
     opacity: 0;
-    transform: translateY(30px);
+    transform: translateY(20px);
   }
   to {
     opacity: 1;
@@ -415,7 +441,7 @@ All colors MUST be HSL.
 @keyframes slideInRight {
   from {
     opacity: 0;
-    transform: translateX(100px);
+    transform: translateX(30px);
   }
   to {
     opacity: 1;
@@ -426,7 +452,7 @@ All colors MUST be HSL.
 @keyframes scaleIn {
   from {
     opacity: 0;
-    transform: scale(0.8);
+    transform: scale(0.95);
   }
   to {
     opacity: 1;
@@ -443,7 +469,24 @@ All colors MUST be HSL.
 }
 
 .animate-scale-in {
-  animation: scaleIn 0.3s ease-out;
+  animation: scaleIn 0.4s ease-out;
+}
+
+/* Enhanced Mobile Responsive Typography */
+.mobile-heading {
+  @apply text-xl md:text-2xl lg:text-3xl font-bold text-text-heading;
+}
+
+.mobile-subheading {
+  @apply text-lg md:text-xl lg:text-2xl font-semibold text-text-heading;
+}
+
+.mobile-body {
+  @apply text-sm md:text-base text-text-body;
+}
+
+.mobile-caption {
+  @apply text-xs md:text-sm text-text-secondary;
 }
 
 /* Staggered Animation Delays */
