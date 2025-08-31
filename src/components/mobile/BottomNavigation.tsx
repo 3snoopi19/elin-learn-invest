@@ -63,9 +63,9 @@ export const BottomNavigation = () => {
       initial={{ y: 100, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.3 }}
-      className="fixed bottom-0 left-0 right-0 z-50 md:hidden bg-card/95 backdrop-blur-xl border-t border-border/50 px-2 py-2 safe-area-bottom"
+      className="fixed bottom-0 left-0 right-0 z-50 md:hidden bg-card/98 backdrop-blur-xl border-t border-border shadow-xl px-2 py-2 safe-area-bottom"
     >
-      <div className="flex items-center justify-around">
+      <div className="flex items-center justify-around max-w-md mx-auto">
         {navigationItems.map((item) => {
           const Icon = item.icon;
           const isActive = location.pathname === item.path;
@@ -74,22 +74,23 @@ export const BottomNavigation = () => {
             <motion.button
               key={item.id}
               onClick={() => navigate(item.path)}
-              className={`flex flex-col items-center justify-center p-2 rounded-xl min-w-[60px] transition-all duration-200 ${
+              className={`relative flex flex-col items-center justify-center p-3 rounded-xl min-w-[64px] min-h-[64px] transition-all duration-200 touch-target ${
                 isActive 
                   ? 'bg-primary/20 text-primary shadow-sm' 
-                  : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
+                  : 'text-text-muted hover:text-text-body hover:bg-muted/50'
               }`}
               whileTap={{ scale: 0.95 }}
-              whileHover={{ scale: 1.05 }}
+              whileHover={{ scale: 1.02 }}
+              aria-label={`Navigate to ${item.label}`}
             >
               <Icon className={`w-5 h-5 mb-1 ${isActive ? 'text-primary' : ''}`} />
-              <span className={`text-xs font-medium ${isActive ? 'text-primary' : ''}`}>
+              <span className={`text-xs font-medium leading-tight ${isActive ? 'text-primary' : ''}`}>
                 {item.label}
               </span>
               {isActive && (
                 <motion.div
                   layoutId="activeTab"
-                  className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-8 h-1 bg-primary rounded-full"
+                  className="absolute bottom-1 left-1/2 transform -translate-x-1/2 w-6 h-1 bg-primary rounded-full"
                 />
               )}
             </motion.button>

@@ -222,22 +222,22 @@ const Learn = () => {
           </TabsList>
 
           <TabsContent value="overview" className="space-y-6">
-            {/* Learning Paths Grid */}
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {/* Learning Paths Grid - Mobile optimized */}
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-6">
               {learningPaths.map((path) => {
                 const IconComponent = path.icon;
                 return (
-                  <Card key={path.id} className="group hover:shadow-lg transition-all duration-300 bg-card border border-border hover:border-primary/20">
-                    <CardHeader className="pb-4">
+                  <Card key={path.id} className="group hover:shadow-lg transition-all duration-300 bg-card border border-border hover:border-primary/20 mobile-card">
+                    <CardHeader className="pb-4 mobile-padding">
                       <div className="flex items-start justify-between mb-2">
                         <div className="p-2 rounded-lg bg-primary/10 group-hover:bg-primary/20 transition-colors">
-                          <IconComponent className="h-6 w-6 text-primary" />
+                          <IconComponent className="h-5 w-5 md:h-6 md:w-6 text-primary" />
                         </div>
-                        <Badge className={`${getLevelColor(path.level)} border`}>
+                        <Badge className={`${getLevelColor(path.level)} border text-xs`}>
                           {path.level}
                         </Badge>
                       </div>
-                      <CardTitle className="text-xl text-text-heading group-hover:text-primary transition-colors font-bold">
+                      <CardTitle className="text-lg md:text-xl text-text-heading group-hover:text-primary transition-colors font-bold">
                         {path.title}
                       </CardTitle>
                       <CardDescription className="text-sm leading-relaxed text-text-secondary">
@@ -245,7 +245,7 @@ const Learn = () => {
                       </CardDescription>
                     </CardHeader>
                     
-                    <CardContent className="space-y-4">
+                    <CardContent className="space-y-4 mobile-padding">
                       {/* Course Stats */}
                       <div className="flex justify-between text-sm text-text-muted">
                         <span className="flex items-center gap-1">
@@ -271,18 +271,23 @@ const Learn = () => {
                       <div className="space-y-2">
                         <h4 className="text-sm font-medium text-text-body">Key Topics:</h4>
                         <div className="flex flex-wrap gap-1">
-                          {path.topics.map((topic, index) => (
+                          {path.topics.slice(0, 3).map((topic, index) => (
                             <Badge key={index} variant="outline" className="text-xs bg-primary/5 text-primary border-primary/20 hover:bg-primary/10">
                               {topic}
                             </Badge>
                           ))}
+                          {path.topics.length > 3 && (
+                            <Badge variant="outline" className="text-xs bg-muted text-text-muted">
+                              +{path.topics.length - 3} more
+                            </Badge>
+                          )}
                         </div>
                       </div>
 
-                      {/* Action Buttons */}
+                      {/* Action Buttons - Mobile Stacked */}
                       <div className="space-y-2 pt-2">
                         <Button 
-                          className="w-full bg-primary hover:bg-primary-hover text-primary-foreground font-medium" 
+                          className="w-full bg-primary hover:bg-primary-hover text-primary-foreground font-medium mobile-button" 
                           onClick={() => {
                             if (path.progress > 0) {
                               // Find the first incomplete lesson for "Continue Learning"
@@ -301,25 +306,29 @@ const Learn = () => {
                         >
                           {path.progress > 0 ? `Continue Learning (${path.progress}%)` : "Start Course"}
                         </Button>
-                        <Button 
-                          className="w-full border-primary text-primary hover:bg-primary/10" 
-                          variant="outline"
-                          size="sm"
-                          onClick={() => setSelectedCourse(selectedCourse === path.id ? null : path.id)}
-                          aria-label={`View all lessons for ${path.title}`}
-                        >
-                          <BookOpen className="h-4 w-4 mr-2" />
-                          View All Lessons
-                        </Button>
-                        <Button 
-                          className="w-full border-primary text-primary hover:bg-primary/10" 
-                          variant="outline"
-                          size="sm"
-                          aria-label={`Download syllabus for ${path.title}`}
-                        >
-                          <Download className="h-4 w-4 mr-2" />
-                          Download Syllabus
-                        </Button>
+                        <div className="grid grid-cols-2 gap-2">
+                          <Button 
+                            className="border-primary text-primary hover:bg-primary/10 mobile-button" 
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setSelectedCourse(selectedCourse === path.id ? null : path.id)}
+                            aria-label={`View all lessons for ${path.title}`}
+                          >
+                            <BookOpen className="h-4 w-4 mr-1" />
+                            <span className="hidden sm:inline">View All</span>
+                            <span className="sm:hidden">Lessons</span>
+                          </Button>
+                          <Button 
+                            className="border-primary text-primary hover:bg-primary/10 mobile-button" 
+                            variant="outline"
+                            size="sm"
+                            aria-label={`Download syllabus for ${path.title}`}
+                          >
+                            <Download className="h-4 w-4 mr-1" />
+                            <span className="hidden sm:inline">Download</span>
+                            <span className="sm:hidden">PDF</span>
+                          </Button>
+                        </div>
                       </div>
                     </CardContent>
                   </Card>

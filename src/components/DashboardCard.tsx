@@ -128,11 +128,11 @@ export const DashboardCard = ({
 
         {/* Footer Actions */}
         <div className="flex flex-wrap items-center gap-3 md:gap-4 justify-between md:justify-start">
-          <div className="flex flex-col sm:flex-row gap-2">
+          <div className="flex flex-col sm:flex-row gap-2 flex-1">
             {/* Primary Action */}
             <Button 
               size="lg"
-              className="h-11 px-5 rounded-lg font-medium min-h-[44px]"
+              className="h-11 px-5 rounded-lg font-medium min-h-[44px] flex-1 sm:flex-none"
               onClick={(e) => {
                 e.stopPropagation();
                 primaryAction.onClick(e);
@@ -144,11 +144,11 @@ export const DashboardCard = ({
             
             {/* Secondary Action */}
             {secondaryAction && (
-              <div className="relative">
+              <div className="relative flex-1 sm:flex-none">
                 <Button 
                   variant="outline"
                   size="lg"
-                  className="h-11 px-5 rounded-lg font-medium min-h-[44px] focus-visible:ring-2 focus-visible:ring-primary"
+                  className="h-11 px-5 rounded-lg font-medium min-h-[44px] w-full sm:w-auto focus-visible:ring-2 focus-visible:ring-primary"
                   onClick={(e) => {
                     e.stopPropagation();
                     secondaryAction.onClick(e);
@@ -172,11 +172,11 @@ export const DashboardCard = ({
           
           {/* Tertiary Action */}
           {tertiaryAction && (
-            <div className="flex items-center gap-2 text-xs text-text-muted ml-auto">
+            <div className="flex items-center gap-2 text-xs text-text-muted">
               <Button 
                 variant="ghost"
                 size="sm"
-                className="text-xs text-text-muted hover:text-text-body min-h-[36px]"
+                className="text-xs text-text-muted hover:text-text-body min-h-[36px] whitespace-nowrap"
                 onClick={(e) => {
                   e.stopPropagation();
                   tertiaryAction.onClick(e);
