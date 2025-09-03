@@ -51,7 +51,7 @@ const TickerItem = ({ data, index }: { data: MarketQuote, index: number }) => {
   const negativeColor = '#dc2626';
   
   return (
-    <motion.div
+    <div
       className={`flex-shrink-0 bg-card/60 backdrop-blur-sm rounded-lg p-3 md:p-4 border border-border/50 min-w-[240px] md:min-w-[280px] mx-1 md:mx-2 shadow-lg hover:scale-105 transition-transform duration-200 glass-effect`}
       style={{
         boxShadow: isPositive 
@@ -60,9 +60,6 @@ const TickerItem = ({ data, index }: { data: MarketQuote, index: number }) => {
           ? '0 4px 6px -1px rgba(71, 85, 105, 0.1)' 
           : `0 4px 6px -1px ${negativeColor}10`
       }}
-      initial={{ opacity: 0, x: 50 }}
-      animate={{ opacity: 1, x: 0 }}
-      transition={{ delay: index * 0.1 }}
     >
       <div className="flex items-center justify-between">
         <div className="flex-1">
@@ -115,7 +112,7 @@ const TickerItem = ({ data, index }: { data: MarketQuote, index: number }) => {
           </div>
         </div>
       </div>
-    </motion.div>
+    </div>
   );
 };
 
@@ -236,22 +233,22 @@ export const LiveMarketFeed = () => {
     }
   }, [nextRetryIn, error, fetchMarketData]);
 
-  // Initial fetch and periodic updates (REST polling)
+  // Initial fetch and periodic updates (REST polling) - Reduced frequency for performance
   useEffect(() => {
     if (!ENABLE_MARKET_WS) {
       fetchMarketData();
       
-      const interval = setInterval(fetchMarketData, MARKET_FEED_REFRESH_SEC * 1000);
+      const interval = setInterval(fetchMarketData, 120000); // Update every 2 minutes instead of 30 seconds
       return () => clearInterval(interval);
     }
   }, [fetchMarketData]);
 
-  // Auto-scroll effect
+  // Auto-scroll effect - Reduced frequency for performance
   useEffect(() => {
     if (marketData.length > 0) {
       const interval = setInterval(() => {
         setCurrentIndex((prev) => (prev + 1) % Math.max(1, marketData.length - 2));
-      }, 3000);
+      }, 8000); // Changed from 3s to 8s to reduce DOM mutations
 
       return () => clearInterval(interval);
     }
@@ -346,10 +343,11 @@ export const LiveMarketFeed = () => {
           
       {/* Scrolling ticker - Mobile optimized */}
       <div className="relative overflow-hidden">
-        <motion.div
-          className="flex"
-          animate={{ x: loading ? 0 : -currentIndex * 260 }} // Reduced width for mobile
-          transition={{ duration: 0.8, ease: "easeInOut" }}
+        <div
+          className="flex transition-transform duration-1000 ease-in-out"
+          style={{ 
+            transform: loading ? 'translateX(0)' : `translateX(-${currentIndex * 260}px)`,
+          }}
           aria-live="polite"
           aria-label="Live market data feed"
         >
@@ -368,7 +366,7 @@ export const LiveMarketFeed = () => {
               <div className="text-muted-foreground text-sm md:text-base">No market data available</div>
             </div>
           )}
-        </motion.div>
+        </div>
       </div>
 
       {/* Gradient fade edges */}

@@ -34,7 +34,7 @@ export const MarketTicker = () => {
 
   useEffect(() => {
     fetchTickerData();
-    const interval = setInterval(fetchTickerData, 60000); // Update every minute
+    const interval = setInterval(fetchTickerData, 180000); // Update every 3 minutes (reduced frequency)
     return () => clearInterval(interval);
   }, []);
 
@@ -56,13 +56,10 @@ export const MarketTicker = () => {
 
   return (
     <div className="bg-card/80 backdrop-blur border-y border-border/50 py-3 overflow-hidden relative">
-      <motion.div
-        className="flex space-x-8"
-        animate={{ x: [0, -50] }}
-        transition={{
-          duration: 30,
-          repeat: Infinity,
-          ease: "linear"
+      <div
+        className="flex space-x-8 animate-scroll-ticker"
+        style={{
+          animation: 'scroll-ticker 60s linear infinite',
         }}
       >
         {[...quotes, ...quotes].map((quote, index) => {
@@ -91,7 +88,7 @@ export const MarketTicker = () => {
             </div>
           );
         })}
-      </motion.div>
+      </div>
       
       {/* Gradient fades */}
       <div className="absolute left-0 top-0 w-8 h-full bg-gradient-to-r from-background to-transparent pointer-events-none" />
