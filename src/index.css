@@ -9,12 +9,12 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-  /* Enhanced background with soft gradient - restoring professional look */
-  --background: 220 12% 97%;           /* Softer white base */
-  --background-subtle: 220 18% 94%;    /* More pronounced gradient depth */
-    --foreground: 220 13% 9%;            /* Dark text for contrast */
-    --card: 0 0% 100%;                   /* Pure white cards */
-    --card-foreground: 220 13% 9%;       /* Dark text on white cards */
+  /* Dark background theme - black base */
+  --background: 0 0% 0%;               /* Pure black base */
+  --background-subtle: 0 0% 7%;        /* Very dark gray */
+    --foreground: 0 0% 100%;             /* White text for contrast */
+    --card: 0 0% 5%;                     /* Very dark cards */
+    --card-foreground: 0 0% 95%;         /* Light text on dark cards */
     --popover: 220 13% 11%;
     --popover-foreground: 220 9% 97%;
     
@@ -39,12 +39,12 @@ All colors MUST be HSL.
     --education: 217 91% 60%;
     --education-foreground: 220 9% 97%;
     
-    /* Text hierarchy tokens - WCAG compliant contrast on white */
-    --text-heading: 220 13% 9%;        /* Dark charcoal - high contrast */
-    --text-body: 220 13% 15%;          /* Primary text - excellent readability */
-    --text-secondary: 220 9% 40%;      /* Secondary text - good contrast */
-    --text-muted: 220 9% 55%;          /* Muted text - minimum WCAG AA contrast */
-    --text-emphasis: 220 13% 5%;       /* Very dark for emphasis */
+    /* Text hierarchy tokens - optimized for black background */
+    --text-heading: 0 0% 100%;        /* White text for headings */
+    --text-body: 0 0% 90%;             /* Light gray for body text */
+    --text-secondary: 0 0% 70%;        /* Medium gray for secondary text */
+    --text-muted: 0 0% 55%;            /* Darker gray for muted text */
+    --text-emphasis: 0 0% 100%;        /* Pure white for emphasis */
     
     /* Progress bar colors - neon themed */
     --progress-completed: 142 76% 36%;
@@ -62,13 +62,13 @@ All colors MUST be HSL.
     --accent: 180 100% 50%;             /* Neon teal #00ffff */
     --accent-foreground: 220 13% 9%;
     
-    --muted: 220 13% 90%;               /* Light muted elements */
-    --muted-foreground: 220 9% 55%;     /* Muted text */
+    --muted: 0 0% 15%;               /* Dark muted elements for black theme */
+    --muted-foreground: 0 0% 65%;     /* Light muted text for black theme */
     
     --destructive: 0 84% 60%;           /* Red */
     --destructive-foreground: 0 0% 100%;
     
-    --border: 220 13% 85%;              /* Light subtle borders */
+    --border: 0 0% 20%;              /* Dark borders for black theme */
     --input: 0 0% 100%;
     --ring: 142 76% 36%;                /* Focus ring green */
     --radius: 0.75rem;
@@ -132,10 +132,10 @@ All colors MUST be HSL.
   }
   
   body {
-    @apply bg-background text-foreground font-inter antialiased;
+    @apply bg-black text-white font-inter antialiased;
     background: linear-gradient(180deg, 
-      hsl(var(--background-subtle)) 0%, 
-      hsl(var(--background)) 100%
+      #000000 0%, 
+      #111111 100%
     );
     background-attachment: fixed;
     min-height: 100vh;

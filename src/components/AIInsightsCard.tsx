@@ -13,7 +13,6 @@ import {
   ExternalLink,
   ArrowRight
 } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
 
 // Mock AI insights data
 const aiInsights = [
@@ -84,26 +83,16 @@ export const AIInsightsCard = () => {
   };
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, delay: 0.4 }}
-    >
-      <Card className="professional-card border-0 shadow-2xl hover:shadow-3xl transition-all duration-500">
-        {/* Enhanced animated border effect */}
-        <div className="absolute inset-0 bg-gradient-to-r from-education/20 via-primary/20 to-accent/20 rounded-xl opacity-50 animate-pulse" />
-        <div className="absolute inset-[1px] bg-card rounded-xl" />
-        
+    <div className="animate-fade-in-up">
+      <Card className="neon-card border-0 shadow-2xl">
         <CardHeader className="relative pb-4">
           <div className="flex items-center gap-3">
             <div className="relative p-2 bg-education/20 rounded-lg">
               <Brain className="w-6 h-6 text-education" />
-              {/* Subtle pulsing effect */}
-              <div className="absolute inset-0 bg-education/10 rounded-lg animate-ping opacity-75" />
             </div>
             <div className="flex-1">
-              <CardTitle className="text-2xl font-bold text-text-heading">AI Insights</CardTitle>
-              <p className="text-text-muted text-sm">Personalized recommendations powered by ELIN</p>
+              <CardTitle className="text-2xl font-bold text-white">AI Insights</CardTitle>
+              <p className="text-gray-300 text-sm">Personalized recommendations powered by ELIN</p>
             </div>
             <div className="flex items-center gap-2">
               <div className="w-2 h-2 bg-education rounded-full animate-pulse" />
@@ -118,14 +107,10 @@ export const AIInsightsCard = () => {
             const isExpanded = expandedInsight === insight.id;
             
             return (
-              <motion.div
+              <div
                 key={insight.id}
-                layout
-                className="group relative p-4 rounded-lg mobile-card hover:border-border/70 transition-all duration-300"
+                className="group relative p-4 rounded-lg mobile-card hover:border-border/70 transition-all duration-200"
               >
-                {/* Subtle hover glow effect */}
-                <div className="absolute inset-0 rounded-lg bg-gradient-to-r from-transparent via-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                
                 <div className="relative">
                   {/* Header */}
                   <div className="flex items-start justify-between mb-3">
@@ -136,7 +121,7 @@ export const AIInsightsCard = () => {
                       
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-2">
-                          <h4 className="text-text-heading font-semibold text-sm group-hover:text-primary transition-colors">
+                          <h4 className="text-white font-semibold text-sm group-hover:text-primary transition-colors">
                             {insight.title}
                           </h4>
                           <Badge 
@@ -146,7 +131,7 @@ export const AIInsightsCard = () => {
                             {insight.priority}
                           </Badge>
                         </div>
-                        <p className="text-text-muted text-sm leading-relaxed">
+                        <p className="text-gray-300 text-sm leading-relaxed">
                           {insight.description}
                         </p>
                       </div>
@@ -155,7 +140,7 @@ export const AIInsightsCard = () => {
                     {/* Confidence Score */}
                     <div className="text-right ml-4 flex-shrink-0">
                       <div className="text-accent font-bold text-lg">{insight.confidence}%</div>
-                      <div className="text-text-muted text-xs">confidence</div>
+                      <div className="text-gray-400 text-xs">confidence</div>
                     </div>
                   </div>
 
@@ -199,54 +184,46 @@ export const AIInsightsCard = () => {
                   </div>
 
                   {/* Expandable Content */}
-                  <AnimatePresence>
-                    {isExpanded && (
-                      <motion.div
-                        initial={{ opacity: 0, height: 0 }}
-                        animate={{ opacity: 1, height: "auto" }}
-                        exit={{ opacity: 0, height: 0 }}
-                        transition={{ duration: 0.3 }}
-                        className="mt-4 pt-4 border-t border-slate-700/50"
-                      >
-                        <div className="space-y-3">
-                          <div>
-                            <h5 className="text-foreground font-medium text-sm mb-2">Recommendation</h5>
-                            <p className="text-accent text-sm leading-relaxed bg-accent/10 p-3 rounded-lg border border-accent/20">
-                              {insight.recommendation}
-                            </p>
-                          </div>
-                          
-                          <div>
-                            <h5 className="text-foreground font-medium text-sm mb-2">Analysis</h5>
-                            <p className="text-muted-foreground text-sm leading-relaxed">
-                              {insight.explanation}
-                            </p>
-                          </div>
-
-                          <div className="flex items-center justify-between pt-2">
-                            <div className="text-muted-foreground text-xs">
-                              Related: <span className="text-education">{insight.learningModule}</span>
-                            </div>
-                            <Button 
-                              size="sm" 
-                              variant="outline"
-                              className="border-education/30 text-education hover:bg-education/10"
-                            >
-                              View Module
-                            </Button>
-                          </div>
+                  {isExpanded && (
+                    <div className="mt-4 pt-4 border-t border-slate-700/50 animate-fade-in-up">
+                      <div className="space-y-3">
+                        <div>
+                          <h5 className="text-white font-medium text-sm mb-2">Recommendation</h5>
+                          <p className="text-accent text-sm leading-relaxed bg-accent/10 p-3 rounded-lg border border-accent/20">
+                            {insight.recommendation}
+                          </p>
                         </div>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
+                        
+                        <div>
+                          <h5 className="text-white font-medium text-sm mb-2">Analysis</h5>
+                          <p className="text-gray-300 text-sm leading-relaxed">
+                            {insight.explanation}
+                          </p>
+                        </div>
+
+                        <div className="flex items-center justify-between pt-2">
+                          <div className="text-gray-400 text-xs">
+                            Related: <span className="text-education">{insight.learningModule}</span>
+                          </div>
+                          <Button 
+                            size="sm" 
+                            variant="outline"
+                            className="border-education/30 text-education hover:bg-education/10"
+                          >
+                            View Module
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
-              </motion.div>
+              </div>
             );
           })}
 
           {/* Footer */}
           <div className="mt-6 pt-4 border-t border-border/30 text-center">
-            <p className="text-muted-foreground text-sm mb-3">
+            <p className="text-gray-400 text-sm mb-3">
               Insights updated 2 minutes ago • Next analysis in 4 hours
             </p>
             <Button 
@@ -258,6 +235,6 @@ export const AIInsightsCard = () => {
           </div>
         </CardContent>
       </Card>
-    </motion.div>
+    </div>
   );
 };
