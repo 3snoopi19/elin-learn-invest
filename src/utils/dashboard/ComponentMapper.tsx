@@ -12,6 +12,9 @@ import { PortfolioOverviewCard } from '@/components/PortfolioOverviewCard';
 import { LiveMarketFeed } from '@/components/LiveMarketFeed';
 import { RecentActivityCard } from '@/components/RecentActivityCard';
 import { AIInsightsCard } from '@/components/AIInsightsCard';
+import { RiskAnalysisCard } from '@/components/RiskAnalysisCard';
+import { GlossaryCard } from '@/components/GlossaryCard';
+import { MarketSimulatorCard } from '@/components/MarketSimulatorCard';
 import { LearningPathsCard } from '@/components/LearningPathsCard';
 import { SECFilingsExplorer } from '@/components/SECFilingsExplorer';
 import { CreditCardHelperCard } from '@/components/CreditCardHelperCard';
@@ -57,6 +60,9 @@ export const COMPONENT_MAP: Record<string, React.ComponentType<any>> = {
   'LiveMarketFeed': LiveMarketFeed,
   'RecentActivityCard': RecentActivityCard,
   'AIInsightsCard': AIInsightsCard,
+  'RiskAnalysisCard': RiskAnalysisCard,
+  'GlossaryCard': GlossaryCard,
+  'MarketSimulatorCard': MarketSimulatorCard,
   'LearningPathsCard': LearningPathsCard,
   'SECFilingsExplorer': SECFilingsExplorer,
   'CreditCardHelperCard': CreditCardHelperCard,

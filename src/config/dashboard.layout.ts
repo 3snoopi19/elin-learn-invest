@@ -157,6 +157,67 @@ export const DASHBOARD_CARDS: CardConfig[] = [
     ariaLabel: "AI-powered investment insights and recommendations"
   },
   {
+    key: "risk-analysis",
+    title: "Risk Analysis",
+    subtitle: "Portfolio risk assessment",
+    description: "AI-powered risk analysis with diversification insights",
+    route: "/risk",
+    position: 32,
+    component: "RiskAnalysisCard",
+    ctas: [
+      { label: "Optimize Risk", href: "/portfolio/optimize", variant: "primary", analytics: "risk_optimize_click" },
+      { label: "Learn Risk Management", href: "/learn/risk", variant: "outline", analytics: "risk_learn_click" }
+    ],
+    badges: [
+      { label: "Live Analysis", variant: "default", icon: "Activity" }
+    ],
+    analyticsTags: ["card_view", "open_click"],
+    gridSpan: { default: 1, lg: 1 },
+    lastUpdated: "2024-01-15T00:00:00Z",
+    ariaLabel: "Real-time portfolio risk analysis and optimization"
+  },
+  {
+    key: "glossary",
+    title: "Investment Glossary",
+    subtitle: "Learn key investment terms", 
+    description: "Searchable glossary with tooltips and examples",
+    route: "/glossary",
+    position: 33,
+    component: "GlossaryCard",
+    ctas: [
+      { label: "Search Terms", href: "/glossary", variant: "primary", icon: "Search", analytics: "glossary_search_click" },
+      { label: "Learning Path", href: "/learn", variant: "outline", analytics: "glossary_learn_click" }
+    ],
+    badges: [
+      { label: "Educational", variant: "outline", icon: "BookOpen" }
+    ],
+    analyticsTags: ["card_view", "open_click"],
+    gridSpan: { default: 1, lg: 1 },
+    lastUpdated: "2024-01-15T00:00:00Z",
+    ariaLabel: "Investment terminology glossary and learning resource"
+  },
+  {
+    key: "market-simulator",
+    title: "Paper Trading Simulator",
+    subtitle: "Practice with virtual money",
+    description: "Risk-free trading simulation with real market data",
+    route: "/simulator",
+    position: 34,
+    component: "MarketSimulatorCard", 
+    ctas: [
+      { label: "Start Trading", href: "/simulator", variant: "primary", icon: "Activity", analytics: "simulator_trade_click" },
+      { label: "View Leaderboard", href: "/simulator/leaderboard", variant: "outline", analytics: "simulator_leaderboard_click" }
+    ],
+    badges: [
+      { label: "Risk-Free", variant: "secondary", icon: "Shield" },
+      { label: "Real Data", variant: "outline", icon: "TrendingUp" }
+    ],
+    analyticsTags: ["card_view", "open_click"],
+    gridSpan: { default: 1, lg: 1 },
+    lastUpdated: "2024-01-15T00:00:00Z",
+    ariaLabel: "Paper trading simulator for risk-free investment practice"
+  },
+  {
     key: "learning-paths",
     title: "Learning Paths", 
     subtitle: "Structured investment education",

@@ -174,23 +174,48 @@ const Dashboard = () => {
         <div className="mobile-grid mb-6 md:mb-8">
           <MarketSentimentGauge />
           <DashboardCardRenderer
-            componentName="LiveMarketFeed"
+            componentName="RiskAnalysisCard"
             props={{
               animationDelay: 0.2,
+              ...dashboardCards.find(c => c.component === 'RiskAnalysisCard')?.props
+            }}
+          />
+          <DashboardCardRenderer
+            componentName="LiveMarketFeed"
+            props={{
+              animationDelay: 0.3,
               ...dashboardCards.find(c => c.component === 'LiveMarketFeed')?.props
             }}
           />
           <DashboardCardRenderer
             componentName="RecentActivityCard"
             props={{
-              animationDelay: 0.3,
+              animationDelay: 0.4,
               ...dashboardCards.find(c => c.component === 'RecentActivityCard')?.props
+            }}
+          />
+        </div>
+
+        {/* Tools & Features Row */}
+        <div className="mobile-grid mb-6 md:mb-8">
+          <DashboardCardRenderer
+            componentName="MarketSimulatorCard"
+            props={{
+              animationDelay: 0.5,
+              ...dashboardCards.find(c => c.component === 'MarketSimulatorCard')?.props
+            }}
+          />
+          <DashboardCardRenderer
+            componentName="GlossaryCard"
+            props={{
+              animationDelay: 0.6,
+              ...dashboardCards.find(c => c.component === 'GlossaryCard')?.props
             }}
           />
           <DashboardCardRenderer
             componentName="CreditCardHelperCard"
             props={{
-              animationDelay: 0.4,
+              animationDelay: 0.7,
               ...dashboardCards.find(c => c.component === 'CreditCardHelperCard')?.props
             }}
           />
