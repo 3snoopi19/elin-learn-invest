@@ -5,7 +5,7 @@ import {
   Search, Eye, Play, Trophy, HelpCircle, Sparkles, 
   ShieldCheck, Calendar, Building2, Filter, Download,
   ExternalLink, Star, Upload, Settings, History, PlusCircle,
-  CreditCard
+  CreditCard, Bot, Target, Zap
 } from 'lucide-react';
 import { HeroSummaryCard } from '@/components/HeroSummaryCard';
 import { PortfolioOverviewCard } from '@/components/PortfolioOverviewCard';
@@ -19,6 +19,10 @@ import { LearningPathsCard } from '@/components/LearningPathsCard';
 import { SECFilingsExplorer } from '@/components/SECFilingsExplorer';
 import { CreditCardHelperCard } from '@/components/CreditCardHelperCard';
 import { MoneyFlowRouterCard } from '@/components/MoneyFlowRouterCard';
+import AutomatedInvestingCard from '@/components/AutomatedInvestingCard';
+import PortfolioOptimizationCard from '@/components/PortfolioOptimizationCard';
+import PersonalizedLearningPathsCard from '@/components/PersonalizedLearningPathsCard';
+import TrendPredictionCard from '@/components/TrendPredictionCard';
 import { DashboardCard } from '@/components/DashboardCard';
 import { motion } from 'framer-motion';
 
@@ -50,7 +54,10 @@ export const ICON_MAP: Record<string, React.ComponentType<any>> = {
   'Settings': Settings,
   'History': History,
   'PlusCircle': PlusCircle,
-  'CreditCard': CreditCard
+  'CreditCard': CreditCard,
+  'Bot': Bot,
+  'Target': Target,
+  'Zap': Zap
 };
 
 // Component mapping for dynamic rendering
@@ -67,6 +74,10 @@ export const COMPONENT_MAP: Record<string, React.ComponentType<any>> = {
   'SECFilingsExplorer': SECFilingsExplorer,
   'CreditCardHelperCard': CreditCardHelperCard,
   'MoneyFlowRouterCard': MoneyFlowRouterCard,
+  'AutomatedInvestingCard': AutomatedInvestingCard,
+  'PortfolioOptimizationCard': PortfolioOptimizationCard,
+  'PersonalizedLearningPathsCard': PersonalizedLearningPathsCard,
+  'TrendPredictionCard': TrendPredictionCard,
   'ChatCard': DashboardCard, // Fallback for cards not yet converted
   'AIPortfolioSimulatorCard': DashboardCard // Will be removed in cleanup
 };

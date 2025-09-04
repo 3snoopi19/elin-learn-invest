@@ -262,6 +262,86 @@ export const DASHBOARD_CARDS: CardConfig[] = [
     ariaLabel: "SEC filings search and AI-powered document analysis"
   },
   {
+    key: "automated-investing",
+    title: "Robo-Advisor",
+    subtitle: "Automated portfolio management",
+    description: "AI-powered investment automation with rebalancing",
+    route: "/robo-advisor",
+    position: 36,
+    component: "AutomatedInvestingCard",
+    ctas: [
+      { label: "Setup Portfolio", href: "/robo-advisor/setup", variant: "primary", icon: "Bot", analytics: "robo_setup_click" },
+      { label: "View Performance", href: "/robo-advisor/performance", variant: "outline", analytics: "robo_performance_click" }
+    ],
+    badges: [
+      { label: "Automated", variant: "default", icon: "Zap" }
+    ],
+    analyticsTags: ["card_view", "open_click"],
+    gridSpan: { default: 1, lg: 1 },
+    lastUpdated: "2024-01-15T00:00:00Z",
+    ariaLabel: "Automated investing and portfolio management"
+  },
+  {
+    key: "portfolio-optimization",
+    title: "Portfolio Optimization",
+    subtitle: "AI-powered allocation analysis",
+    description: "Optimize your portfolio with historical data and AI insights",
+    route: "/portfolio/optimize",
+    position: 37,
+    component: "PortfolioOptimizationCard",
+    ctas: [
+      { label: "Run Analysis", href: "/portfolio/optimize", variant: "primary", icon: "BarChart3", analytics: "optimize_analysis_click" },
+      { label: "View History", href: "/portfolio/optimize/history", variant: "outline", analytics: "optimize_history_click" }
+    ],
+    badges: [
+      { label: "AI Powered", variant: "default", icon: "Brain" }
+    ],
+    analyticsTags: ["card_view", "open_click"],
+    gridSpan: { default: 1, lg: 1 },
+    lastUpdated: "2024-01-15T00:00:00Z",
+    ariaLabel: "Portfolio optimization and performance analysis"
+  },
+  {
+    key: "personalized-learning",
+    title: "Smart Learning Paths",
+    subtitle: "Personalized education",
+    description: "AI-curated learning based on your knowledge gaps",
+    route: "/learn/personalized",
+    position: 38,
+    component: "PersonalizedLearningPathsCard",
+    ctas: [
+      { label: "Continue Learning", href: "/learn/personalized", variant: "primary", icon: "Brain", analytics: "personal_learn_click" },
+      { label: "Assessment", href: "/learn/assessment", variant: "outline", analytics: "personal_assess_click" }
+    ],
+    badges: [
+      { label: "Personalized", variant: "secondary", icon: "Target" }
+    ],
+    analyticsTags: ["card_view", "open_click"],
+    gridSpan: { default: 1, lg: 1 },
+    lastUpdated: "2024-01-15T00:00:00Z",
+    ariaLabel: "Personalized learning paths and knowledge assessment"
+  },
+  {
+    key: "trend-prediction",
+    title: "Trend Prediction",
+    subtitle: "AI market forecasting",
+    description: "Advanced ML models for market and stock predictions",
+    route: "/predictions",
+    position: 39,
+    component: "TrendPredictionCard",
+    ctas: [
+      { label: "View Predictions", href: "/predictions", variant: "primary", icon: "TrendingUp", analytics: "predictions_view_click" },
+      { label: "Analyze Stock", href: "/predictions/stock", variant: "outline", analytics: "predictions_stock_click" }
+    ],
+    badges: [
+      { label: "Beta", variant: "outline", icon: "Zap" }
+    ],
+    analyticsTags: ["card_view", "open_click"],
+    gridSpan: { default: 1, lg: 1 },
+    lastUpdated: "2024-01-15T00:00:00Z",
+    ariaLabel: "AI-powered market trend predictions and analysis"
+  },
+  {
     key: "chat-with-elin",
     title: "Chat with ELIN",
     subtitle: "Your AI investment mentor",
