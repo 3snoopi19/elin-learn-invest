@@ -3,8 +3,9 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { CheckCircle, Play, FileText, PenTool, Target, Clock, BookOpen } from "lucide-react";
-import { useState } from "react";
+import { CheckCircle, Play, FileText, PenTool, Target, Clock, BookOpen, Headphones, Sparkles, Brain } from "lucide-react";
+import { useState, useEffect } from "react";
+import { notebookLMService, NotebookLMContent } from "@/services/notebookLM";
 
 interface Lesson {
   id: string;
@@ -25,6 +26,25 @@ export const LessonContent = ({ lesson, onComplete, onNext }: LessonContentProps
   const [currentQuizAnswer, setCurrentQuizAnswer] = useState<string>("");
   const [showQuizResult, setShowQuizResult] = useState(false);
   const [quizScore, setQuizScore] = useState(0);
+  const [notebookLMContent, setNotebookLMContent] = useState<NotebookLMContent | null>(null);
+  const [isGenerating, setIsGenerating] = useState(false);
+
+  useEffect(() => {
+    // Generate NotebookLM content for this lesson
+    const generateContent = async () => {
+      setIsGenerating(true);
+      try {
+        const content = await notebookLMService.generateLearningContent(lesson.title, 'intermediate');
+        setNotebookLMContent(content);
+      } catch (error) {
+        console.error('Error generating NotebookLM content:', error);
+      } finally {
+        setIsGenerating(false);
+      }
+    };
+
+    generateContent();
+  }, [lesson.title]);
 
   const getTypeIcon = (type: string) => {
     switch (type) {
@@ -253,6 +273,99 @@ export const LessonContent = ({ lesson, onComplete, onNext }: LessonContentProps
           </div>
         )}
       </div>
+
+      {/* NotebookLM Enhanced Learning Section */}
+      {notebookLMContent && (
+        <Card className="mb-6 bg-gradient-to-r from-purple-50 to-blue-50 border-purple-200">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-purple-800">
+              <Sparkles className="w-5 h-5" />
+              NotebookLM Study Guide
+              <Badge variant="outline" className="text-xs bg-white text-purple-600 border-purple-300">
+                AI-Generated
+              </Badge>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            {/* AI Summary */}
+            <div className="bg-white/60 rounded-lg p-4 border border-purple-200">
+              <h4 className="font-semibold text-purple-800 mb-2 flex items-center gap-2">
+                <Brain className="w-4 h-4" />
+                AI Summary
+              </h4>
+              <p className="text-purple-700 text-sm">{notebookLMContent.summary}</p>
+            </div>
+
+            {/* Key Insights */}
+            <div className="bg-white/60 rounded-lg p-4 border border-purple-200">
+              <h4 className="font-semibold text-purple-800 mb-3">Key Insights</h4>
+              <div className="grid gap-2">
+                {notebookLMContent.keyInsights.map((insight, index) => (
+                  <div key={index} className="flex items-start gap-2 text-sm text-purple-700">
+                    <CheckCircle className="w-4 h-4 text-green-600 flex-shrink-0 mt-0.5" />
+                    <span>{insight}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Study Guide */}
+            <div className="grid md:grid-cols-2 gap-4">
+              <div className="bg-white/60 rounded-lg p-4 border border-purple-200">
+                <h4 className="font-semibold text-purple-800 mb-3">Main Concepts</h4>
+                <div className="space-y-2">
+                  {notebookLMContent.studyGuide.mainConcepts.map((concept, index) => (
+                    <Badge key={index} variant="outline" className="block text-xs bg-purple-100 text-purple-700 border-purple-300">
+                      {concept}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+
+              <div className="bg-white/60 rounded-lg p-4 border border-purple-200">
+                <h4 className="font-semibold text-purple-800 mb-3">Practice Questions</h4>
+                <div className="space-y-3">
+                  {notebookLMContent.studyGuide.practiceQuestions.slice(0, 2).map((qa, index) => (
+                    <div key={index} className="text-sm">
+                      <p className="font-medium text-purple-800">Q: {qa.question}</p>
+                      <p className="text-purple-600 mt-1">A: {qa.answer}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Audio Summary Button */}
+            <div className="flex items-center justify-between bg-white/60 rounded-lg p-4 border border-purple-200">
+              <div>
+                <h4 className="font-semibold text-purple-800 flex items-center gap-2">
+                  <Headphones className="w-4 h-4" />
+                  Audio Overview
+                </h4>
+                <p className="text-sm text-purple-600">Listen to an AI-generated summary of this lesson</p>
+              </div>
+              <Button size="sm" className="bg-purple-600 hover:bg-purple-700 text-white">
+                <Play className="w-3 h-3 mr-1" />
+                Play Audio
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {isGenerating && (
+        <Card className="mb-6 bg-gradient-to-r from-purple-50 to-blue-50 border-purple-200">
+          <CardContent className="p-6">
+            <div className="flex items-center gap-3">
+              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-purple-600"></div>
+              <div>
+                <h4 className="font-medium text-purple-800">Generating NotebookLM Study Guide</h4>
+                <p className="text-sm text-purple-600">Creating personalized learning materials...</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       <Card className="mb-6">
         <CardContent className="p-8">

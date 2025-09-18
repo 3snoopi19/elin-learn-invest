@@ -1,12 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { BookOpen, Brain, Trophy, CheckCircle, Clock, Star, Target, TrendingUp, Play } from 'lucide-react';
+import { BookOpen, Brain, Trophy, CheckCircle, Clock, Star, Target, TrendingUp, Play, Headphones, Sparkles } from 'lucide-react';
 import { toast } from 'sonner';
 import { useLearningProgress } from '@/hooks/useLearningProgress';
+import { notebookLMService, NotebookLMContent } from '@/services/notebookLM';
 
 interface LearningModule {
   id: string;
@@ -31,12 +32,34 @@ interface WeakArea {
 const PersonalizedLearningPathsCard = () => {
   const { progress, settings, incrementProgress } = useLearningProgress();
   const [activeTab, setActiveTab] = useState('recommended');
+  const [notebookLMContent, setNotebookLMContent] = useState<NotebookLMContent[]>([]);
+  const [isGenerating, setIsGenerating] = useState(false);
   
+  useEffect(() => {
+    const generateNotebookLMContent = async () => {
+      setIsGenerating(true);
+      try {
+        const content = await Promise.all([
+          notebookLMService.generateLearningContent('Portfolio Management', progress.level),
+          notebookLMService.generateLearningContent('Risk Analysis', progress.level),
+          notebookLMService.generateLearningContent('Market Analysis', progress.level)
+        ]);
+        setNotebookLMContent(content);
+      } catch (error) {
+        console.error('Error generating NotebookLM content:', error);
+      } finally {
+        setIsGenerating(false);
+      }
+    };
+    
+    generateNotebookLMContent();
+  }, [progress.level]);
+
   const [learningModules] = useState<LearningModule[]>([
     {
       id: 'portfolio-basics',
-      title: 'Portfolio Diversification',
-      description: 'Learn the fundamentals of building a balanced investment portfolio',
+      title: 'Portfolio Diversification (NotebookLM)',
+      description: 'AI-generated learning content from NotebookLM: Master portfolio fundamentals with personalized insights',
       difficulty: 'beginner',
       timeEstimate: '15 min',
       progress: 80,
@@ -47,8 +70,8 @@ const PersonalizedLearningPathsCard = () => {
     },
     {
       id: 'options-trading',
-      title: 'Options Trading Strategies',
-      description: 'Advanced strategies for options trading and risk hedging',
+      title: 'Options Trading Strategies (NotebookLM)',
+      description: 'AI-curated advanced strategies from NotebookLM: Options trading and risk hedging with personalized study guides',
       difficulty: 'advanced',
       timeEstimate: '45 min',
       progress: 0,
@@ -59,8 +82,8 @@ const PersonalizedLearningPathsCard = () => {
     },
     {
       id: 'etf-analysis',
-      title: 'ETF Analysis & Selection',
-      description: 'How to research and select the best ETFs for your portfolio',
+      title: 'ETF Analysis & Selection (NotebookLM)',
+      description: 'NotebookLM-powered analysis: Research and select the best ETFs with AI-generated insights and audio summaries',
       difficulty: 'intermediate',
       timeEstimate: '25 min',
       progress: 100,
@@ -71,8 +94,8 @@ const PersonalizedLearningPathsCard = () => {
     },
     {
       id: 'risk-assessment',
-      title: 'Personal Risk Assessment',
-      description: 'Understanding your risk tolerance and investment psychology',
+      title: 'Personal Risk Assessment (NotebookLM)',
+      description: 'AI-personalized content: Understanding your risk tolerance and investment psychology with NotebookLM insights',
       difficulty: 'beginner',
       timeEstimate: '20 min',
       progress: 60,
@@ -148,8 +171,14 @@ const PersonalizedLearningPathsCard = () => {
               <Brain className="w-5 h-5 text-primary" />
             </div>
             <div>
-              <CardTitle className="text-lg font-semibold text-text-heading">Personalized Learning</CardTitle>
-              <p className="text-sm text-text-muted">AI-curated educational content</p>
+              <CardTitle className="text-lg font-semibold text-text-heading flex items-center gap-2">
+                Personalized Learning
+                <Badge variant="outline" className="text-xs bg-gradient-to-r from-purple-50 to-blue-50 text-purple-700 border-purple-200">
+                  <Sparkles className="w-3 h-3 mr-1" />
+                  NotebookLM
+                </Badge>
+              </CardTitle>
+              <p className="text-sm text-text-muted">AI-curated educational content powered by NotebookLM</p>
             </div>
           </div>
           <Badge variant="outline" className="text-xs">
@@ -202,11 +231,96 @@ const PersonalizedLearningPathsCard = () => {
           </TabsList>
           
           <TabsContent value="recommended" className="space-y-3 mt-4">
+            {isGenerating && (
+              <div className="bg-gradient-to-r from-purple-50 to-blue-50 border border-purple-200 rounded-lg p-4 mb-4">
+                <div className="flex items-center gap-3">
+                  <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-purple-600"></div>
+                  <div>
+                    <h5 className="font-medium text-purple-800">Generating Personalized Content</h5>
+                    <p className="text-sm text-purple-600">NotebookLM is creating custom learning materials for you...</p>
+                  </div>
+                </div>
+              </div>
+            )}
+            
+            {/* NotebookLM Generated Content Section */}
+            {notebookLMContent.length > 0 && (
+              <div className="mb-6">
+                <div className="flex items-center gap-2 mb-3">
+                  <Sparkles className="w-4 h-4 text-purple-600" />
+                  <h4 className="font-medium text-text-heading">AI-Generated Study Materials</h4>
+                </div>
+                <div className="grid gap-3">
+                  {notebookLMContent.map((content) => (
+                    <div key={content.id} className="bg-gradient-to-r from-purple-50 to-blue-50 border border-purple-200 rounded-lg p-4">
+                      <div className="flex items-start justify-between mb-2">
+                        <div className="flex-1">
+                          <h5 className="font-medium text-purple-800 flex items-center gap-2">
+                            {content.title}
+                            <Badge variant="outline" className="text-xs bg-white text-purple-600 border-purple-300">
+                              NotebookLM
+                            </Badge>
+                          </h5>
+                          <p className="text-sm text-purple-600 mt-1">{content.summary}</p>
+                        </div>
+                        <Badge variant="outline" className={`text-xs ${getDifficultyColor(content.difficulty)}`}>
+                          {content.difficulty}
+                        </Badge>
+                      </div>
+                      
+                      <div className="flex items-center gap-4 mb-3">
+                        <div className="flex items-center gap-1 text-xs text-purple-600">
+                          <Clock className="w-3 h-3" />
+                          {content.estimatedReadTime}
+                        </div>
+                        <div className="flex items-center gap-1 text-xs text-purple-600">
+                          <Headphones className="w-3 h-3" />
+                          Audio Summary
+                        </div>
+                        <div className="flex items-center gap-1 text-xs text-purple-600">
+                          <Target className="w-3 h-3" />
+                          {content.keyInsights.length} insights
+                        </div>
+                      </div>
+
+                      <div className="flex items-center justify-between">
+                        <div className="flex flex-wrap gap-1">
+                          {content.keyInsights.slice(0, 2).map((insight, index) => (
+                            <Badge key={index} variant="secondary" className="text-xs bg-white text-purple-600">
+                              {insight.substring(0, 20)}...
+                            </Badge>
+                          ))}
+                        </div>
+                        <div className="flex gap-2">
+                          <Button size="sm" variant="outline" className="text-purple-600 border-purple-300 hover:bg-purple-50">
+                            <Headphones className="w-3 h-3 mr-1" />
+                            Audio
+                          </Button>
+                          <Button size="sm" className="bg-purple-600 hover:bg-purple-700 text-white">
+                            <Play className="w-3 h-3 mr-1" />
+                            Start
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
             {recommendedModules.map((module) => (
               <div key={module.id} className="bg-background-subtle rounded-lg p-4">
                 <div className="flex items-start justify-between mb-2">
                   <div className="flex-1">
-                    <h5 className="font-medium text-text-heading">{module.title}</h5>
+                    <h5 className="font-medium text-text-heading flex items-center gap-2">
+                      {module.title}
+                      {module.title.includes('NotebookLM') && (
+                        <Badge variant="outline" className="text-xs bg-gradient-to-r from-purple-50 to-blue-50 text-purple-700 border-purple-200">
+                          <Sparkles className="w-3 h-3 mr-1" />
+                          AI
+                        </Badge>
+                      )}
+                    </h5>
                     <p className="text-sm text-text-secondary mt-1">{module.description}</p>
                   </div>
                   <Badge variant="outline" className={`text-xs ${getDifficultyColor(module.difficulty)}`}>
@@ -243,23 +357,31 @@ const PersonalizedLearningPathsCard = () => {
                       </Badge>
                     ))}
                   </div>
-                  <Button 
-                    size="sm" 
-                    variant={module.progress > 0 ? "default" : "outline"}
-                    onClick={() => module.progress > 0 ? completeModule(module.id) : startModule(module.id)}
-                  >
-                    {module.progress > 0 ? (
-                      <>
-                        <Play className="w-3 h-3 mr-1" />
-                        Continue
-                      </>
-                    ) : (
-                      <>
-                        <BookOpen className="w-3 h-3 mr-1" />
-                        Start
-                      </>
+                  <div className="flex gap-2">
+                    {module.title.includes('NotebookLM') && (
+                      <Button size="sm" variant="outline" className="text-purple-600 border-purple-300 hover:bg-purple-50">
+                        <Headphones className="w-3 h-3 mr-1" />
+                        Audio
+                      </Button>
                     )}
-                  </Button>
+                    <Button 
+                      size="sm" 
+                      variant={module.progress > 0 ? "default" : "outline"}
+                      onClick={() => module.progress > 0 ? completeModule(module.id) : startModule(module.id)}
+                    >
+                      {module.progress > 0 ? (
+                        <>
+                          <Play className="w-3 h-3 mr-1" />
+                          Continue
+                        </>
+                      ) : (
+                        <>
+                          <BookOpen className="w-3 h-3 mr-1" />
+                          Start
+                        </>
+                      )}
+                    </Button>
+                  </div>
                 </div>
               </div>
             ))}

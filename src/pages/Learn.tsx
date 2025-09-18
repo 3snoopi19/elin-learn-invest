@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { BookOpen, Clock, Trophy, TrendingUp, Shield, DollarSign, BarChart3, Target, Play, FileText, Download, CheckCircle, Video, PenTool, ArrowLeft } from "lucide-react";
+import { BookOpen, Clock, Trophy, TrendingUp, Shield, DollarSign, BarChart3, Target, Play, FileText, Download, CheckCircle, Video, PenTool, ArrowLeft, Sparkles } from "lucide-react";
 import { useState } from "react";
 import { LessonContent } from "@/components/learn/LessonContent";
 import { LearningPathsCard } from "@/components/LearningPathsCard";
@@ -198,8 +198,14 @@ const Learn = () => {
           <h1 className="text-4xl font-bold mb-4 bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
             Learning Paths
           </h1>
+          <div className="flex items-center justify-center gap-2 mb-4">
+            <Badge variant="outline" className="bg-gradient-to-r from-purple-50 to-blue-50 text-purple-700 border-purple-200">
+              <Sparkles className="w-3 h-3 mr-1" />
+              Powered by NotebookLM AI
+            </Badge>
+          </div>
           <p className="text-xl text-text-secondary mb-6 max-w-2xl mx-auto">
-            Master investing with our comprehensive, structured learning paths designed for every skill level
+            Master investing with AI-generated, personalized learning content created by NotebookLM for every skill level
           </p>
           <div className="flex justify-center gap-4 text-sm text-text-muted">
             <div className="flex items-center gap-2">
