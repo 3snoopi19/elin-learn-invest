@@ -268,20 +268,46 @@ const PersonalizedLearningPathsCard = () => {
                         </Badge>
                       </div>
                       
-                      <div className="flex items-center gap-4 mb-3">
-                        <div className="flex items-center gap-1 text-xs text-purple-600">
-                          <Clock className="w-3 h-3" />
-                          {content.estimatedReadTime}
-                        </div>
-                        <div className="flex items-center gap-1 text-xs text-purple-600">
-                          <Headphones className="w-3 h-3" />
-                          Audio Summary
-                        </div>
-                        <div className="flex items-center gap-1 text-xs text-purple-600">
-                          <Target className="w-3 h-3" />
-                          {content.keyInsights.length} insights
-                        </div>
-                      </div>
+                       <div className="flex items-center gap-4 mb-3">
+                         <div className="flex items-center gap-1 text-xs text-purple-600">
+                           <Clock className="w-3 h-3" />
+                           {content.estimatedReadTime}
+                         </div>
+                         <div className="flex items-center gap-1 text-xs text-purple-600">
+                           <Headphones className="w-3 h-3" />
+                           Audio Summary
+                         </div>
+                         {content.videoExplainer && (
+                           <div className="flex items-center gap-1 text-xs text-purple-600">
+                             <Play className="w-3 h-3" />
+                             Video ({content.videoExplainer.duration})
+                           </div>
+                         )}
+                         <div className="flex items-center gap-1 text-xs text-purple-600">
+                           <Target className="w-3 h-3" />
+                           {content.keyInsights.length} insights
+                         </div>
+                       </div>
+
+                       {content.videoExplainer && (
+                         <div className="mb-3 p-3 bg-white/70 rounded-lg border border-purple-200">
+                           <div className="flex items-center justify-between mb-2">
+                             <div className="flex items-center gap-2">
+                               <Play className="h-4 w-4 text-purple-600" />
+                               <span className="font-medium text-purple-800">Video Chapters</span>
+                             </div>
+                             <span className="text-sm text-purple-600">{content.videoExplainer.duration}</span>
+                           </div>
+                           <div className="space-y-1">
+                             {content.videoExplainer.chapters.slice(0, 3).map((chapter, idx) => (
+                               <div key={idx} className="flex items-center gap-3 text-sm">
+                                 <span className="text-purple-500 font-mono text-xs">{chapter.timestamp}</span>
+                                 <span className="text-purple-700">{chapter.title}</span>
+                               </div>
+                             ))}
+                           </div>
+                         </div>
+                       )}
 
                       <div className="flex items-center justify-between">
                         <div className="flex flex-wrap gap-1">
@@ -291,16 +317,22 @@ const PersonalizedLearningPathsCard = () => {
                             </Badge>
                           ))}
                         </div>
-                        <div className="flex gap-2">
-                          <Button size="sm" variant="outline" className="text-purple-600 border-purple-300 hover:bg-purple-50">
-                            <Headphones className="w-3 h-3 mr-1" />
-                            Audio
-                          </Button>
-                          <Button size="sm" className="bg-purple-600 hover:bg-purple-700 text-white">
-                            <Play className="w-3 h-3 mr-1" />
-                            Start
-                          </Button>
-                        </div>
+                         <div className="flex gap-2">
+                           <Button size="sm" variant="outline" className="text-purple-600 border-purple-300 hover:bg-purple-50">
+                             <Headphones className="w-3 h-3 mr-1" />
+                             Audio
+                           </Button>
+                           {content.videoExplainer && (
+                             <Button size="sm" variant="outline" className="text-purple-600 border-purple-300 hover:bg-purple-50">
+                               <Play className="w-3 h-3 mr-1" />
+                               Video
+                             </Button>
+                           )}
+                           <Button size="sm" className="bg-purple-600 hover:bg-purple-700 text-white">
+                             <BookOpen className="w-3 h-3 mr-1" />
+                             Start
+                           </Button>
+                         </div>
                       </div>
                     </div>
                   ))}

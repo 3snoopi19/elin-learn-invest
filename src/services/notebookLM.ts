@@ -15,6 +15,15 @@ export interface NotebookLMContent {
     mnemonics: string[];
   };
   audioOverview?: string; // NotebookLM's audio summary feature
+  videoExplainer?: {
+    url: string;
+    duration: string;
+    chapters: Array<{
+      title: string;
+      timestamp: string;
+      description: string;
+    }>;
+  }; // NotebookLM's AI-generated video explanations
   relatedTopics: string[];
   difficulty: 'beginner' | 'intermediate' | 'advanced';
   estimatedReadTime: string;
@@ -58,6 +67,11 @@ class NotebookLMService {
   async createAudioSummary(content: string): Promise<string> {
     // NotebookLM's audio overview feature
     return this.mockAudioSummary(content);
+  }
+
+  async generateVideoExplainer(topic: string, userLevel: string): Promise<NotebookLMContent['videoExplainer']> {
+    // NotebookLM's AI-generated video explanations
+    return this.mockVideoExplainer(topic, userLevel);
   }
 
   private mockNotebookLMContent(topic: string, userLevel: string): NotebookLMContent {
@@ -157,6 +171,7 @@ class NotebookLMService {
         mnemonics: content.mnemonics
       },
       audioOverview: `audio-summary-${topic.toLowerCase().replace(/\s+/g, '-')}.mp3`,
+      videoExplainer: this.mockVideoExplainer(topic, userLevel),
       relatedTopics: [
         'Investment Basics',
         'Market Analysis', 
@@ -228,6 +243,37 @@ class NotebookLMService {
 
   private mockAudioSummary(content: string): string {
     return '/audio/notebooklm-summary-' + Date.now() + '.mp3';
+  }
+
+  private mockVideoExplainer(topic: string, userLevel: string): NotebookLMContent['videoExplainer'] {
+    const duration = userLevel === 'beginner' ? '8:45' : userLevel === 'intermediate' ? '12:30' : '18:20';
+    
+    return {
+      url: `/videos/notebooklm-${topic.toLowerCase().replace(/\s+/g, '-')}-${userLevel}.mp4`,
+      duration,
+      chapters: [
+        {
+          title: `${topic} Overview`,
+          timestamp: '0:00',
+          description: `Introduction to ${topic} fundamentals`
+        },
+        {
+          title: 'Key Concepts',
+          timestamp: userLevel === 'beginner' ? '2:15' : '3:20',
+          description: 'Core principles and terminology explained'
+        },
+        {
+          title: 'Practical Examples',
+          timestamp: userLevel === 'beginner' ? '5:30' : '7:45',
+          description: 'Real-world applications and case studies'
+        },
+        {
+          title: 'Next Steps',
+          timestamp: userLevel === 'beginner' ? '7:20' : '15:30',
+          description: 'What to learn next and additional resources'
+        }
+      ]
+    };
   }
 }
 

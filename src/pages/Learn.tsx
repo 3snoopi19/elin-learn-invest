@@ -204,23 +204,27 @@ const Learn = () => {
               Powered by NotebookLM AI
             </Badge>
           </div>
-          <p className="text-xl text-text-secondary mb-6 max-w-2xl mx-auto">
-            Master investing with AI-generated, personalized learning content created by NotebookLM for every skill level
-          </p>
-          <div className="flex justify-center gap-4 text-sm text-text-muted">
-            <div className="flex items-center gap-2">
-              <Trophy className="h-4 w-4 text-primary" />
-              <span>Expert-curated content</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Clock className="h-4 w-4 text-primary" />
-              <span>Self-paced learning</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <BookOpen className="h-4 w-4 text-primary" />
-              <span>Interactive modules</span>
-            </div>
-          </div>
+           <p className="text-xl text-text-secondary mb-6 max-w-2xl mx-auto">
+             Master investing with AI-generated, personalized learning content created by NotebookLM - now including interactive video explainers for every skill level
+           </p>
+           <div className="flex justify-center gap-4 text-sm text-text-muted">
+             <div className="flex items-center gap-2">
+               <Trophy className="h-4 w-4 text-primary" />
+               <span>Expert-curated content</span>
+             </div>
+             <div className="flex items-center gap-2">
+               <Video className="h-4 w-4 text-primary" />
+               <span>AI-generated videos</span>
+             </div>
+             <div className="flex items-center gap-2">
+               <Clock className="h-4 w-4 text-primary" />
+               <span>Self-paced learning</span>
+             </div>
+             <div className="flex items-center gap-2">
+               <BookOpen className="h-4 w-4 text-primary" />
+               <span>Interactive modules</span>
+             </div>
+           </div>
         </div>
 
         <Tabs defaultValue="overview" className="space-y-8">
