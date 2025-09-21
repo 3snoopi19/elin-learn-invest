@@ -1,8 +1,8 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
-const openAIApiKey = Deno.env.get('OpenAI');
-console.log('OpenAI API Key available:', !!openAIApiKey);
+const googleApiKey = 'AIzaSyBouoO_F7Yc09rSV4J0MNgsFEEnMw7Hv50';
+console.log('Google AI API Key available:', !!googleApiKey);
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -17,18 +17,15 @@ serve(async (req) => {
   try {
     const { message } = await req.json();
 
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${googleApiKey}`, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${openAIApiKey}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-4.1-2025-04-14',
-        messages: [
-          {
-            role: 'system',
-            content: `You are ELIN (Enhanced Learning Investment Navigator), an AI assistant focused on investment education. 
+        contents: [{
+          parts: [{
+            text: `You are ELIN (Enhanced Learning Investment Navigator), an AI assistant focused on investment education. 
 
 CRITICAL COMPLIANCE RULES:
 - You are educational only - NEVER provide specific investment advice
@@ -46,25 +43,26 @@ Your role:
 Response style:
 - Clear, educational, and friendly
 - Use examples for complex concepts but make clear they are hypothetical
-- Always end responses about investments with appropriate disclaimers`
-          },
-          {
-            role: 'user',
-            content: message
-          }
-        ],
-        max_completion_tokens: 500,
+- Always end responses about investments with appropriate disclaimers
+
+User message: ${message}`
+          }]
+        }],
+        generationConfig: {
+          maxOutputTokens: 500,
+          temperature: 0.7,
+        },
       }),
     });
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('OpenAI API error response:', errorText);
-      throw new Error(`OpenAI API error: ${response.status} - ${errorText}`);
+      console.error('Google AI API error response:', errorText);
+      throw new Error(`Google AI API error: ${response.status} - ${errorText}`);
     }
 
     const data = await response.json();
-    const aiResponse = data.choices[0].message.content;
+    const aiResponse = data.candidates[0].content.parts[0].text;
 
     // Add compliance footer for investment-related responses
     const hasInvestmentContent = /invest|stock|bond|portfolio|market|trading|financial|money|fund|ETF|401k|IRA|retirement/i.test(aiResponse);
