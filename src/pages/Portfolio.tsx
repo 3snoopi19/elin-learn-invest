@@ -238,19 +238,19 @@ const Portfolio = () => {
     <div className="min-h-screen bg-background">
       <Header />
       
-      <main className="container mx-auto px-4 py-8">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-8">
+      <main className="mobile-container mobile-content">
+        {/* Header - Mobile optimized */}
+        <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 md:mb-8 gap-4">
           <div>
-            <h1 className="text-3xl font-bold mb-2">Portfolio Tracker</h1>
-            <p className="text-muted-foreground">
+            <h1 className="text-2xl md:text-3xl font-bold mb-2">Portfolio Tracker</h1>
+            <p className="text-muted-foreground text-sm md:text-base">
               Track your investments and learn about diversification
             </p>
           </div>
           
           <Dialog open={addDialogOpen} onOpenChange={setAddDialogOpen}>
             <DialogTrigger asChild>
-               <Button className="bg-success hover:bg-primary-hover text-white">
+               <Button className="bg-success hover:bg-primary-hover text-white mobile-button w-full md:w-auto">
                 <Plus className="h-4 w-4 mr-2" />
                 Add Holding
               </Button>
@@ -364,68 +364,68 @@ const Portfolio = () => {
         </Alert>
 
         {holdings.length === 0 ? (
-          <Card>
-            <CardContent className="text-center py-12">
-              <TrendingUp className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-              <h3 className="text-lg font-semibold mb-2 text-text-heading">Your portfolio is empty—connect a broker or add a holding</h3>
-              <p className="text-text-secondary mb-4">
-                Add your first holding to begin learning about portfolio management and diversification. This is a safe educational environment to practice investment concepts.
+          <Card className="mobile-card">
+            <CardContent className="text-center py-8 md:py-12 mobile-padding">
+              <TrendingUp className="h-10 w-10 md:h-12 md:w-12 mx-auto text-muted-foreground mb-4" />
+              <h3 className="text-base md:text-lg font-semibold mb-2 text-text-heading">Your portfolio is empty</h3>
+              <p className="text-text-secondary mb-4 text-sm md:text-base">
+                Add your first holding to begin learning about portfolio management and diversification.
               </p>
-              <Button onClick={() => setAddDialogOpen(true)} className="bg-primary hover:bg-primary-hover text-primary-foreground">
+              <Button onClick={() => setAddDialogOpen(true)} className="bg-primary hover:bg-primary-hover text-primary-foreground mobile-button w-full md:w-auto">
                 <Plus className="h-4 w-4 mr-2" />
                 Add Your First Holding
               </Button>
             </CardContent>
           </Card>
         ) : (
-          <div className="space-y-6">
-            {/* Portfolio Summary */}
-            <div className="grid md:grid-cols-4 gap-4">
-              <Card>
-                <CardHeader className="pb-2">
+          <div className="space-y-4 md:space-y-6">
+            {/* Portfolio Summary - Mobile responsive grid */}
+            <div className="mobile-grid gap-3 md:gap-4">
+              <Card className="mobile-card">
+                <CardHeader className="pb-2 mobile-padding">
                   <CardTitle className="text-sm font-medium flex items-center">
                     <DollarSign className="h-4 w-4 mr-1" />
                     Total Value
                   </CardTitle>
                 </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">
+                <CardContent className="mobile-padding">
+                  <div className="text-xl md:text-2xl font-bold">
                     ${metrics.totalValue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                   </div>
                 </CardContent>
               </Card>
               
-              <Card>
-                <CardHeader className="pb-2">
+              <Card className="mobile-card">
+                <CardHeader className="pb-2 mobile-padding">
                   <CardTitle className="text-sm font-medium">Total Cost</CardTitle>
                 </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">
+                <CardContent className="mobile-padding">
+                  <div className="text-xl md:text-2xl font-bold">
                     ${metrics.totalCost.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                   </div>
                 </CardContent>
               </Card>
               
-              <Card>
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-sm font-medium">Total Gain/Loss</CardTitle>
+              <Card className="mobile-card">
+                <CardHeader className="pb-2 mobile-padding">
+                  <CardTitle className="text-sm font-medium">Gain/Loss</CardTitle>
                 </CardHeader>
-                <CardContent>
-                  <div className={`text-2xl font-bold ${metrics.totalGainLoss >= 0 ? 'text-success' : 'text-destructive'}`}>
+                <CardContent className="mobile-padding">
+                  <div className={`text-xl md:text-2xl font-bold ${metrics.totalGainLoss >= 0 ? 'text-success' : 'text-destructive'}`}>
                     ${Math.abs(metrics.totalGainLoss).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                   </div>
                 </CardContent>
               </Card>
               
-              <Card>
-                <CardHeader className="pb-2">
+              <Card className="mobile-card">
+                <CardHeader className="pb-2 mobile-padding">
                   <CardTitle className="text-sm font-medium flex items-center">
                     <Percent className="h-4 w-4 mr-1" />
                     Return %
                   </CardTitle>
                 </CardHeader>
-                <CardContent>
-                  <div className={`text-2xl font-bold ${metrics.totalGainLossPercent >= 0 ? 'text-success' : 'text-destructive'}`}>
+                <CardContent className="mobile-padding">
+                  <div className={`text-xl md:text-2xl font-bold ${metrics.totalGainLossPercent >= 0 ? 'text-success' : 'text-destructive'}`}>
                     {metrics.totalGainLossPercent >= 0 ? '+' : ''}{metrics.totalGainLossPercent.toFixed(2)}%
                   </div>
                 </CardContent>

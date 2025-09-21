@@ -330,21 +330,21 @@ const Chat = () => {
     <div className="min-h-screen bg-background flex flex-col">
       <Header />
       
-      <main className="flex-1 container mx-auto px-4 py-8 max-w-6xl">
-        {/* Header */}
-        <div className="mb-6">
-          <div className="flex items-center justify-between">
+      <main className="flex-1 mobile-container mobile-content">
+        {/* Header - Mobile optimized */}
+        <div className="mb-4 md:mb-6">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
               <div className="flex items-center space-x-3 mb-2">
                 <div className="relative">
-                  <Bot className="h-8 w-8 text-education" />
-                  <Sparkles className="h-4 w-4 text-education absolute -top-1 -right-1" />
+                  <Bot className="h-6 w-6 md:h-8 md:w-8 text-education" />
+                  <Sparkles className="h-3 w-3 md:h-4 md:w-4 text-education absolute -top-1 -right-1" />
                 </div>
                 <div>
-                  <h1 className="text-3xl font-bold bg-gradient-to-r from-education to-primary bg-clip-text text-transparent">
+                  <h1 className="text-xl md:text-3xl font-bold bg-gradient-to-r from-education to-primary bg-clip-text text-transparent">
                     ELIN Learning Assistant
                   </h1>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-xs md:text-sm text-muted-foreground">
                     Enhanced Learning Investment Navigator • AI-Powered Education
                   </p>
                 </div>
@@ -355,26 +355,26 @@ const Chat = () => {
                 variant="outline" 
                 size="sm"
                 onClick={() => setShowProgress(!showProgress)}
-                className="gap-2"
+                className="gap-2 mobile-button"
               >
                 <BookOpen className="w-4 h-4" />
-                Progress
+                <span className="hidden sm:inline">Progress</span>
               </Button>
               <Button 
                 variant="outline" 
                 size="sm"
                 onClick={() => setShowPersonalization(!showPersonalization)}
-                className="gap-2"
+                className="gap-2 mobile-button"
               >
                 <Settings2 className="w-4 h-4" />
-                Settings
+                <span className="hidden sm:inline">Settings</span>
               </Button>
             </div>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-          {/* Sidebar */}
+        <div className="mobile-grid gap-4 md:gap-6">
+          {/* Sidebar - Collapsible on mobile */}
           <div className="lg:col-span-1 space-y-4">
             {/* Progress Tracker */}
             <ProgressTracker 
@@ -391,7 +391,7 @@ const Chat = () => {
               onToggle={() => setShowPersonalization(!showPersonalization)}
             />
 
-            {/* Compliance Notice */}
+            {/* Compliance Notice - Compact on mobile */}
             <Alert className="border-warning/20 bg-warning/5">
               <AlertCircle className="h-4 w-4 text-warning" />
               <AlertDescription className="text-xs">
@@ -404,8 +404,8 @@ const Chat = () => {
           <div className="lg:col-span-3">
             {/* Learning Mode Selector */}
             {messages.length <= 1 && (
-              <div className="mb-6">
-                <h3 className="text-lg font-medium mb-4">Choose Your Learning Mode</h3>
+              <div className="mb-4 md:mb-6">
+                <h3 className="text-base md:text-lg font-medium mb-4">Choose Your Learning Mode</h3>
                 <LearningModeSelector 
                   onModeSelect={handleModeSelect}
                   currentMode={currentMode}
@@ -413,22 +413,22 @@ const Chat = () => {
               </div>
             )}
 
-            {/* Chat Container */}
-            <Card className="flex-1">
-              <CardHeader className="pb-4">
+            {/* Chat Container - Mobile optimized */}
+            <Card className="flex-1 mobile-card">
+              <CardHeader className="pb-3 md:pb-4">
                 <CardTitle className="flex items-center justify-between">
                   <div className="flex items-center space-x-2">
-                    <BookOpen className="h-5 w-5 text-education" />
-                    <span>Interactive Learning Chat</span>
+                    <BookOpen className="h-4 w-4 md:h-5 md:w-5 text-education" />
+                    <span className="text-sm md:text-base">Interactive Learning Chat</span>
                   </div>
                   <div className="text-xs text-muted-foreground">
                     Mode: <span className="capitalize text-education font-medium">{currentMode.replace('-', ' ')}</span>
                   </div>
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
-                {/* Messages */}
-                <div className="min-h-[500px] max-h-[600px] overflow-y-auto space-y-6 p-4 bg-gradient-to-b from-muted/10 to-muted/5 rounded-lg">
+              <CardContent className="space-y-3 md:space-y-4">
+                {/* Messages - Mobile optimized scrolling */}
+                <div className="min-h-[400px] md:min-h-[500px] max-h-[500px] md:max-h-[600px] overflow-y-auto space-y-4 md:space-y-6 p-3 md:p-4 bg-gradient-to-b from-muted/10 to-muted/5 rounded-lg">
                   {messages.map((message) => (
                     <ChatMessage 
                       key={message.id} 
@@ -438,11 +438,11 @@ const Chat = () => {
                   ))}
                   
                   {isTyping && (
-                    <div className="flex gap-3 max-w-[85%]">
-                      <div className="w-8 h-8 rounded-full bg-gradient-to-br from-education to-education/80 flex items-center justify-center">
-                        <Bot className="w-4 h-4 text-white" />
+                    <div className="flex gap-2 md:gap-3 max-w-[85%]">
+                      <div className="w-6 h-6 md:w-8 md:h-8 rounded-full bg-gradient-to-br from-education to-education/80 flex items-center justify-center">
+                        <Bot className="w-3 h-3 md:w-4 md:h-4 text-white" />
                       </div>
-                      <div className="bg-card border border-border/50 rounded-2xl rounded-bl-sm p-4 shadow-sm">
+                      <div className="bg-card border border-border/50 rounded-2xl rounded-bl-sm p-3 md:p-4 shadow-sm">
                         <div className="flex space-x-1">
                           <div className="w-2 h-2 bg-education rounded-full animate-bounce"></div>
                           <div className="w-2 h-2 bg-education rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
@@ -461,8 +461,8 @@ const Chat = () => {
                   isVisible={showQuickReplies && !isTyping && messages.length > 1}
                 />
 
-                {/* Voice Interface and Input */}
-                <div className="space-y-3 p-4 border-t border-border/30">
+                {/* Voice Interface and Input - Mobile optimized */}
+                <div className="space-y-2 md:space-y-3 p-3 md:p-4 border-t border-border/30">
                   <VoiceInterface 
                     onVoiceInput={(text) => handleSendMessage(text)}
                     isListening={isTyping}
@@ -473,8 +473,8 @@ const Chat = () => {
                       value={inputValue}
                       onChange={(e) => setInputValue(e.target.value)}
                       onKeyPress={handleKeyPress}
-                      placeholder="Ask about investing, request a lesson, or try 'Show me a chart about portfolio diversification'..."
-                      className="flex-1 bg-background border-border/50 focus:border-education focus:ring-education"
+                      placeholder="Ask about investing or request a lesson..."
+                      className="flex-1 bg-background border-border/50 focus:border-education focus:ring-education text-sm md:text-base"
                       maxLength={2000}
                       aria-label="Type your message to ELIN"
                     />
@@ -482,7 +482,8 @@ const Chat = () => {
                       onClick={() => handleSendMessage()} 
                       disabled={!inputValue.trim() || isTyping}
                       aria-label="Send message"
-                      className="bg-education hover:bg-education/90"
+                      className="bg-education hover:bg-education/90 mobile-button min-w-[44px]"
+                      size="sm"
                     >
                       <Send className="h-4 w-4" />
                     </Button>

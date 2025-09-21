@@ -19,18 +19,18 @@ All colors MUST be HSL.
     --popover: 220 13% 11%;
     --popover-foreground: 220 9% 97%;
     
-    /* Brand color palette - growth and info signals */
-    --primary: 142 76% 36%;             /* Growth green #16a34a */
-    --primary-foreground: 0 0% 100%;    /* White text on green */
-    --primary-hover: 142 76% 32%;       /* Darker green on hover */
+    /* Brand color palette - blue primary theme */
+    --primary: 217 91% 60%;             /* Primary blue #3b82f6 */
+    --primary-foreground: 0 0% 100%;    /* White text on blue */
+    --primary-hover: 217 91% 55%;       /* Darker blue on hover */
     
-    /* Info/links blue */
-    --secondary: 217 91% 60%;           /* Info blue #3b82f6 */
-    --secondary-foreground: 0 0% 100%;  /* White text on blue */
+    /* Secondary green for success states */
+    --secondary: 142 76% 36%;           /* Success green #16a34a */
+    --secondary-foreground: 0 0% 100%;  /* White text on green */
     
     /* Success/financial green variations */
-    --success: 134 61% 41%;
-    --success-foreground: 220 9% 97%;
+    --success: 142 76% 36%;
+    --success-foreground: 0 0% 100%;
     
     /* Warning for risk indicators */
     --warning: 38 92% 50%;
@@ -38,7 +38,7 @@ All colors MUST be HSL.
     
     /* Educational blue accents */
     --education: 217 91% 60%;
-    --education-foreground: 220 9% 97%;
+    --education-foreground: 0 0% 100%;
     
     /* Text hierarchy tokens - optimized for light background */
     --text-heading: 220 13% 9%;        /* Dark text for headings */
@@ -47,17 +47,17 @@ All colors MUST be HSL.
     --text-muted: 220 9% 55%;          /* Light gray for muted text */
     --text-emphasis: 220 13% 9%;       /* Pure dark for emphasis */
     
-    /* Progress bar colors - neon themed */
-    --progress-completed: 142 76% 36%;
-    --progress-in-progress: 217 91% 60%;
+    /* Progress bar colors - blue themed */
+    --progress-completed: 217 91% 60%;
+    --progress-in-progress: 142 76% 36%;
     --progress-remaining: 220 13% 20%;
     
-    /* Portfolio colors - neon palette */
-    --portfolio-stocks: 142 76% 36%;    /* Neon green */
-    --portfolio-bonds: 217 91% 60%;     /* Neon blue */
-    --portfolio-cash: 38 92% 50%;       /* Neon orange */
-    --portfolio-crypto: 180 100% 50%;   /* Neon teal */
-    --portfolio-alternatives: 270 91% 65%; /* Neon purple */
+    /* Portfolio colors - blue primary palette */
+    --portfolio-stocks: 217 91% 60%;    /* Primary blue */
+    --portfolio-bonds: 142 76% 36%;     /* Success green */
+    --portfolio-cash: 38 92% 50%;       /* Warning orange */
+    --portfolio-crypto: 180 100% 50%;   /* Accent teal */
+    --portfolio-alternatives: 270 91% 65%; /* Purple */
     
     /* Additional neon accents */
     --accent: 180 100% 50%;             /* Neon teal #00ffff */
@@ -71,18 +71,18 @@ All colors MUST be HSL.
     
     --border: 0 0% 20%;              /* Dark borders for black theme */
     --input: 0 0% 100%;
-    --ring: 142 76% 36%;                /* Focus ring green */
+    --ring: 217 91% 60%;                /* Focus ring blue */
     --radius: 0.75rem;
     
     /* Sidebar - dark themed */
     --sidebar-background: 220 13% 9%;
     --sidebar-foreground: 220 9% 97%;
-    --sidebar-primary: 142 76% 36%;
-    --sidebar-primary-foreground: 220 9% 97%;
+    --sidebar-primary: 217 91% 60%;
+    --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 220 13% 15%;
     --sidebar-accent-foreground: 220 9% 97%;
     --sidebar-border: 220 13% 18%;
-    --sidebar-ring: 142 76% 36%;
+    --sidebar-ring: 217 91% 60%;
     
     /* Custom neon glow variables */
     --glow-green: 0 0 20px rgba(22, 163, 74, 0.4);
@@ -99,9 +99,9 @@ All colors MUST be HSL.
     --card-foreground: 220 9% 97%;
     --popover: 220 13% 11%;
     --popover-foreground: 220 9% 97%;
-    --primary: 142 76% 36%;
+    --primary: 217 91% 60%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 217 91% 60%;
+    --secondary: 142 76% 36%;
     --secondary-foreground: 0 0% 100%;
     --muted: 220 13% 15%;
     --muted-foreground: 220 9% 70%;
@@ -111,15 +111,15 @@ All colors MUST be HSL.
     --destructive-foreground: 0 0% 100%;
     --border: 220 13% 18%;
     --input: 220 13% 15%;
-    --ring: 142 76% 36%;
+    --ring: 217 91% 60%;
     --sidebar-background: 220 13% 9%;
     --sidebar-foreground: 220 9% 97%;
-    --sidebar-primary: 142 76% 36%;
+    --sidebar-primary: 217 91% 60%;
     --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 220 13% 15%;
     --sidebar-accent-foreground: 220 9% 97%;
     --sidebar-border: 220 13% 18%;
-    --sidebar-ring: 142 76% 36%;
+    --sidebar-ring: 217 91% 60%;
   }
 }
 
