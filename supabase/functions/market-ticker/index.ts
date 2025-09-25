@@ -102,7 +102,7 @@ serve(async (req) => {
         price: 0,
         changePct: 0,
         direction: 'unchanged' as const,
-        error: error.message
+        error: error instanceof Error ? error.message : 'Unknown error'
       }))
     );
 
@@ -132,7 +132,7 @@ serve(async (req) => {
     return new Response(
       JSON.stringify({ 
         error: 'Internal server error',
-        message: error.message 
+        message: error instanceof Error ? error.message : 'Unknown error'
       }), 
       {
         status: 500,
