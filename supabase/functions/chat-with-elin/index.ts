@@ -1,7 +1,7 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
-const googleApiKey = 'AIzaSyBouoO_F7Yc09rSV4J0MNgsFEEnMw7Hv50';
+const googleApiKey = 'AIzaSyD9TMw74VfG2Rw1_sUTAnFNvwENdkgk0iU';
 console.log('Google AI API Key available:', !!googleApiKey);
 
 const corsHeaders = {
