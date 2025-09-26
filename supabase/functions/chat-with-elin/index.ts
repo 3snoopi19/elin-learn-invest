@@ -16,6 +16,8 @@ serve(async (req) => {
 
   try {
     const { message } = await req.json();
+    
+    console.log('Received message:', message);
 
     const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${googleApiKey}`, {
       method: 'POST',
@@ -58,6 +60,8 @@ User message: ${message}`
     if (!response.ok) {
       const errorText = await response.text();
       console.error('Google AI API error response:', errorText);
+      console.error('Response status:', response.status);
+      console.error('Response headers:', Object.fromEntries(response.headers.entries()));
       throw new Error(`Google AI API error: ${response.status} - ${errorText}`);
     }
 
