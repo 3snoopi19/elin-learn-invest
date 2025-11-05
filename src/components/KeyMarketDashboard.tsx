@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { createChart, ColorType, IChartApi } from 'lightweight-charts';
+import { createChart, ColorType, IChartApi, AreaSeries } from 'lightweight-charts';
 
 interface ChartConfig {
   title: string;
@@ -39,13 +39,12 @@ const ChartWidget = ({ title, symbol, color }: ChartConfig) => {
       },
     });
 
-    const series = chart.addSeries({
-      type: 'Area',
+    const series = chart.addSeries(AreaSeries, {
       lineColor: color,
       topColor: color + '80',
       bottomColor: color + '00',
       lineWidth: 2,
-    } as any);
+    });
 
     chartRef.current = chart;
     seriesRef.current = series;
