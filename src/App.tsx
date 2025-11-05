@@ -31,6 +31,7 @@ import CreditCoachV2 from "./pages/CreditCoachV2";
 import MoneyFlowPage from "./pages/MoneyFlow";
 import Router from "./pages/Router";
 import ProMode from "./pages/ProMode";
+import MarketDashboard from "./pages/MarketDashboard";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -64,6 +65,7 @@ const AppContent = () => {
         <Route path="/credit-coach" element={<CreditCoachV2 />} />
         <Route path="/money-flow" element={<MoneyFlowPage />} />
         <Route path="/router" element={<Router />} />
+        <Route path="/market-dashboard" element={<MarketDashboard />} />
         {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
         <Route path="*" element={<NotFound />} />
       </Routes>
