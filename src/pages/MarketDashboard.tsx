@@ -1,7 +1,7 @@
-import { KeyMarketDashboard } from "@/components/KeyMarketDashboard";
+import { GlobalMacroDashboard } from "@/components/GlobalMacroDashboard";
 
 const MarketDashboard = () => {
-  return <KeyMarketDashboard />;
+  return <GlobalMacroDashboard />;
 };
 
 export default MarketDashboard;
