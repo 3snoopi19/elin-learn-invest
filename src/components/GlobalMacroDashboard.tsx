@@ -2,8 +2,9 @@ import { useState, useEffect, useRef } from 'react';
 import { createChart, ColorType, IChartApi, LineSeries, LineData } from 'lightweight-charts';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { TrendingUp, TrendingDown } from 'lucide-react';
+import { TrendingUp, TrendingDown, Sun, Moon } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useTheme } from 'next-themes';
 
 interface Asset {
   id: string;
@@ -35,8 +36,31 @@ const TIME_PERIODS = [
   { label: '1Y', days: 365 }
 ];
 
-// Generate realistic time series data
-const generateTimeSeriesData = (assetId: string, days: number): TimeSeriesData[] => {
+// Fetch live Bitcoin data from CoinGecko
+const fetchBitcoinData = async (days: number): Promise<TimeSeriesData[]> => {
+  try {
+    const response = await fetch(
+      `https://api.coingecko.com/api/v3/coins/bitcoin/market_chart?vs_currency=usd&days=${days}&interval=daily`
+    );
+    const data = await response.json();
+    
+    if (data.prices && Array.isArray(data.prices)) {
+      return data.prices.map(([timestamp, price]: [number, number]) => ({
+        time: Math.floor(timestamp / 1000), // Convert to seconds
+        value: price
+      }));
+    }
+    
+    // Fallback to mock data if API fails
+    return generateMockTimeSeriesData('btc', days);
+  } catch (error) {
+    console.error('Failed to fetch Bitcoin data:', error);
+    return generateMockTimeSeriesData('btc', days);
+  }
+};
+
+// Generate realistic mock data for other assets
+const generateMockTimeSeriesData = (assetId: string, days: number): TimeSeriesData[] => {
   const data: TimeSeriesData[] = [];
   const now = Math.floor(Date.now() / 1000);
   const basePrice = assetId === 'btc' ? 45000 : 
@@ -54,6 +78,15 @@ const generateTimeSeriesData = (assetId: string, days: number): TimeSeriesData[]
   }
   
   return data;
+};
+
+// Simulate API fetch for mock data (makes it easy to add real APIs later)
+const fetchMockAssetData = async (assetId: string, days: number): Promise<TimeSeriesData[]> => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve(generateMockTimeSeriesData(assetId, days));
+    }, 100); // Small delay to simulate network request
+  });
 };
 
 // Normalize data to percentage change from start
@@ -143,10 +176,12 @@ const AssetCard = ({
 };
 
 export const GlobalMacroDashboard = () => {
+  const { theme, setTheme } = useTheme();
   const [selectedPeriod, setSelectedPeriod] = useState(TIME_PERIODS[2]); // Default to 1M
   const [primaryAsset, setPrimaryAsset] = useState(ASSETS[0]); // Default to BTC
   const [comparisonAssets, setComparisonAssets] = useState<Asset[]>([]);
   const [correlation, setCorrelation] = useState<number | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
   
   const chartContainerRef = useRef<HTMLDivElement>(null);
   const chartRef = useRef<IChartApi | null>(null);
@@ -210,66 +245,87 @@ export const GlobalMacroDashboard = () => {
     seriesRefs.current.forEach(series => chart.removeSeries(series));
     seriesRefs.current.clear();
 
-    // Generate data
-    const days = selectedPeriod.days || 365;
-    const primaryData = generateTimeSeriesData(primaryAsset.id, days);
-    const comparisonData = comparisonAssets.map(asset => ({
-      asset,
-      data: generateTimeSeriesData(asset.id, days)
-    }));
+    // Fetch data with live Bitcoin and mock data for others
+    const loadChartData = async () => {
+      setIsLoading(true);
+      try {
+        const days = selectedPeriod.days || 365;
+        
+        // Fetch primary asset data
+        const primaryData = primaryAsset.id === 'btc' 
+          ? await fetchBitcoinData(days)
+          : await fetchMockAssetData(primaryAsset.id, days);
+        
+        // Fetch comparison assets data
+        const comparisonDataPromises = comparisonAssets.map(async asset => ({
+          asset,
+          data: asset.id === 'btc' 
+            ? await fetchBitcoinData(days)
+            : await fetchMockAssetData(asset.id, days)
+        }));
+        
+        const comparisonData = await Promise.all(comparisonDataPromises);
 
-    // Determine if we need percentage view
-    const usePercentage = comparisonAssets.length > 0;
+        // Determine if we need percentage view
+        const usePercentage = comparisonAssets.length > 0;
 
-    if (usePercentage) {
-      // Normalize all data to percentage
-      const normalizedPrimary = normalizeToPercentage(primaryData);
-      
-      // Add primary series
-      const primarySeries = chart.addSeries(LineSeries, {
-        color: primaryAsset.color,
-        lineWidth: 3,
-        title: primaryAsset.name,
-      });
-      primarySeries.setData(normalizedPrimary as LineData[]);
-      seriesRefs.current.set(primaryAsset.id, primarySeries);
+        if (usePercentage) {
+          // Normalize all data to percentage
+          const normalizedPrimary = normalizeToPercentage(primaryData);
+          
+          // Add primary series
+          const primarySeries = chart.addSeries(LineSeries, {
+            color: primaryAsset.color,
+            lineWidth: 3,
+            title: primaryAsset.name,
+          });
+          primarySeries.setData(normalizedPrimary as LineData[]);
+          seriesRefs.current.set(primaryAsset.id, primarySeries);
 
-      // Add comparison series and calculate correlation
-      comparisonData.forEach(({ asset, data }) => {
-        const normalizedData = normalizeToPercentage(data);
-        const series = chart.addSeries(LineSeries, {
-          color: asset.color,
-          lineWidth: 2,
-          title: asset.name,
-        });
-        series.setData(normalizedData as LineData[]);
-        seriesRefs.current.set(asset.id, series);
+          // Add comparison series and calculate correlation
+          comparisonData.forEach(({ asset, data }) => {
+            const normalizedData = normalizeToPercentage(data);
+            const series = chart.addSeries(LineSeries, {
+              color: asset.color,
+              lineWidth: 2,
+              title: asset.name,
+            });
+            series.setData(normalizedData as LineData[]);
+            seriesRefs.current.set(asset.id, series);
 
-        // Calculate correlation with primary
-        const corr = calculateCorrelation(normalizedPrimary, normalizedData);
-        setCorrelation(corr);
-      });
+            // Calculate correlation with primary
+            const corr = calculateCorrelation(normalizedPrimary, normalizedData);
+            setCorrelation(corr);
+          });
 
-      // Update y-axis label
-      chart.applyOptions({
-        rightPriceScale: {
-          scaleMargins: { top: 0.1, bottom: 0.1 },
-        },
-      });
-    } else {
-      // Show absolute price
-      const primarySeries = chart.addSeries(LineSeries, {
-        color: primaryAsset.color,
-        lineWidth: 3,
-        title: primaryAsset.name,
-      });
-      primarySeries.setData(primaryData as LineData[]);
-      seriesRefs.current.set(primaryAsset.id, primarySeries);
-      
-      setCorrelation(null);
-    }
+          // Update y-axis label
+          chart.applyOptions({
+            rightPriceScale: {
+              scaleMargins: { top: 0.1, bottom: 0.1 },
+            },
+          });
+        } else {
+          // Show absolute price
+          const primarySeries = chart.addSeries(LineSeries, {
+            color: primaryAsset.color,
+            lineWidth: 3,
+            title: primaryAsset.name,
+          });
+          primarySeries.setData(primaryData as LineData[]);
+          seriesRefs.current.set(primaryAsset.id, primarySeries);
+          
+          setCorrelation(null);
+        }
 
-    chart.timeScale().fitContent();
+        chart.timeScale().fitContent();
+      } catch (error) {
+        console.error('Error loading chart data:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadChartData();
 
     // Handle resize
     const handleResize = () => {
@@ -299,18 +355,32 @@ export const GlobalMacroDashboard = () => {
             <p className="text-muted-foreground mt-1">Track correlations between key market assets</p>
           </div>
           
-          {/* Time Period Selector */}
-          <div className="flex gap-2">
-            {TIME_PERIODS.map(period => (
-              <Button
-                key={period.label}
-                variant={selectedPeriod.label === period.label ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => setSelectedPeriod(period)}
-              >
-                {period.label}
-              </Button>
-            ))}
+          <div className="flex items-center gap-3">
+            {/* Time Period Selector */}
+            <div className="flex gap-2">
+              {TIME_PERIODS.map(period => (
+                <Button
+                  key={period.label}
+                  variant={selectedPeriod.label === period.label ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setSelectedPeriod(period)}
+                >
+                  {period.label}
+                </Button>
+              ))}
+            </div>
+            
+            {/* Dark Mode Toggle */}
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+              className="shrink-0"
+            >
+              <Sun className="h-5 w-5 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+              <Moon className="absolute h-5 w-5 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+              <span className="sr-only">Toggle theme</span>
+            </Button>
           </div>
         </div>
 
@@ -339,7 +409,16 @@ export const GlobalMacroDashboard = () => {
             )}
           </div>
           
-          <div ref={chartContainerRef} className="w-full" />
+          <div ref={chartContainerRef} className="w-full relative">
+            {isLoading && (
+              <div className="absolute inset-0 flex items-center justify-center bg-background/50 backdrop-blur-sm rounded-lg">
+                <div className="flex items-center gap-2 text-muted-foreground">
+                  <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+                  <span>Loading data...</span>
+                </div>
+              </div>
+            )}
+          </div>
           
           {comparisonAssets.length > 0 && (
             <div className="mt-4 flex items-center gap-4">
@@ -381,6 +460,9 @@ export const GlobalMacroDashboard = () => {
           <p className="text-sm text-muted-foreground">
             <strong>Tip:</strong> Click any asset card below the chart to overlay it and see the correlation. 
             The chart automatically switches to percentage view to enable true performance comparison.
+            {primaryAsset.id === 'btc' && (
+              <span className="ml-2 text-primary">• Bitcoin data is live from CoinGecko</span>
+            )}
           </p>
         </div>
       </div>
