@@ -2,9 +2,8 @@ import { useState, useEffect, useRef } from 'react';
 import { createChart, ColorType, IChartApi, LineSeries, LineData } from 'lightweight-charts';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { TrendingUp, TrendingDown, Sun, Moon } from 'lucide-react';
+import { TrendingUp, TrendingDown } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { useTheme } from 'next-themes';
 
 interface Asset {
   id: string;
@@ -141,33 +140,32 @@ const AssetCard = ({
     <button
       onClick={onClick}
       className={cn(
-        "min-w-[200px] p-4 rounded-lg border transition-all",
-        "hover:shadow-lg hover:scale-105",
+        "flex-1 min-w-[140px] p-3 rounded-lg border transition-all active:scale-95",
         isSelected 
           ? "bg-primary/10 border-primary shadow-md" 
           : "bg-card border-border"
       )}
     >
-      <div className="flex items-start justify-between mb-2">
+      <div className="flex items-start justify-between mb-1.5">
         <div>
-          <h3 className="font-semibold text-left text-foreground">{asset.name}</h3>
-          <p className="text-xs text-muted-foreground text-left">{asset.symbol}</p>
+          <h3 className="font-semibold text-left text-foreground text-sm">{asset.name}</h3>
+          <p className="text-[10px] text-muted-foreground text-left">{asset.symbol}</p>
         </div>
         <div 
-          className="w-3 h-3 rounded-full" 
+          className="w-2.5 h-2.5 rounded-full shrink-0" 
           style={{ backgroundColor: asset.color }}
         />
       </div>
       
-      <div className="flex items-baseline gap-2">
-        <span className="text-xl font-bold text-foreground">
+      <div className="flex items-baseline gap-1.5">
+        <span className="text-base font-bold text-foreground">
           ${asset.currentPrice.toLocaleString()}
         </span>
         <div className={cn(
-          "flex items-center gap-1 text-sm font-medium",
+          "flex items-center gap-0.5 text-xs font-medium",
           isPositive ? "text-success" : "text-destructive"
         )}>
-          {isPositive ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
+          {isPositive ? <TrendingUp className="w-2.5 h-2.5" /> : <TrendingDown className="w-2.5 h-2.5" />}
           {Math.abs(asset.change24h)}%
         </div>
       </div>
@@ -176,7 +174,6 @@ const AssetCard = ({
 };
 
 export const GlobalMacroDashboard = () => {
-  const { theme, setTheme } = useTheme();
   const [selectedPeriod, setSelectedPeriod] = useState(TIME_PERIODS[2]); // Default to 1M
   const [primaryAsset, setPrimaryAsset] = useState(ASSETS[0]); // Default to BTC
   const [comparisonAssets, setComparisonAssets] = useState<Asset[]>([]);
@@ -215,7 +212,7 @@ export const GlobalMacroDashboard = () => {
           horzLines: { color: 'hsl(var(--border) / 0.1)' },
         },
         width: chartContainerRef.current.clientWidth,
-        height: 500,
+        height: 350,
         rightPriceScale: {
           borderVisible: false,
         },
@@ -347,60 +344,47 @@ export const GlobalMacroDashboard = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="max-w-[1600px] mx-auto p-6 space-y-6">
+      <div className="mx-auto p-4 space-y-4 pb-safe">
         {/* Header */}
-        <div className="flex items-center justify-between">
+        <div className="space-y-3">
           <div>
-            <h1 className="text-4xl font-bold text-foreground">Global Macro Dashboard</h1>
-            <p className="text-muted-foreground mt-1">Track correlations between key market assets</p>
+            <h1 className="text-2xl font-bold text-foreground">Global Macro</h1>
+            <p className="text-sm text-muted-foreground">Track asset correlations</p>
           </div>
           
-          <div className="flex items-center gap-3">
-            {/* Time Period Selector */}
-            <div className="flex gap-2">
-              {TIME_PERIODS.map(period => (
-                <Button
-                  key={period.label}
-                  variant={selectedPeriod.label === period.label ? 'default' : 'outline'}
-                  size="sm"
-                  onClick={() => setSelectedPeriod(period)}
-                >
-                  {period.label}
-                </Button>
-              ))}
-            </div>
-            
-            {/* Dark Mode Toggle */}
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-              className="shrink-0"
-            >
-              <Sun className="h-5 w-5 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-              <Moon className="absolute h-5 w-5 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
-              <span className="sr-only">Toggle theme</span>
-            </Button>
+          {/* Time Period Selector */}
+          <div className="flex gap-2 overflow-x-auto pb-1">
+            {TIME_PERIODS.map(period => (
+              <Button
+                key={period.label}
+                variant={selectedPeriod.label === period.label ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setSelectedPeriod(period)}
+                className="shrink-0"
+              >
+                {period.label}
+              </Button>
+            ))}
           </div>
         </div>
 
         {/* Focus Chart */}
-        <div className="relative bg-card rounded-xl border border-border p-6 shadow-lg">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-3">
+        <div className="relative bg-card rounded-lg border border-border p-3 shadow-lg">
+          <div className="space-y-2 mb-3">
+            <div className="flex items-center gap-2">
               <div 
-                className="w-4 h-4 rounded-full" 
+                className="w-3 h-3 rounded-full" 
                 style={{ backgroundColor: primaryAsset.color }}
               />
-              <h2 className="text-2xl font-bold text-foreground">{primaryAsset.name}</h2>
-              <span className="text-muted-foreground">{primaryAsset.symbol}</span>
+              <h2 className="text-lg font-bold text-foreground">{primaryAsset.name}</h2>
+              <span className="text-xs text-muted-foreground">{primaryAsset.symbol}</span>
             </div>
             
             {correlation !== null && (
-              <Badge variant="outline" className="text-sm px-4 py-2">
-                <span className="font-semibold">Correlation ({selectedPeriod.label}):</span>
+              <Badge variant="outline" className="text-xs px-2 py-1">
+                <span className="font-semibold">Corr ({selectedPeriod.label}):</span>
                 <span className={cn(
-                  "ml-2 font-bold",
+                  "ml-1.5 font-bold",
                   Math.abs(correlation) > 0.7 ? "text-primary" : "text-muted-foreground"
                 )}>
                   {correlation.toFixed(2)}
@@ -411,26 +395,26 @@ export const GlobalMacroDashboard = () => {
           
           <div ref={chartContainerRef} className="w-full relative">
             {isLoading && (
-              <div className="absolute inset-0 flex items-center justify-center bg-background/50 backdrop-blur-sm rounded-lg">
-                <div className="flex items-center gap-2 text-muted-foreground">
-                  <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-                  <span>Loading data...</span>
+              <div className="absolute inset-0 flex items-center justify-center bg-background/50 backdrop-blur-sm rounded-lg z-10">
+                <div className="flex items-center gap-2 text-muted-foreground text-sm">
+                  <div className="w-3 h-3 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+                  <span>Loading...</span>
                 </div>
               </div>
             )}
           </div>
           
           {comparisonAssets.length > 0 && (
-            <div className="mt-4 flex items-center gap-4">
-              <span className="text-sm text-muted-foreground">Comparing:</span>
-              <div className="flex gap-3">
+            <div className="mt-3 pt-3 border-t border-border">
+              <span className="text-xs text-muted-foreground block mb-2">Comparing with:</span>
+              <div className="flex gap-2 flex-wrap">
                 {comparisonAssets.map(asset => (
-                  <div key={asset.id} className="flex items-center gap-2">
+                  <div key={asset.id} className="flex items-center gap-1.5 bg-background/50 px-2 py-1 rounded">
                     <div 
-                      className="w-3 h-3 rounded-full" 
+                      className="w-2 h-2 rounded-full" 
                       style={{ backgroundColor: asset.color }}
                     />
-                    <span className="text-sm font-medium text-foreground">{asset.name}</span>
+                    <span className="text-xs font-medium text-foreground">{asset.name}</span>
                   </div>
                 ))}
               </div>
@@ -440,10 +424,10 @@ export const GlobalMacroDashboard = () => {
 
         {/* Comparison Panel */}
         <div>
-          <h3 className="text-lg font-semibold text-foreground mb-3">
-            {comparisonAssets.length === 0 ? 'Select an asset to compare' : 'Other Assets'}
+          <h3 className="text-sm font-semibold text-foreground mb-2">
+            {comparisonAssets.length === 0 ? 'Tap to compare' : 'Other Assets'}
           </h3>
-          <div className="flex gap-4 overflow-x-auto pb-2">
+          <div className="flex gap-2 overflow-x-auto pb-2">
             {availableAssets.map(asset => (
               <AssetCard
                 key={asset.id}
@@ -453,17 +437,6 @@ export const GlobalMacroDashboard = () => {
               />
             ))}
           </div>
-        </div>
-
-        {/* Info Panel */}
-        <div className="bg-card/50 rounded-lg border border-border p-4">
-          <p className="text-sm text-muted-foreground">
-            <strong>Tip:</strong> Click any asset card below the chart to overlay it and see the correlation. 
-            The chart automatically switches to percentage view to enable true performance comparison.
-            {primaryAsset.id === 'btc' && (
-              <span className="ml-2 text-primary">• Bitcoin data is live from CoinGecko</span>
-            )}
-          </p>
         </div>
       </div>
     </div>

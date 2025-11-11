@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { ThemeProvider } from "next-themes";
 import { BottomNavigation } from "@/components/mobile/BottomNavigation";
 import { FloatingChatButton } from "@/components/ui/FloatingChatButton";
 import { AccessibilityWrapper } from "@/components/ui/AccessibilityWrapper";
@@ -84,15 +85,17 @@ const AppContent = () => {
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <AuthProvider>
-        <BrowserRouter>
-          <AccessibilityWrapper>
-            <AppContent />
-          </AccessibilityWrapper>
-        </BrowserRouter>
-      </AuthProvider>
-    </TooltipProvider>
+    <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
+      <TooltipProvider>
+        <AuthProvider>
+          <BrowserRouter>
+            <AccessibilityWrapper>
+              <AppContent />
+            </AccessibilityWrapper>
+          </BrowserRouter>
+        </AuthProvider>
+      </TooltipProvider>
+    </ThemeProvider>
   </QueryClientProvider>
 );
 
