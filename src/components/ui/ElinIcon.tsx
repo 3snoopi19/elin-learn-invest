@@ -9,22 +9,22 @@ interface ElinIconProps {
 
 export const ElinIcon: React.FC<ElinIconProps> = ({ 
   className = '', 
-  size = 32,
+  size = 40,
   glowIntensity = 'medium'
 }) => {
   const glowStyles = {
     none: '',
-    subtle: 'drop-shadow-[0_0_4px_rgba(59,130,246,0.3)]',
-    medium: 'drop-shadow-[0_0_6px_rgba(59,130,246,0.5)]',
-    strong: 'drop-shadow-[0_0_8px_rgba(59,130,246,0.7)]'
+    subtle: 'drop-shadow-[0_1px_2px_rgba(0,0,0,0.1)]',
+    medium: 'drop-shadow-[0_2px_4px_rgba(0,0,0,0.15)]',
+    strong: 'drop-shadow-[0_4px_8px_rgba(0,0,0,0.2)]'
   };
 
   return (
     <img 
       src={elinLogo} 
       alt="ELIN Icon" 
-      className={`${glowStyles[glowIntensity]} ${className}`}
-      style={{ width: size, height: size, objectFit: 'contain' }}
+      className={`${glowStyles[glowIntensity]} ${className} transition-all duration-300`}
+      style={{ width: 'auto', height: size, maxWidth: size * 3, objectFit: 'contain' }}
     />
   );
 };
