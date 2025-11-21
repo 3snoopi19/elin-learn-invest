@@ -3,7 +3,8 @@ import { ElinLogo } from "@/components/ui/ElinLogo";
 import { MarketTicker } from "@/components/MarketTicker";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
-import { LogOut, User, Menu } from "lucide-react";
+import { LogOut, User, Menu, Sun, Moon } from "lucide-react";
+import { useTheme } from "next-themes";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -18,6 +19,7 @@ export const Header = () => {
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { theme, setTheme } = useTheme();
 
   const handleSignOut = async () => {
     await signOut();
@@ -116,6 +118,21 @@ export const Header = () => {
 
           {/* User Menu / Auth - Responsive */}
           <div className="flex items-center space-x-2 flex-shrink-0">
+            {/* Theme Toggle */}
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+              className="min-h-[44px] min-w-[44px]"
+              aria-label="Toggle theme"
+            >
+              {theme === "dark" ? (
+                <Sun className="h-5 w-5" />
+              ) : (
+                <Moon className="h-5 w-5" />
+              )}
+            </Button>
+            
             {user ? (
               <>
                 {/* Mobile Menu - Tablet/Medium screens */}
