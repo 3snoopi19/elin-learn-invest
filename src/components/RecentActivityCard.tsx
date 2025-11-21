@@ -25,8 +25,8 @@ const activityData = [
     description: "Adjusted allocation: +5% NVDA, -3% TSLA",
     timestamp: new Date(Date.now() - 1000 * 60 * 15), // 15 minutes ago
     icon: BarChart3,
-    iconColor: "text-emerald-400",
-    bgColor: "bg-emerald-500/10",
+    iconColor: "text-success",
+    bgColor: "bg-success/10",
     amount: "+$2,350"
   },
   {
@@ -36,8 +36,8 @@ const activityData = [
     description: "Market volatility increased, suggesting defensive positioning",
     timestamp: new Date(Date.now() - 1000 * 60 * 45), // 45 minutes ago
     icon: Brain,
-    iconColor: "text-cyan-400",
-    bgColor: "bg-cyan-500/10"
+    iconColor: "text-accent",
+    bgColor: "bg-accent/10"
   },
   {
     id: 3,
@@ -46,8 +46,8 @@ const activityData = [
     description: "Apple Inc. (AAPL) - Form 10-K Annual Report",
     timestamp: new Date(Date.now() - 1000 * 60 * 60 * 2), // 2 hours ago
     icon: FileText,
-    iconColor: "text-blue-400",
-    bgColor: "bg-blue-500/10"
+    iconColor: "text-primary",
+    bgColor: "bg-primary/10"
   },
   {
     id: 4,
@@ -56,8 +56,8 @@ const activityData = [
     description: "Tested \"Market Correction\" scenario with 85% confidence",
     timestamp: new Date(Date.now() - 1000 * 60 * 60 * 3), // 3 hours ago
     icon: Play,
-    iconColor: "text-purple-400",
-    bgColor: "bg-purple-500/10"
+    iconColor: "text-education",
+    bgColor: "bg-education/10"
   },
   {
     id: 5,
@@ -66,8 +66,8 @@ const activityData = [
     description: "Suggested increasing bond allocation for stability",
     timestamp: new Date(Date.now() - 1000 * 60 * 60 * 6), // 6 hours ago
     icon: Brain,
-    iconColor: "text-cyan-400",
-    bgColor: "bg-cyan-500/10"
+    iconColor: "text-accent",
+    bgColor: "bg-accent/10"
   },
   {
     id: 6,
@@ -76,8 +76,8 @@ const activityData = [
     description: "Microsoft Corp. (MSFT) - Q4 2024 Earnings Call",
     timestamp: new Date(Date.now() - 1000 * 60 * 60 * 8), // 8 hours ago
     icon: Eye,
-    iconColor: "text-blue-400",
-    bgColor: "bg-blue-500/10"
+    iconColor: "text-primary",
+    bgColor: "bg-primary/10"
   },
   {
     id: 7,
@@ -86,8 +86,8 @@ const activityData = [
     description: "Initiated position in Clean Energy ETF (ICLN)",
     timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24), // 1 day ago
     icon: PlusCircle,
-    iconColor: "text-emerald-400",
-    bgColor: "bg-emerald-500/10",
+    iconColor: "text-success",
+    bgColor: "bg-success/10",
     amount: "+$5,000"
   }
 ];
@@ -112,36 +112,32 @@ export const RecentActivityCard = () => {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, delay: 0.3 }}
     >
-      <Card className="relative overflow-hidden border-0 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 shadow-2xl">
-        {/* Neon glow border */}
-        <div className="absolute inset-0 bg-gradient-to-r from-violet-400/20 via-blue-400/20 to-violet-400/20 rounded-lg blur-sm" />
-        <div className="absolute inset-[1px] bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 rounded-lg" />
-        
-        <CardHeader className="relative pb-4">
+      <Card className="professional-card overflow-hidden">
+        <CardHeader className="pb-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-violet-500/20 rounded-lg">
-                <Clock className="w-5 h-5 text-violet-400" />
+              <div className="p-2 bg-primary/10 rounded-lg">
+                <Clock className="w-5 h-5 text-primary" />
               </div>
               <CardTitle className="text-xl font-bold text-text-heading">Recent Activity</CardTitle>
             </div>
             
             <div className="flex items-center gap-2">
-              <Filter className="w-4 h-4 text-slate-400" />
-              <span className="text-slate-400 text-sm">Filter</span>
+              <Filter className="w-4 h-4 text-text-muted" />
+              <span className="text-text-muted text-sm">Filter</span>
             </div>
           </div>
 
           {/* Filter Tabs */}
-          <div className="flex gap-2 mt-4">
+          <div className="flex gap-2 mt-4 flex-wrap">
             {filterTabs.map((tab) => (
               <button
                 key={tab.id}
                 onClick={() => setActiveFilter(tab.id)}
                 className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
                   activeFilter === tab.id
-                    ? 'bg-violet-500 text-white shadow-lg shadow-violet-500/25'
-                    : 'bg-slate-800/50 text-slate-400 hover:bg-slate-700/50 hover:text-white'
+                    ? 'bg-primary text-primary-foreground shadow-lg'
+                    : 'bg-muted text-text-secondary hover:bg-muted/80 hover:text-text-heading'
                 }`}
               >
                 {tab.label}
@@ -149,8 +145,8 @@ export const RecentActivityCard = () => {
                   variant="secondary" 
                   className={`ml-2 text-xs ${
                     activeFilter === tab.id 
-                      ? 'bg-white/20 text-white' 
-                      : 'bg-slate-700 text-slate-300'
+                      ? 'bg-primary-foreground/20 text-primary-foreground' 
+                      : 'bg-background text-text-secondary'
                   }`}
                 >
                   {tab.count}
@@ -160,7 +156,7 @@ export const RecentActivityCard = () => {
           </div>
         </CardHeader>
 
-        <CardContent className="relative max-h-96 overflow-y-auto custom-scrollbar">
+        <CardContent className="relative max-h-96 overflow-y-auto mobile-scroll">
           <AnimatePresence mode="wait">
             <motion.div
               key={activeFilter}
@@ -176,10 +172,10 @@ export const RecentActivityCard = () => {
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: index * 0.1 }}
-                  className="group relative p-4 rounded-lg bg-slate-800/30 border border-slate-700/30 hover:bg-slate-700/40 hover:border-slate-600/50 transition-all duration-200 cursor-pointer"
+                  className="group relative p-4 rounded-lg bg-muted/30 border border-border/50 hover:bg-muted/50 hover:border-border transition-all duration-200 cursor-pointer"
                 >
                   {/* Hover glow effect */}
-                  <div className="absolute inset-0 rounded-lg bg-gradient-to-r from-transparent via-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                  <div className="absolute inset-0 rounded-lg bg-gradient-to-r from-transparent via-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                   
                   <div className="relative flex items-start gap-4">
                     {/* Icon */}
@@ -191,16 +187,16 @@ export const RecentActivityCard = () => {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
-                          <h4 className="text-white font-semibold text-sm mb-1 group-hover:text-blue-100 transition-colors">
+                          <h4 className="text-text-heading font-semibold text-sm mb-1 group-hover:text-primary transition-colors">
                             {activity.action}
                           </h4>
-                          <p className="text-slate-400 text-sm leading-relaxed">
+                          <p className="text-text-secondary text-sm leading-relaxed">
                             {activity.description}
                           </p>
                         </div>
                         
                         {activity.amount && (
-                          <div className="text-emerald-400 font-semibold text-sm ml-4 flex-shrink-0">
+                          <div className="text-success font-semibold text-sm ml-4 flex-shrink-0">
                             {activity.amount}
                           </div>
                         )}
@@ -208,8 +204,8 @@ export const RecentActivityCard = () => {
 
                       {/* Timestamp */}
                       <div className="flex items-center gap-2 mt-3">
-                        <Clock className="w-3 h-3 text-slate-500" />
-                        <span className="text-slate-500 text-xs">
+                        <Clock className="w-3 h-3 text-text-muted" />
+                        <span className="text-text-muted text-xs">
                           {formatDistanceToNow(activity.timestamp, { addSuffix: true })}
                         </span>
                       </div>
@@ -224,7 +220,7 @@ export const RecentActivityCard = () => {
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              className="text-center py-8 text-slate-400"
+              className="text-center py-8 text-text-secondary"
             >
               <Settings className="w-8 h-8 mx-auto mb-2 opacity-50" />
               <p>No activities found for this filter</p>
@@ -232,24 +228,6 @@ export const RecentActivityCard = () => {
           )}
         </CardContent>
       </Card>
-
-      {/* Custom scrollbar styles */}
-      <style>{`
-        .custom-scrollbar::-webkit-scrollbar {
-          width: 4px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-track {
-          background: rgba(15, 23, 42, 0.3);
-          border-radius: 2px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-          background: rgba(139, 92, 246, 0.5);
-          border-radius: 2px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-          background: rgba(139, 92, 246, 0.7);
-        }
-      `}</style>
     </motion.div>
   );
 };

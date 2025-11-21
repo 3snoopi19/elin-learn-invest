@@ -91,19 +91,19 @@ const watchlistTickers = ["AAPL", "TSLA", "GOOGL", "MSFT", "NVDA", "AMZN", "META
 
 const getFilingTypeColor = (type: string) => {
   switch (type) {
-    case "10-K": return "bg-red-500/20 text-red-400 border-red-500/30";
-    case "10-Q": return "bg-blue-500/20 text-blue-400 border-blue-500/30";
-    case "8-K": return "bg-emerald-500/20 text-emerald-400 border-emerald-500/30";
-    case "DEF 14A": return "bg-purple-500/20 text-purple-400 border-purple-500/30";
-    default: return "bg-slate-500/20 text-slate-400 border-slate-500/30";
+    case "10-K": return "bg-destructive/20 text-destructive border-destructive/30";
+    case "10-Q": return "bg-primary/20 text-primary border-primary/30";
+    case "8-K": return "bg-success/20 text-success border-success/30";
+    case "DEF 14A": return "bg-education/20 text-education border-education/30";
+    default: return "bg-muted/20 text-text-secondary border-border";
   }
 };
 
 const getPriorityIcon = (priority: string) => {
   switch (priority) {
-    case "high": return <div className="w-2 h-2 bg-red-400 rounded-full animate-pulse" />;
-    case "medium": return <div className="w-2 h-2 bg-yellow-400 rounded-full" />;
-    case "low": return <div className="w-2 h-2 bg-slate-400 rounded-full" />;
+    case "high": return <div className="w-2 h-2 bg-destructive rounded-full animate-pulse" />;
+    case "medium": return <div className="w-2 h-2 bg-warning rounded-full" />;
+    case "low": return <div className="w-2 h-2 bg-text-muted rounded-full" />;
     default: return null;
   }
 };
@@ -145,36 +145,32 @@ export const SECFilingsExplorer = () => {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, delay: 0.5 }}
     >
-      <Card className="professional-card relative overflow-hidden border-0 bg-gradient-to-br from-card via-card to-slate-900 shadow-xl">
-        {/* Enhanced neon glow border */}
-        <div className="absolute inset-0 bg-gradient-to-r from-accent/20 via-primary/20 to-accent/20 rounded-lg blur-sm" />
-        <div className="absolute inset-[1px] bg-gradient-to-br from-card via-card to-slate-900 rounded-lg" />
+      <Card className="professional-card overflow-hidden">
         
-        <CardHeader className="relative pb-4">
+        <CardHeader className="pb-4">
           <div className="flex items-center gap-3 mb-4">
-            <div className="p-2 bg-accent/20 rounded-lg">
-              <FileText className="w-6 h-6 text-accent" />
+            <div className="p-2 bg-primary/10 rounded-lg">
+              <FileText className="w-6 h-6 text-primary" />
             </div>
             <div className="flex-1">
               <CardTitle className="text-2xl font-bold text-text-heading">SEC Filings Explorer</CardTitle>
               <p className="text-text-secondary text-sm">AI-powered financial document analysis</p>
             </div>
             <div className="flex items-center gap-2">
-              <div className="w-2 h-2 bg-accent rounded-full live-pulse" />
-              <span className="text-accent text-sm font-medium">Live</span>
+              <div className="w-2 h-2 bg-success rounded-full live-pulse" />
+              <span className="text-success text-sm font-medium">Live</span>
             </div>
           </div>
 
           {/* Enhanced Search Bar */}
           <div className="relative">
-            <div className="absolute inset-0 bg-gradient-to-r from-accent/20 to-primary/20 rounded-lg blur-md" />
-            <div className="relative flex items-center">
-              <Search className="absolute left-4 w-5 h-5 text-accent z-10" />
+            <div className="flex items-center">
+              <Search className="absolute left-4 w-5 h-5 text-primary z-10" />
               <Input
                 placeholder="Search filings by company, ticker, or document type..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-12 pr-12 bg-muted/50 border-accent/30 text-text-body placeholder:text-text-muted focus:border-accent focus:ring-2 focus:ring-accent/20 h-12"
+                className="pl-12 pr-12 bg-muted/50 border-border text-text-body placeholder:text-text-muted focus:border-primary focus:ring-2 focus:ring-primary/20 h-12"
               />
               <div className="absolute right-4 flex items-center gap-2 z-10">
                 <Filter className="w-4 h-4 text-text-muted" />
@@ -200,13 +196,13 @@ export const SECFilingsExplorer = () => {
             </div>
             <div className="flex flex-wrap gap-2">
               {watchlistTickers.map(ticker => (
-                <motion.button
+                  <motion.button
                   key={ticker}
                   onClick={() => toggleTicker(ticker)}
                   className={`px-3 py-1 rounded-lg text-sm font-medium transition-all duration-200 ${
                     selectedTickers.includes(ticker)
-                      ? 'bg-accent text-white shadow-lg shadow-accent/25 border border-accent'
-                      : 'bg-muted/50 text-text-secondary border border-border hover:bg-muted hover:text-text-heading hover:border-border'
+                      ? 'bg-primary text-primary-foreground shadow-lg border border-primary'
+                      : 'bg-muted/50 text-text-secondary border border-border hover:bg-muted hover:text-text-heading hover:border-primary/30'
                   }`}
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
@@ -221,7 +217,7 @@ export const SECFilingsExplorer = () => {
           </div>
         </CardHeader>
 
-        <CardContent className="relative max-h-96 overflow-y-auto custom-scrollbar">
+        <CardContent className="relative max-h-96 overflow-y-auto mobile-scroll">
           <AnimatePresence mode="wait">
             <motion.div
               key={searchQuery + selectedTickers.join(",")}
@@ -236,10 +232,10 @@ export const SECFilingsExplorer = () => {
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: index * 0.1 }}
-                  className="group professional-card p-4 hover:-translate-y-1 transition-all duration-300"
+                  className="group relative p-4 rounded-lg bg-muted/30 border border-border/50 hover:bg-muted/50 hover:border-border hover:-translate-y-1 transition-all duration-300"
                 >
                   {/* Hover glow effect */}
-                  <div className="absolute inset-0 rounded-lg bg-gradient-to-r from-accent/10 via-transparent to-primary/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                  <div className="absolute inset-0 rounded-lg bg-gradient-to-r from-primary/5 via-transparent to-accent/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                   
                   <div className="relative">
                     {/* Header */}
@@ -267,7 +263,7 @@ export const SECFilingsExplorer = () => {
 
                     {/* Content */}
                     <div className="mb-3">
-                      <h4 className="text-text-heading font-semibold text-sm mb-1 group-hover:text-accent transition-colors">
+                      <h4 className="text-text-heading font-semibold text-sm mb-1 group-hover:text-primary transition-colors">
                         {filing.title}
                       </h4>
                       <p className="text-text-secondary text-sm leading-relaxed mb-2">
@@ -311,17 +307,13 @@ export const SECFilingsExplorer = () => {
                         size="sm"
                         onClick={() => handleSummarize(filing.id)}
                         disabled={isSummarizing === filing.id}
-                        variant="secondary"
                         className={`relative overflow-hidden ${
                           isSummarizing === filing.id
-                            ? 'bg-accent text-white'
-                            : 'bg-gradient-to-r from-accent/80 to-primary/80 hover:from-accent hover:to-primary text-white'
+                            ? 'bg-accent text-accent-foreground'
+                            : 'bg-primary hover:bg-primary-hover text-primary-foreground'
                         } border-0 shadow-md`}
                       >
-                        {/* Glowing effect */}
-                        <div className="absolute inset-0 bg-gradient-to-r from-accent/20 to-primary/20 animate-pulse" />
-                        
-                        <div className="relative flex items-center gap-1">
+                        <div className="flex items-center gap-1">
                           <Brain className={`w-3 h-3 ${isSummarizing === filing.id ? 'animate-spin' : ''}`} />
                           {isSummarizing === filing.id ? 'Analyzing...' : 'AI Summary'}
                         </div>
@@ -357,7 +349,7 @@ export const SECFilingsExplorer = () => {
               <Button
                 variant="ghost"
                 size="sm"
-                className="text-accent hover:text-text-heading hover:bg-accent/10"
+                className="text-primary hover:text-primary-hover hover:bg-primary/10"
               >
                 <ExternalLink className="w-3 h-3 mr-1" />
                 SEC.gov
@@ -375,24 +367,6 @@ export const SECFilingsExplorer = () => {
             onClose={() => setSelectedFiling(null)}
           />
         )}
-
-      {/* Custom scrollbar styles */}
-      <style>{`
-        .custom-scrollbar::-webkit-scrollbar {
-          width: 4px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-track {
-          background: rgba(15, 23, 42, 0.3);
-          border-radius: 2px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-          background: rgba(59, 130, 246, 0.5);
-          border-radius: 2px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-          background: rgba(59, 130, 246, 0.7);
-        }
-      `}</style>
     </motion.div>
   );
 };
