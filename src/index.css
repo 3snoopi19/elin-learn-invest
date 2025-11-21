@@ -9,15 +9,15 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-  /* Professional gradient background - soft gray/white */
-  --background: 0 0% 98%;
-  --background-gradient: linear-gradient(135deg, hsl(0 0% 98%) 0%, hsl(220 13% 96%) 50%, hsl(210 20% 94%) 100%);
-  --background-subtle: 0 0% 96%;       /* Light subtle gray */
-    --foreground: 220 13% 9%;            /* Dark text for light background */
-    --card: 0 0% 100%;                   /* White cards */
-    --card-foreground: 220 13% 9%;       /* Dark text on light cards */
-    --popover: 220 13% 11%;
-    --popover-foreground: 220 9% 97%;
+  /* Softer light mode - optimized for mobile readability */
+  --background: 210 20% 98%;
+  --background-gradient: linear-gradient(135deg, hsl(210 20% 98%) 0%, hsl(210 25% 96%) 50%, hsl(210 30% 95%) 100%);
+  --background-subtle: 210 20% 96%;
+    --foreground: 215 25% 15%;           /* Softer dark text with better contrast */
+    --card: 0 0% 100%;                   /* Pure white cards */
+    --card-foreground: 215 25% 15%;      /* Matching dark text */
+    --popover: 0 0% 100%;
+    --popover-foreground: 215 25% 15%;
     
     /* Brand color palette - blue primary theme */
     --primary: 217 91% 60%;             /* Primary blue #3b82f6 */
@@ -40,12 +40,12 @@ All colors MUST be HSL.
     --education: 217 91% 60%;
     --education-foreground: 0 0% 100%;
     
-    /* Text hierarchy tokens - optimized for light background */
-    --text-heading: 220 13% 9%;        /* Dark text for headings */
-    --text-body: 220 9% 20%;           /* Dark gray for body text */
-    --text-secondary: 220 9% 40%;      /* Medium gray for secondary text */
-    --text-muted: 220 9% 55%;          /* Light gray for muted text */
-    --text-emphasis: 220 13% 9%;       /* Pure dark for emphasis */
+    /* Text hierarchy tokens - optimized for mobile readability */
+    --text-heading: 215 30% 12%;       /* Strong contrast for headings */
+    --text-body: 215 20% 25%;          /* Balanced dark gray for body */
+    --text-secondary: 215 15% 45%;     /* Medium gray with better contrast */
+    --text-muted: 215 10% 60%;         /* Softer muted text */
+    --text-emphasis: 215 30% 12%;      /* Strong emphasis */
     
     /* Progress bar colors - blue themed */
     --progress-completed: 217 91% 60%;
@@ -63,13 +63,13 @@ All colors MUST be HSL.
     --accent: 180 100% 50%;             /* Neon teal #00ffff */
     --accent-foreground: 220 13% 9%;
     
-    --muted: 0 0% 15%;               /* Dark muted elements for black theme */
-    --muted-foreground: 0 0% 65%;     /* Light muted text for black theme */
+    --muted: 210 20% 93%;            /* Soft light gray for muted elements */
+    --muted-foreground: 215 15% 45%; /* Medium gray for muted text */
     
-    --destructive: 0 84% 60%;           /* Red */
+    --destructive: 0 84% 60%;        /* Red */
     --destructive-foreground: 0 0% 100%;
     
-    --border: 0 0% 20%;              /* Dark borders for black theme */
+    --border: 210 15% 88%;           /* Soft border for light mode */
     --input: 0 0% 100%;
     --ring: 217 91% 60%;                /* Focus ring blue */
     --radius: 0.75rem;
