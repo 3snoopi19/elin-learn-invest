@@ -90,11 +90,11 @@ const Filings = () => {
     <div className="min-h-screen bg-background">
       <Header />
       
-      <main className="container mx-auto px-4 py-8">
+      <main className="mobile-container mobile-content py-4 md:py-8">
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold mb-2">SEC Filings Explorer</h1>
-          <p className="text-muted-foreground">
+        <div className="mb-6 md:mb-8">
+          <h1 className="text-2xl md:text-3xl font-bold mb-2">SEC Filings Explorer</h1>
+          <p className="text-sm md:text-base text-muted-foreground">
             Search and explore company SEC filings with AI-powered explanations
           </p>
         </div>
@@ -109,26 +109,26 @@ const Filings = () => {
         </Alert>
 
         {/* Search */}
-        <Card className="mb-8">
-          <CardHeader>
-            <CardTitle className="flex items-center space-x-2">
-              <Search className="h-5 w-5" />
+        <Card className="mb-6 md:mb-8 mobile-card">
+          <CardHeader className="pb-3 md:pb-4">
+            <CardTitle className="flex items-center space-x-2 text-base md:text-lg">
+              <Search className="h-4 w-4 md:h-5 md:w-5" />
               <span>Company Search</span>
             </CardTitle>
-            <CardDescription>
+            <CardDescription className="text-xs md:text-sm">
               Enter a stock ticker (e.g., AAPL, TSLA) to explore SEC filings
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="flex space-x-2">
+            <div className="flex flex-col sm:flex-row gap-2">
               <Input
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 onKeyPress={handleKeyPress}
-                placeholder="Enter ticker symbol (AAPL, TSLA, SPY...)"
-                className="flex-1 bg-white border-border focus:border-success focus:ring-success/20"
+                placeholder="Enter ticker symbol..."
+                className="flex-1 bg-background border-border focus:border-success focus:ring-success/20"
               />
-              <Button onClick={handleSearch} disabled={searchLoading} className="bg-success hover:bg-primary-hover text-white">
+              <Button onClick={handleSearch} disabled={searchLoading} className="bg-success hover:bg-primary-hover text-white mobile-button w-full sm:w-auto">
                 {searchLoading ? 'Searching...' : 'Search'}
               </Button>
             </div>
@@ -137,26 +137,26 @@ const Filings = () => {
 
         {/* Search Results */}
         {searchResults && (
-          <div className="space-y-6">
+          <div className="space-y-4 md:space-y-6">
             {/* Company Info */}
-            <Card>
-              <CardHeader>
-                <div className="flex items-center justify-between">
+            <Card className="mobile-card">
+              <CardHeader className="pb-3 md:pb-4">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                   <div className="flex items-center space-x-3">
-                    <Building2 className="h-6 w-6 text-primary" />
+                    <Building2 className="h-5 w-5 md:h-6 md:w-6 text-primary" />
                     <div>
-                      <CardTitle>{searchResults.company.name}</CardTitle>
-                      <CardDescription>{searchResults.company.ticker}</CardDescription>
+                      <CardTitle className="text-base md:text-lg">{searchResults.company.name}</CardTitle>
+                      <CardDescription className="text-xs md:text-sm">{searchResults.company.ticker}</CardDescription>
                     </div>
                   </div>
-                  <Badge variant="outline">{searchResults.company.sector}</Badge>
+                  <Badge variant="outline" className="w-fit">{searchResults.company.sector}</Badge>
                 </div>
               </CardHeader>
               <CardContent>
-                <p className="text-sm text-muted-foreground mb-4">
+                <p className="text-xs md:text-sm text-muted-foreground mb-4">
                   {searchResults.company.description}
                 </p>
-                <div className="grid md:grid-cols-2 gap-4 text-sm">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4 text-xs md:text-sm">
                   <div>
                     <strong>Industry:</strong> {searchResults.company.industry}
                   </div>
@@ -164,7 +164,7 @@ const Filings = () => {
                     <strong>CIK:</strong> {searchResults.submissions?.cik}
                   </div>
                   {searchResults.company.website && (
-                    <div className="flex items-center space-x-1">
+                    <div className="flex items-center space-x-1 col-span-1 sm:col-span-2">
                       <strong>Website:</strong>
                       <a 
                         href={searchResults.company.website}
@@ -182,13 +182,13 @@ const Filings = () => {
             </Card>
 
             {/* Recent Filings */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
-                  <FileText className="h-5 w-5" />
+            <Card className="mobile-card">
+              <CardHeader className="pb-3 md:pb-4">
+                <CardTitle className="flex items-center space-x-2 text-base md:text-lg">
+                  <FileText className="h-4 w-4 md:h-5 md:w-5" />
                   <span>Recent SEC Filings</span>
                 </CardTitle>
-                <CardDescription>
+                <CardDescription className="text-xs md:text-sm">
                   Click on any filing to view details and get AI explanations
                 </CardDescription>
               </CardHeader>
@@ -198,37 +198,37 @@ const Filings = () => {
                     {filings.map((filing) => (
                       <div
                         key={filing.accessionNumber}
-                        className="border rounded-lg p-4 hover:bg-muted/20 cursor-pointer transition-colors"
+                        className="border rounded-lg p-3 md:p-4 hover:bg-muted/20 cursor-pointer transition-colors touch-target"
                         onClick={() => setSelectedFiling(filing)}
                       >
-                        <div className="flex items-center justify-between">
-                          <div className="space-y-1">
-                            <div className="flex items-center space-x-2">
-                              <Badge variant="outline" className="text-education border-education/30">{filing.form}</Badge>
-                              <span className="font-bold text-text-heading">{filing.primaryDocDescription}</span>
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                          <div className="space-y-1 flex-1 min-w-0">
+                            <div className="flex flex-wrap items-center gap-2">
+                              <Badge variant="outline" className="text-education border-education/30 text-xs">{filing.form}</Badge>
+                              <span className="font-bold text-text-heading text-sm md:text-base truncate">{filing.primaryDocDescription}</span>
                             </div>
-                            <p className="text-sm text-text-muted">
+                            <p className="text-xs md:text-sm text-text-muted line-clamp-2">
                               {getFilingTypeDescription(filing.form)}
                             </p>
-                            <div className="flex items-center space-x-4 text-xs text-text-muted">
+                            <div className="flex flex-wrap items-center gap-2 md:gap-4 text-xs text-text-muted">
                               <div className="flex items-center space-x-1">
                                 <Calendar className="h-3 w-3" />
                                 <span>Filed: {new Date(filing.filingDate).toLocaleDateString()}</span>
                               </div>
                               {filing.reportDate && (
-                                <span>Report Date: {new Date(filing.reportDate).toLocaleDateString()}</span>
+                                <span className="hidden sm:inline">Report: {new Date(filing.reportDate).toLocaleDateString()}</span>
                               )}
                             </div>
                           </div>
-                          <Button variant="outline" size="sm" className="bg-success hover:bg-primary-hover text-white border-success">
-                            View Filing
+                          <Button variant="outline" size="sm" className="bg-success hover:bg-primary-hover text-white border-success mobile-button w-full sm:w-auto shrink-0">
+                            View
                           </Button>
                         </div>
                       </div>
                     ))}
                   </div>
                 ) : (
-                  <p className="text-muted-foreground text-center py-8">
+                  <p className="text-muted-foreground text-center py-6 md:py-8 text-sm">
                     No recent filings found for this company.
                   </p>
                 )}
