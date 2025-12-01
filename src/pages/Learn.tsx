@@ -192,75 +192,81 @@ const Learn = () => {
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      <main className="container mx-auto px-4 py-8">
-        {/* Hero Section */}
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold mb-4 bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
+      <main className="mobile-container mobile-content py-4 md:py-8">
+        {/* Hero Section - Mobile optimized */}
+        <div className="text-center mb-8 md:mb-12">
+          <h1 className="text-2xl md:text-4xl font-bold mb-3 md:mb-4 bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent px-2">
             Learning Paths
           </h1>
-          <div className="flex items-center justify-center gap-2 mb-4">
-            <Badge variant="outline" className="bg-gradient-to-r from-purple-50 to-blue-50 text-purple-700 border-purple-200">
+          <div className="flex items-center justify-center gap-2 mb-3 md:mb-4">
+            <Badge variant="outline" className="bg-gradient-to-r from-purple-50 to-blue-50 text-purple-700 border-purple-200 text-xs">
               <Sparkles className="w-3 h-3 mr-1" />
               Powered by NotebookLM AI
             </Badge>
           </div>
-           <p className="text-xl text-text-secondary mb-6 max-w-2xl mx-auto">
+           <p className="text-sm md:text-xl text-text-secondary mb-4 md:mb-6 max-w-2xl mx-auto px-4">
              Master investing with AI-generated, personalized learning content created by NotebookLM - now including interactive video explainers for every skill level
            </p>
-           <div className="flex justify-center gap-4 text-sm text-text-muted">
-             <div className="flex items-center gap-2">
-               <Trophy className="h-4 w-4 text-primary" />
-               <span>Expert-curated content</span>
+           <div className="flex flex-wrap justify-center gap-3 md:gap-4 text-xs md:text-sm text-text-muted px-2">
+             <div className="flex items-center gap-1 md:gap-2">
+               <Trophy className="h-3 w-3 md:h-4 md:w-4 text-primary" />
+               <span>Expert-curated</span>
              </div>
-             <div className="flex items-center gap-2">
-               <Video className="h-4 w-4 text-primary" />
-               <span>AI-generated videos</span>
+             <div className="flex items-center gap-1 md:gap-2">
+               <Video className="h-3 w-3 md:h-4 md:w-4 text-primary" />
+               <span>AI videos</span>
              </div>
-             <div className="flex items-center gap-2">
-               <Clock className="h-4 w-4 text-primary" />
-               <span>Self-paced learning</span>
+             <div className="flex items-center gap-1 md:gap-2">
+               <Clock className="h-3 w-3 md:h-4 md:w-4 text-primary" />
+               <span>Self-paced</span>
              </div>
-             <div className="flex items-center gap-2">
-               <BookOpen className="h-4 w-4 text-primary" />
-               <span>Interactive modules</span>
+             <div className="flex items-center gap-1 md:gap-2">
+               <BookOpen className="h-3 w-3 md:h-4 md:w-4 text-primary" />
+               <span>Interactive</span>
              </div>
            </div>
         </div>
 
-        <Tabs defaultValue="overview" className="space-y-8">
-          <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="overview">Course Overview</TabsTrigger>
-            <TabsTrigger value="enhanced">Enhanced Paths</TabsTrigger>
-            <TabsTrigger value="materials">Study Materials</TabsTrigger>
+        <Tabs defaultValue="overview" className="space-y-4 md:space-y-8">
+          <TabsList className="grid w-full grid-cols-3 h-auto">
+            <TabsTrigger value="overview" className="text-xs md:text-sm py-2 md:py-3">
+              <span className="hidden sm:inline">Course </span>Overview
+            </TabsTrigger>
+            <TabsTrigger value="enhanced" className="text-xs md:text-sm py-2 md:py-3">
+              <span className="hidden sm:inline">Enhanced </span>Paths
+            </TabsTrigger>
+            <TabsTrigger value="materials" className="text-xs md:text-sm py-2 md:py-3">
+              <span className="hidden sm:inline">Study </span>Materials
+            </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="overview" className="space-y-6">
+          <TabsContent value="overview" className="space-y-4 md:space-y-6">
             {/* Learning Paths Grid - Mobile optimized */}
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-6">
               {learningPaths.map((path) => {
                 const IconComponent = path.icon;
                 return (
                   <Card key={path.id} className="group hover:shadow-lg transition-all duration-300 bg-card border border-border hover:border-primary/20 mobile-card">
-                    <CardHeader className="pb-4 mobile-padding">
+                    <CardHeader className="pb-3 md:pb-4 p-4 md:p-6">
                       <div className="flex items-start justify-between mb-2">
-                        <div className="p-2 rounded-lg bg-primary/10 group-hover:bg-primary/20 transition-colors">
-                          <IconComponent className="h-5 w-5 md:h-6 md:w-6 text-primary" />
+                        <div className="p-1.5 md:p-2 rounded-lg bg-primary/10 group-hover:bg-primary/20 transition-colors">
+                          <IconComponent className="h-4 w-4 md:h-6 md:w-6 text-primary" />
                         </div>
                         <Badge className={`${getLevelColor(path.level)} border text-xs`}>
                           {path.level}
                         </Badge>
                       </div>
-                      <CardTitle className="text-lg md:text-xl text-text-heading group-hover:text-primary transition-colors font-bold">
+                      <CardTitle className="text-base md:text-xl text-text-heading group-hover:text-primary transition-colors font-bold">
                         {path.title}
                       </CardTitle>
-                      <CardDescription className="text-sm leading-relaxed text-text-secondary">
+                      <CardDescription className="text-xs md:text-sm leading-relaxed text-text-secondary">
                         {path.description}
                       </CardDescription>
                     </CardHeader>
                     
-                    <CardContent className="space-y-4 mobile-padding">
+                    <CardContent className="space-y-3 md:space-y-4 p-4 md:p-6 pt-0">
                       {/* Course Stats */}
-                      <div className="flex justify-between text-sm text-text-muted">
+                      <div className="flex justify-between text-xs md:text-sm text-text-muted">
                         <span className="flex items-center gap-1">
                           <Clock className="h-3 w-3" />
                           {path.duration}
@@ -272,26 +278,26 @@ const Learn = () => {
                       </div>
 
                       {/* Progress */}
-                      <div className="space-y-2">
-                        <div className="flex justify-between text-sm text-text-body">
+                      <div className="space-y-1.5 md:space-y-2">
+                        <div className="flex justify-between text-xs md:text-sm text-text-body">
                           <span>Progress</span>
                           <span className="text-primary font-medium">{path.progress}%</span>
                         </div>
-                        <Progress value={path.progress} className="h-2" />
+                        <Progress value={path.progress} className="h-1.5 md:h-2" />
                       </div>
 
                       {/* Topics */}
-                      <div className="space-y-2">
-                        <h4 className="text-sm font-medium text-text-body">Key Topics:</h4>
+                      <div className="space-y-1.5 md:space-y-2">
+                        <h4 className="text-xs md:text-sm font-medium text-text-body">Key Topics:</h4>
                         <div className="flex flex-wrap gap-1">
-                          {path.topics.slice(0, 3).map((topic, index) => (
+                          {path.topics.slice(0, 2).map((topic, index) => (
                             <Badge key={index} variant="outline" className="text-xs bg-primary/5 text-primary border-primary/20 hover:bg-primary/10">
                               {topic}
                             </Badge>
                           ))}
-                          {path.topics.length > 3 && (
+                          {path.topics.length > 2 && (
                             <Badge variant="outline" className="text-xs bg-muted text-text-muted">
-                              +{path.topics.length - 3} more
+                              +{path.topics.length - 2} more
                             </Badge>
                           )}
                         </div>
@@ -300,16 +306,14 @@ const Learn = () => {
                       {/* Action Buttons - Mobile Stacked */}
                       <div className="space-y-2 pt-2">
                         <Button 
-                          className="w-full bg-primary hover:bg-primary-hover text-primary-foreground font-medium mobile-button" 
+                          className="w-full bg-primary hover:bg-primary-hover text-primary-foreground font-medium mobile-button text-xs md:text-sm" 
                           onClick={() => {
                             if (path.progress > 0) {
-                              // Find the first incomplete lesson for "Continue Learning"
                               const firstIncompleteLesson = findFirstIncompleteLesson(path.id);
                               if (firstIncompleteLesson) {
                                 handleLessonClick(path.id, firstIncompleteLesson.moduleIndex, firstIncompleteLesson.lessonIndex);
                               }
                             } else {
-                              // Start from the beginning
                               if (courseContent[path.id as keyof typeof courseContent]?.modules?.[0]?.lessons?.[0]) {
                                 handleLessonClick(path.id, 0, 0);
                               }
@@ -317,29 +321,27 @@ const Learn = () => {
                           }}
                           aria-label={`${path.progress > 0 ? 'Continue' : 'Start'} ${path.title} course`}
                         >
-                          {path.progress > 0 ? `Continue Learning (${path.progress}%)` : "Start Course"}
+                          {path.progress > 0 ? `Continue (${path.progress}%)` : "Start Course"}
                         </Button>
                         <div className="grid grid-cols-2 gap-2">
                           <Button 
-                            className="border-primary text-primary hover:bg-primary/10 mobile-button" 
+                            className="border-primary text-primary hover:bg-primary/10 mobile-button text-xs" 
                             variant="outline"
                             size="sm"
                             onClick={() => setSelectedCourse(selectedCourse === path.id ? null : path.id)}
                             aria-label={`View all lessons for ${path.title}`}
                           >
-                            <BookOpen className="h-4 w-4 mr-1" />
-                            <span className="hidden sm:inline">View All</span>
-                            <span className="sm:hidden">Lessons</span>
+                            <BookOpen className="h-3 w-3 md:h-4 md:w-4 mr-1" />
+                            Lessons
                           </Button>
                           <Button 
-                            className="border-primary text-primary hover:bg-primary/10 mobile-button" 
+                            className="border-primary text-primary hover:bg-primary/10 mobile-button text-xs" 
                             variant="outline"
                             size="sm"
                             aria-label={`Download syllabus for ${path.title}`}
                           >
-                            <Download className="h-4 w-4 mr-1" />
-                            <span className="hidden sm:inline">Download</span>
-                            <span className="sm:hidden">PDF</span>
+                            <Download className="h-3 w-3 md:h-4 md:w-4 mr-1" />
+                            PDF
                           </Button>
                         </div>
                       </div>
