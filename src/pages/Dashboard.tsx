@@ -15,6 +15,7 @@ import { ProgressBadges } from "@/components/gamification/ProgressBadges";
 import { DailyLearningFeed } from "@/components/feed/DailyLearningFeed";
 import { MarketSentimentGauge } from "@/components/market/MarketSentimentGauge";
 import { LoadingScreen } from "@/components/ui/LoadingScreen";
+import { SkeletonLoader } from "@/components/ui/SkeletonLoader";
 const Dashboard = () => {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
@@ -23,6 +24,7 @@ const Dashboard = () => {
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [showProgressBadges, setShowProgressBadges] = useState(false);
   const [showLearningFeed, setShowLearningFeed] = useState(true);
+  const [cardsLoading, setCardsLoading] = useState(true);
   const { toast } = useToast();
 
   // Get deduplicated dashboard cards (memoized to prevent infinite renders)
@@ -67,6 +69,9 @@ const Dashboard = () => {
         setUserProfile(data);
       } catch (error) {
         console.error('Error fetching profile:', error);
+      } finally {
+        // Simulate brief loading for perceived performance
+        setTimeout(() => setCardsLoading(false), 800);
       }
     };
 
@@ -149,51 +154,70 @@ const Dashboard = () => {
         <div className="mobile-grid mb-6 md:mb-8">
           {/* Portfolio Overview - Full width stacked layout */}
           <div className="lg:col-span-2">
-            <DashboardCardRenderer
-              componentName="PortfolioOverviewCard"
-              props={{
-                animationDelay: 0,
-                ...dashboardCards.find(c => c.component === 'PortfolioOverviewCard')?.props
-              }}
-            />
+            {cardsLoading ? (
+              <SkeletonLoader variant="card" />
+            ) : (
+              <DashboardCardRenderer
+                componentName="PortfolioOverviewCard"
+                props={{
+                  animationDelay: 0,
+                  ...dashboardCards.find(c => c.component === 'PortfolioOverviewCard')?.props
+                }}
+              />
+            )}
           </div>
           
           {/* AI Insights - Full width on mobile */}
           <div className="lg:col-span-1">
-            <DashboardCardRenderer
-              componentName="AIInsightsCard"
-              props={{
-                animationDelay: 0.1,
-                ...dashboardCards.find(c => c.component === 'AIInsightsCard')?.props
-              }}
-            />
+            {cardsLoading ? (
+              <SkeletonLoader variant="card" />
+            ) : (
+              <DashboardCardRenderer
+                componentName="AIInsightsCard"
+                props={{
+                  animationDelay: 0.1,
+                  ...dashboardCards.find(c => c.component === 'AIInsightsCard')?.props
+                }}
+              />
+            )}
           </div>
         </div>
 
         {/* Secondary Row - Responsive grid with unified spacing */}
         <div className="mobile-grid mb-6 md:mb-8">
-          <MarketSentimentGauge />
-          <DashboardCardRenderer
-            componentName="RiskAnalysisCard"
-            props={{
-              animationDelay: 0.2,
-              ...dashboardCards.find(c => c.component === 'RiskAnalysisCard')?.props
-            }}
-          />
-          <DashboardCardRenderer
-            componentName="LiveMarketFeed"
-            props={{
-              animationDelay: 0.3,
-              ...dashboardCards.find(c => c.component === 'LiveMarketFeed')?.props
-            }}
-          />
-          <DashboardCardRenderer
-            componentName="RecentActivityCard"
-            props={{
-              animationDelay: 0.4,
-              ...dashboardCards.find(c => c.component === 'RecentActivityCard')?.props
-            }}
-          />
+          {cardsLoading ? (
+            <>
+              <SkeletonLoader variant="chart" />
+              <SkeletonLoader variant="card" />
+              <SkeletonLoader variant="market" />
+              <SkeletonLoader variant="list" />
+            </>
+          ) : (
+            <>
+              <MarketSentimentGauge />
+              <DashboardCardRenderer
+                componentName="RiskAnalysisCard"
+                props={{
+                  animationDelay: 0.2,
+                  ...dashboardCards.find(c => c.component === 'RiskAnalysisCard')?.props
+                }}
+              />
+              <DashboardCardRenderer
+                componentName="LiveMarketFeed"
+                props={{
+                  animationDelay: 0.3,
+                  ...dashboardCards.find(c => c.component === 'LiveMarketFeed')?.props
+                }}
+              />
+              <DashboardCardRenderer
+                componentName="RecentActivityCard"
+                props={{
+                  animationDelay: 0.4,
+                  ...dashboardCards.find(c => c.component === 'RecentActivityCard')?.props
+                }}
+              />
+            </>
+          )}
         </div>
 
         {/* Tools & Features Row */}
