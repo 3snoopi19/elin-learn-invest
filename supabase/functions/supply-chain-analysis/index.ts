@@ -13,14 +13,32 @@ serve(async (req) => {
 
   try {
     const { company } = await req.json();
-    console.log('Received request for company:', company);
-
-    if (!company) {
+    
+    // Server-side input validation
+    if (!company || typeof company !== 'string') {
       return new Response(
         JSON.stringify({ error: 'Company name or ticker is required' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
+    
+    const sanitizedCompany = company.trim().slice(0, 100);
+    if (!sanitizedCompany) {
+      return new Response(
+        JSON.stringify({ error: 'Company name cannot be empty' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+    
+    // Validate characters - allow alphanumeric, spaces, and common company name chars
+    if (!/^[a-zA-Z0-9\s.&,'-]+$/.test(sanitizedCompany)) {
+      return new Response(
+        JSON.stringify({ error: 'Invalid characters in company name' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+    
+    console.log('Received request for company (sanitized):', sanitizedCompany);
 
     const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
     if (!LOVABLE_API_KEY) {
@@ -31,7 +49,7 @@ serve(async (req) => {
       );
     }
 
-    const prompt = `Analyze the supply chain for "${company}". Provide a detailed but concise JSON response with this exact structure:
+    const prompt = `Analyze the supply chain for "${sanitizedCompany}". Provide a detailed but concise JSON response with this exact structure:
 {
   "companyName": "Full company name",
   "ticker": "Stock ticker if applicable",
@@ -57,7 +75,7 @@ serve(async (req) => {
 
 Provide 4-6 key suppliers and 4-6 major customers/markets. Focus on the most significant relationships. Return ONLY valid JSON, no markdown or additional text.`;
 
-    console.log('Calling Lovable AI Gateway for supply chain analysis:', company);
+    console.log('Calling Lovable AI Gateway for supply chain analysis:', sanitizedCompany);
 
     const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
