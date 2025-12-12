@@ -14,10 +14,10 @@ verify_jwt = false
 verify_jwt = false
 
 [functions.chat-with-elin]
-verify_jwt = false
+verify_jwt = true
 
 [functions.create-payment]
-verify_jwt = false
+verify_jwt = true
 
 [functions.supply-chain-analysis]
-verify_jwt = false
+verify_jwt = true

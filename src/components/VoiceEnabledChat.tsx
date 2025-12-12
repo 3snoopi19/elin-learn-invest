@@ -12,6 +12,7 @@ import { ErrorMessage } from './chat/ErrorMessage';
 import { QuickPromptsPanel } from './chat/QuickPromptsPanel';
 import { supabase } from '@/integrations/supabase/client';
 import { cn } from '@/lib/utils';
+import { sanitizeChatInput } from '@/lib/validation';
 
 interface Message {
   id: string;
@@ -232,8 +233,9 @@ export const VoiceEnabledChat = () => {
 
     try {
       setIsConnected(true);
+      const sanitizedMessage = sanitizeChatInput(textToSend);
       const { data, error } = await supabase.functions.invoke('chat-with-elin', {
-        body: { message: textToSend }
+        body: { message: sanitizedMessage }
       });
 
       if (error) throw error;
