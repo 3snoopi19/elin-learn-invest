@@ -17,7 +17,23 @@ serve(async (req) => {
   try {
     const { message } = await req.json();
     
-    console.log('Received message:', message);
+    // Server-side input validation
+    if (!message || typeof message !== 'string') {
+      return new Response(JSON.stringify({ error: 'Message is required' }), {
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+    
+    const sanitizedMessage = message.trim().slice(0, 2000);
+    if (!sanitizedMessage) {
+      return new Response(JSON.stringify({ error: 'Message cannot be empty' }), {
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+    
+    console.log('Received message (sanitized):', sanitizedMessage.substring(0, 100));
 
     const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${googleApiKey}`, {
       method: 'POST',
@@ -47,7 +63,7 @@ Response style:
 - Use examples for complex concepts but make clear they are hypothetical
 - Always end responses about investments with appropriate disclaimers
 
-User message: ${message}`
+User message: ${sanitizedMessage}`
           }]
         }],
         generationConfig: {
