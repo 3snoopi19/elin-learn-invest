@@ -33,6 +33,7 @@ import MoneyFlowPage from "./pages/MoneyFlow";
 import Router from "./pages/Router";
 import ProMode from "./pages/ProMode";
 import MarketDashboard from "./pages/MarketDashboard";
+import SupplyChain from "./pages/SupplyChain";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -67,6 +68,7 @@ const AppContent = () => {
         <Route path="/money-flow" element={<MoneyFlowPage />} />
         <Route path="/router" element={<Router />} />
         <Route path="/market-dashboard" element={<MarketDashboard />} />
+        <Route path="/supply-chain" element={<SupplyChain />} />
         {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
         <Route path="*" element={<NotFound />} />
       </Routes>
