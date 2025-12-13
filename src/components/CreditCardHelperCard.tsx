@@ -221,17 +221,17 @@ export const CreditCardHelperCard = () => {
 
   return (
     <Card className="w-full">
-      <CardHeader>
-        <div className="flex items-center justify-between">
-          <CardTitle className="flex items-center gap-2">
-            <Calculator className="w-5 h-5" />
-            Choose Payment Amount
+      <CardHeader className="p-4 md:p-6">
+        <div className="flex flex-col gap-3">
+          <CardTitle className="flex items-center gap-2 text-lg md:text-xl">
+            <Calculator className="w-5 h-5 shrink-0" />
+            <span>Choose Payment Amount</span>
           </CardTitle>
           {creditCards.length > 1 && (
             <select 
               value={selectedCard.cardName}
               onChange={(e) => setSelectedCard(creditCards.find(c => c.cardName === e.target.value) || null)}
-              className="text-sm bg-background border rounded px-2 py-1"
+              className="w-full text-sm bg-card border border-border rounded-lg px-3 py-2 text-foreground focus:ring-2 focus:ring-primary focus:border-primary"
             >
               {creditCards.map(card => (
                 <option key={card.cardName} value={card.cardName}>
@@ -241,11 +241,11 @@ export const CreditCardHelperCard = () => {
             </select>
           )}
         </div>
-        <p className="text-sm text-muted-foreground mt-1">
+        <p className="text-sm text-muted-foreground mt-3">
           Make payments by March 15
         </p>
       </CardHeader>
-      <CardContent className="space-y-6">
+      <CardContent className="space-y-6 p-4 md:p-6 pt-0 md:pt-0">
         {/* Circular Payment Selector */}
         <div className="flex flex-col items-center space-y-6">
           <CircularProgress 
