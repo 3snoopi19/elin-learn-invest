@@ -163,18 +163,18 @@ const Learn = () => {
     return (
       <div className="min-h-screen bg-background">
         <Header />
-        <main className="container mx-auto px-4 py-8">
+        <main className="mobile-container mobile-content py-4 md:py-8">
           <div className="mb-6">
             <Button 
               variant="ghost" 
               onClick={() => setViewingLesson(null)}
-              className="mb-4 text-text-body hover:text-text-heading"
+              className="mb-4 text-text-body hover:text-text-heading mobile-button"
               aria-label={`Back to ${viewingLesson.courseTitle} course overview`}
             >
               <ArrowLeft className="h-4 w-4 mr-2" />
               Back to {viewingLesson.courseTitle}
             </Button>
-            <div className="text-sm text-text-muted mb-2">
+            <div className="mobile-caption text-text-muted mb-2">
               {viewingLesson.courseTitle} • {viewingLesson.moduleTitle}
             </div>
           </div>
@@ -241,8 +241,8 @@ const Learn = () => {
           </TabsList>
 
           <TabsContent value="overview" className="space-y-4 md:space-y-6">
-            {/* Learning Paths Grid - Mobile optimized */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-6">
+            {/* Learning Paths Grid - Mobile optimized single column */}
+            <div className="mobile-grid">
               {learningPaths.map((path) => {
                 const IconComponent = path.icon;
                 return (
@@ -356,9 +356,9 @@ const Learn = () => {
             <EnhancedLearningPaths />
           </TabsContent>
 
-          <TabsContent value="materials" className="space-y-6">
-            {/* Detailed Course Materials */}
-            <div className="grid lg:grid-cols-2 gap-6">
+          <TabsContent value="materials" className="space-y-4 md:space-y-6">
+            {/* Detailed Course Materials - Mobile stacked */}
+            <div className="mobile-grid">
               {learningPaths.map((path) => {
                 const IconComponent = path.icon;
                 return (

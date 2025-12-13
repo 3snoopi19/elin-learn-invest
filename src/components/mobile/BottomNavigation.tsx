@@ -63,10 +63,11 @@ export const BottomNavigation = () => {
       initial={{ y: 100, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.3 }}
-      className="fixed bottom-0 left-0 right-0 z-50 md:hidden bg-background/95 backdrop-blur-xl border-t border-border/50 px-2 py-2 safe-area-bottom shadow-2xl"
+      className="fixed bottom-0 left-0 right-0 z-50 md:hidden bg-background/98 backdrop-blur-xl border-t border-border/50 shadow-2xl"
+      style={{ paddingBottom: 'env(safe-area-inset-bottom, 8px)' }}
     >
-      <div className="flex items-center justify-around max-w-md mx-auto px-2"
-           style={{ minHeight: '72px' }}>
+      <div className="flex items-center justify-around max-w-md mx-auto px-2 py-2"
+           style={{ minHeight: '80px' }}>
         {navigationItems.map((item) => {
           const Icon = item.icon;
           const isActive = location.pathname === item.path;
@@ -75,7 +76,7 @@ export const BottomNavigation = () => {
             <motion.button
               key={item.id}
               onClick={() => navigate(item.path)}
-              className={`relative flex flex-col items-center justify-center p-3 rounded-xl min-w-[64px] min-h-[64px] transition-all duration-300 touch-target ${
+              className={`relative flex flex-col items-center justify-center p-2.5 rounded-xl min-w-[60px] min-h-[56px] transition-all duration-300 touch-target ${
                 isActive 
                   ? 'bg-primary/15 text-primary shadow-lg border border-primary/20' 
                   : 'text-text-muted hover:text-text-body hover:bg-muted/30 border border-transparent'

@@ -3,8 +3,9 @@ import { BookOpen } from "lucide-react";
 
 export const Footer = () => {
   return (
-    <footer className="border-t bg-background">
-      <div className="container mx-auto px-4 py-8">
+    // Hide footer on mobile - bottom navigation replaces it
+    <footer className="border-t bg-background hidden md:block">
+      <div className="container mx-auto px-4 md:px-6 py-8">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* Brand */}
           <div className="space-y-4">
