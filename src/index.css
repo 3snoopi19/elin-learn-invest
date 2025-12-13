@@ -92,34 +92,49 @@ All colors MUST be HSL.
   }
 
   .dark {
-    /* Dark mode - keep existing dark theme for theme switching */
-    --background: 220 13% 9%;
-    --foreground: 220 9% 97%;
-    --card: 220 13% 11%;
-    --card-foreground: 220 9% 97%;
-    --popover: 220 13% 11%;
-    --popover-foreground: 220 9% 97%;
-    --primary: 217 91% 60%;
+    /* Dark mode - soft dark grey to reduce ghosting on mobile */
+    --background: 220 10% 8%;              /* Soft dark grey (#121212 equivalent) */
+    --background-gradient: linear-gradient(135deg, hsl(220 10% 8%) 0%, hsl(220 12% 10%) 50%, hsl(220 10% 9%) 100%);
+    --background-subtle: 220 12% 12%;
+    --foreground: 220 9% 85%;              /* Softer white to reduce vibration */
+    --card: 220 12% 13%;                   /* Dark metallic card base */
+    --card-foreground: 220 9% 90%;
+    --popover: 220 12% 12%;
+    --popover-foreground: 220 9% 90%;
+    --primary: 217 85% 55%;                /* Slightly desaturated primary */
     --primary-foreground: 0 0% 100%;
-    --secondary: 142 76% 36%;
+    --primary-hover: 217 85% 50%;
+    --secondary: 142 65% 38%;              /* Desaturated success green */
     --secondary-foreground: 0 0% 100%;
-    --muted: 220 13% 15%;
-    --muted-foreground: 220 9% 70%;
-    --accent: 180 100% 50%;
-    --accent-foreground: 220 13% 9%;
-    --destructive: 0 84% 60%;
+    --success: 142 60% 40%;                /* Softer green for eye comfort */
+    --success-foreground: 0 0% 100%;
+    --warning: 38 80% 50%;                 /* Desaturated warning */
+    --warning-foreground: 220 10% 8%;
+    --muted: 220 12% 18%;
+    --muted-foreground: 220 9% 65%;
+    --accent: 180 70% 45%;                 /* Desaturated teal accent */
+    --accent-foreground: 220 10% 8%;
+    --destructive: 0 75% 55%;
     --destructive-foreground: 0 0% 100%;
-    --border: 220 13% 18%;
-    --input: 220 13% 15%;
-    --ring: 217 91% 60%;
-    --sidebar-background: 220 13% 9%;
-    --sidebar-foreground: 220 9% 97%;
-    --sidebar-primary: 217 91% 60%;
+    --border: 220 12% 22%;
+    --input: 220 12% 16%;
+    --ring: 217 85% 55%;
+    
+    /* Dark mode text hierarchy - use grey instead of pure white */
+    --text-heading: 220 9% 85%;            /* High-opacity grey instead of pure white */
+    --text-body: 220 9% 75%;               /* Softer body text */
+    --text-secondary: 220 8% 60%;          /* Muted secondary */
+    --text-muted: 220 8% 50%;              /* Subtle muted text */
+    --text-emphasis: 220 9% 90%;           /* Strong emphasis */
+    
+    --sidebar-background: 220 10% 8%;
+    --sidebar-foreground: 220 9% 85%;
+    --sidebar-primary: 217 85% 55%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 220 13% 15%;
-    --sidebar-accent-foreground: 220 9% 97%;
-    --sidebar-border: 220 13% 18%;
-    --sidebar-ring: 217 91% 60%;
+    --sidebar-accent: 220 12% 18%;
+    --sidebar-accent-foreground: 220 9% 85%;
+    --sidebar-border: 220 12% 22%;
+    --sidebar-ring: 217 85% 55%;
   }
 }
 
@@ -231,6 +246,19 @@ All colors MUST be HSL.
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
   
+  /* Dark mode neon card - dark metallic gradient */
+  .dark .neon-card {
+    background: linear-gradient(135deg, 
+      hsl(220 12% 14%) 0%, 
+      hsl(220 12% 11%) 50%, 
+      hsl(220 12% 13%) 100%
+    );
+    box-shadow: 
+      0 4px 16px hsla(220, 13%, 5%, 0.4),
+      0 2px 8px hsla(220, 13%, 5%, 0.3),
+      inset 0 1px 0 hsla(220, 9%, 25%, 0.3);
+  }
+  
   .neon-card:hover {
     @apply border-primary/30;
     background: linear-gradient(135deg, 
@@ -244,6 +272,19 @@ All colors MUST be HSL.
       0 0 0 1px hsla(var(--primary), 0.2),
       inset 0 1px 0 hsla(var(--primary), 0.15);
     transform: translateY(-3px);
+  }
+  
+  .dark .neon-card:hover {
+    background: linear-gradient(135deg, 
+      hsl(220 12% 15%) 0%, 
+      hsl(217 20% 18%) 50%, 
+      hsl(220 12% 14%) 100%
+    );
+    box-shadow: 
+      0 12px 40px hsla(220, 13%, 3%, 0.5),
+      0 6px 20px hsla(220, 13%, 3%, 0.4),
+      0 0 0 1px hsla(var(--primary), 0.3),
+      inset 0 1px 0 hsla(var(--primary), 0.2);
   }
 
   /* Enhanced professional card with restored gradient depth */
@@ -261,6 +302,19 @@ All colors MUST be HSL.
       inset 0 1px 0 hsla(0, 0%, 100%, 0.15);
   }
   
+  /* Dark mode professional card - dark metallic gradient */
+  .dark .professional-card {
+    background: linear-gradient(135deg, 
+      hsl(220 12% 14%) 0%, 
+      hsl(220 12% 11%) 40%, 
+      hsl(220 12% 12%) 100%
+    );
+    box-shadow: 
+      0 6px 20px hsla(220, 13%, 3%, 0.35),
+      0 3px 10px hsla(220, 13%, 3%, 0.25),
+      inset 0 1px 0 hsla(220, 9%, 28%, 0.25);
+  }
+  
   .professional-card:hover {
     @apply border-primary/25 -translate-y-1;
     background: linear-gradient(135deg, 
@@ -273,6 +327,19 @@ All colors MUST be HSL.
       0 4px 16px hsla(220, 13%, 9%, 0.08),
       0 0 0 1px hsla(var(--primary), 0.15),
       inset 0 1px 0 hsla(var(--primary), 0.1);
+  }
+  
+  .dark .professional-card:hover {
+    background: linear-gradient(135deg, 
+      hsl(220 12% 15%) 0%, 
+      hsl(217 20% 17%) 50%, 
+      hsl(220 12% 13%) 100%
+    );
+    box-shadow: 
+      0 8px 32px hsla(220, 13%, 2%, 0.5),
+      0 4px 16px hsla(220, 13%, 2%, 0.4),
+      0 0 0 1px hsla(var(--primary), 0.25),
+      inset 0 1px 0 hsla(var(--primary), 0.15);
   }
   
   /* Enhanced button styles using semantic tokens */
@@ -355,6 +422,19 @@ All colors MUST be HSL.
       0 4px 16px hsla(220, 13%, 9%, 0.08),
       0 2px 8px hsla(220, 13%, 9%, 0.04),
       inset 0 1px 0 hsla(0, 0%, 100%, 0.12);
+  }
+  
+  /* Dark mode mobile card - dark metallic gradient */
+  .dark .mobile-card {
+    background: linear-gradient(135deg, 
+      hsl(220 12% 14%) 0%, 
+      hsl(220 12% 11%) 50%, 
+      hsl(220 12% 13%) 100%
+    );
+    box-shadow: 
+      0 4px 16px hsla(220, 13%, 3%, 0.35),
+      0 2px 8px hsla(220, 13%, 3%, 0.25),
+      inset 0 1px 0 hsla(220, 9%, 26%, 0.25);
   }
   
   .mobile-card:active {

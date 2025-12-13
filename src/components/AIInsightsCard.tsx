@@ -111,8 +111,8 @@ export const AIInsightsCard = () => {
               <Brain className="w-6 h-6 text-education" />
             </div>
             <div className="flex-1">
-              <CardTitle className="text-2xl font-bold text-white">AI Insights</CardTitle>
-              <p className="text-gray-300 text-sm">Personalized recommendations powered by ELIN</p>
+              <CardTitle className="text-2xl font-bold text-text-heading">AI Insights</CardTitle>
+              <p className="text-text-secondary text-sm">Personalized recommendations powered by ELIN</p>
             </div>
             <div className="flex items-center gap-2">
               <div className="w-2 h-2 bg-education rounded-full animate-pulse" />
@@ -141,7 +141,7 @@ export const AIInsightsCard = () => {
                       
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-2">
-                          <h4 className="text-white font-semibold text-sm group-hover:text-primary transition-colors">
+                      <h4 className="text-text-heading font-semibold text-sm group-hover:text-primary transition-colors">
                             {insight.title}
                           </h4>
                           <Badge 
@@ -151,16 +151,16 @@ export const AIInsightsCard = () => {
                             {insight.priority}
                           </Badge>
                         </div>
-                        <p className="text-gray-300 text-sm leading-relaxed">
+                        <p className="text-text-body text-sm leading-relaxed">
                           {insight.description}
                         </p>
                       </div>
                     </div>
 
                     {/* Confidence Score */}
-                    <div className="text-right ml-4 flex-shrink-0">
+                      <div className="text-right ml-4 flex-shrink-0">
                       <div className="text-accent font-bold text-lg">{insight.confidence}%</div>
-                      <div className="text-gray-400 text-xs">confidence</div>
+                      <div className="text-text-muted text-xs">confidence</div>
                     </div>
                   </div>
 
@@ -205,24 +205,24 @@ export const AIInsightsCard = () => {
 
                   {/* Expandable Content */}
                   {isExpanded && (
-                    <div className="mt-4 pt-4 border-t border-slate-700/50 animate-fade-in-up">
+                    <div className="mt-4 pt-4 border-t border-border/50 animate-fade-in-up">
                       <div className="space-y-3">
                         <div>
-                          <h5 className="text-white font-medium text-sm mb-2">Recommendation</h5>
+                          <h5 className="text-text-heading font-medium text-sm mb-2">Recommendation</h5>
                           <p className="text-accent text-sm leading-relaxed bg-accent/10 p-3 rounded-lg border border-accent/20">
                             {insight.recommendation}
                           </p>
                         </div>
                         
                         <div>
-                          <h5 className="text-white font-medium text-sm mb-2">Analysis</h5>
-                          <p className="text-gray-300 text-sm leading-relaxed">
+                          <h5 className="text-text-heading font-medium text-sm mb-2">Analysis</h5>
+                          <p className="text-text-body text-sm leading-relaxed">
                             {insight.explanation}
                           </p>
                         </div>
 
                         <div className="flex items-center justify-between pt-2">
-                          <div className="text-gray-400 text-xs">
+                          <div className="text-text-muted text-xs">
                             Related: <span className="text-education">{insight.learningModule}</span>
                           </div>
                           <Button 
@@ -243,7 +243,7 @@ export const AIInsightsCard = () => {
 
           {/* Footer */}
           <div className="mt-6 pt-4 border-t border-border/30 text-center">
-            <p className="text-gray-400 text-sm mb-3">
+            <p className="text-text-muted text-sm mb-3">
               Insights updated 2 minutes ago • Next analysis in 4 hours
             </p>
             <Button 
