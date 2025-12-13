@@ -122,7 +122,7 @@ const Dashboard = () => {
         </div>
       </div>
       
-      <main className="mobile-content mobile-container py-4 md:py-8">
+      <main className="mobile-content mobile-container py-4 md:py-8 pb-32 md:pb-8">
         {/* Hero Greeting Section - Mobile optimized */}
         <div className="mb-6 md:mb-10">
           <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 md:mb-8 gap-4">
