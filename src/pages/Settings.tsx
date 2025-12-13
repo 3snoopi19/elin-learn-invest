@@ -29,7 +29,7 @@ const Settings = () => {
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      <main className="mobile-container mobile-content py-4 md:py-8 max-w-4xl mx-auto">
+      <main className="mobile-container mobile-content py-4 md:py-8 max-w-4xl mx-auto pb-32 md:pb-8">
         {/* Header */}
         <div className="mb-6 md:mb-8">
           <h1 className="text-2xl md:text-3xl font-bold mb-2 flex items-center gap-2">

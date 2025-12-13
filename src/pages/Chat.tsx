@@ -330,7 +330,7 @@ const Chat = () => {
     <div className="min-h-screen bg-background flex flex-col">
       <Header />
       
-      <main className="flex-1 mobile-container mobile-content">
+      <main className="flex-1 mobile-container mobile-content pb-32 md:pb-8">
         {/* Header - Mobile optimized */}
         <div className="mb-4 md:mb-6">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">

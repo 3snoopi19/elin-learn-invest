@@ -238,7 +238,7 @@ const Portfolio = () => {
     <div className="min-h-screen bg-background">
       <Header />
       
-      <main className="mobile-container mobile-content">
+      <main className="mobile-container mobile-content pb-32 md:pb-8 py-4 md:py-8">
         {/* Header - Mobile optimized */}
         <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 md:mb-8 gap-4">
           <div>

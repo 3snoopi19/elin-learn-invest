@@ -403,16 +403,29 @@ All colors MUST be HSL.
   
   /* Enhanced mobile-first responsive design utilities */
   .mobile-container {
-    @apply px-4 md:px-6 lg:px-8;
-    padding-bottom: env(safe-area-inset-bottom, 80px); /* Space for bottom nav */
+    @apply px-4 md:px-6 lg:px-8 w-full max-w-full;
+    box-sizing: border-box;
   }
   
+  /* Force single column on mobile, stack everything vertically */
   .mobile-grid {
-    @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6;
+    @apply grid grid-cols-1 gap-4 w-full;
+  }
+  
+  @media (min-width: 768px) {
+    .mobile-grid {
+      @apply grid-cols-2 gap-6;
+    }
+  }
+  
+  @media (min-width: 1024px) {
+    .mobile-grid {
+      @apply grid-cols-3;
+    }
   }
   
   .mobile-card {
-    @apply professional-card p-4 md:p-6 rounded-xl;
+    @apply professional-card p-4 md:p-6 rounded-xl w-full;
     background: linear-gradient(135deg, 
       hsl(var(--card)) 0%, 
       hsl(var(--background-subtle)) 60%, 
@@ -444,17 +457,27 @@ All colors MUST be HSL.
       0 1px 4px hsla(220, 13%, 9%, 0.04);
   }
   
-  /* Mobile Content Wrapper - Enhanced for better spacing */
+  /* Mobile Content Wrapper - Enhanced for better spacing with bottom nav */
   .mobile-content {
-    margin-bottom: 96px; /* Increased space for larger bottom navigation */
-    padding-bottom: env(safe-area-inset-bottom, 12px);
+    padding-bottom: calc(128px + env(safe-area-inset-bottom, 16px)); /* pb-32 equivalent + safe area */
+    min-height: calc(100vh - 64px);
   }
   
   @media (min-width: 768px) {
     .mobile-content {
-      margin-bottom: 0;
-      padding-bottom: 0;
+      padding-bottom: 2rem;
+      min-height: auto;
     }
+  }
+  
+  /* Hide desktop-only elements on mobile */
+  .desktop-only {
+    @apply hidden md:block;
+  }
+  
+  /* Hide mobile-only elements on desktop */
+  .mobile-only {
+    @apply block md:hidden;
   }
   
   .mobile-text-sm {
@@ -465,19 +488,55 @@ All colors MUST be HSL.
     @apply text-lg md:text-xl lg:text-2xl;
   }
   
-  .mobile-padding {
-    @apply p-3 md:p-4 lg:p-6;
+  .mobile-heading {
+    @apply text-xl md:text-2xl lg:text-3xl font-bold;
   }
   
+  .mobile-subheading {
+    @apply text-base md:text-lg font-semibold;
+  }
+  
+  .mobile-body {
+    @apply text-sm md:text-base;
+  }
+  
+  .mobile-caption {
+    @apply text-xs md:text-sm;
+  }
+  
+  .mobile-padding {
+    @apply p-4 md:p-6;
+  }
+  
+  /* Touch-optimized buttons - minimum 44px height for accessibility */
   .mobile-button {
-    @apply px-4 py-2 md:px-6 md:py-3 text-sm md:text-base;
-    min-height: 44px; /* iOS accessibility minimum touch target */
+    @apply px-4 py-3 md:px-6 md:py-3 text-sm md:text-base font-medium;
+    min-height: 48px; /* Slightly larger for better touch targets */
+    min-width: 48px;
   }
   
   /* Touch-friendly interactive elements */
   .touch-target {
+    min-height: 48px;
+    min-width: 48px;
+  }
+  
+  /* All clickable elements should have adequate touch targets */
+  button, 
+  a, 
+  [role="button"],
+  input[type="button"],
+  input[type="submit"],
+  .clickable {
     min-height: 44px;
-    min-width: 44px;
+  }
+  
+  /* Form inputs with better touch targets */
+  input, 
+  select, 
+  textarea {
+    min-height: 44px;
+    @apply text-base; /* Prevent zoom on iOS */
   }
   
   /* Safe area support for mobile devices */
@@ -527,14 +586,15 @@ All colors MUST be HSL.
   
 /* Floating Action Button - Enhanced positioning */
 .floating-action-btn {
-  @apply fixed bottom-28 right-4 md:bottom-6 md:right-6 z-40 w-14 h-14 bg-primary hover:bg-primary-hover text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center;
+  @apply fixed right-4 z-40 w-14 h-14 bg-primary hover:bg-primary-hover text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center;
   transform-origin: center;
-  bottom: calc(96px + env(safe-area-inset-bottom, 12px)); /* Above enhanced bottom nav */
+  bottom: calc(112px + env(safe-area-inset-bottom, 16px)); /* Above enhanced bottom nav */
 }
 
 @media (min-width: 768px) {
   .floating-action-btn {
-    bottom: 24px; /* Standard desktop positioning */
+    bottom: 24px;
+    right: 24px;
   }
 }
 
@@ -544,6 +604,23 @@ All colors MUST be HSL.
 
 .floating-action-btn:active {
   transform: scale(0.95);
+}
+
+/* Overflow protection for wide content */
+.overflow-safe {
+  @apply overflow-x-auto w-full;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Table wrapper for horizontal scroll on mobile */
+.table-wrapper {
+  @apply overflow-x-auto w-full -mx-4 px-4;
+}
+
+@media (min-width: 768px) {
+  .table-wrapper {
+    @apply mx-0 px-0;
+  }
 }
 
   /* Enhanced Animation Utilities */
