@@ -1,10 +1,10 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ArrowLeft, Clock, CheckCircle, BookOpen, Sparkles, Play, Volume2, Pause, Presentation } from 'lucide-react';
+import { Progress } from '@/components/ui/progress';
+import { ArrowLeft, Clock, CheckCircle, BookOpen, Sparkles, Play, Pause, Presentation, Headphones, Volume2, Loader2 } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import { DynamicSlideshow, Slide } from './DynamicSlideshow';
 import { supabase } from '@/integrations/supabase/client';
@@ -35,8 +35,13 @@ export const DynamicLessonView = ({
   const [isLoadingSlides, setIsLoadingSlides] = useState(false);
   const [isCompleting, setIsCompleting] = useState(false);
   const [viewMode, setViewMode] = useState<'read' | 'slideshow'>('read');
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [isSpeaking, setIsSpeaking] = useState(false);
+  
+  // Audio state
+  const [isGeneratingAudio, setIsGeneratingAudio] = useState(false);
+  const [audioUrl, setAudioUrl] = useState<string | null>(null);
+  const [isPlayingAudio, setIsPlayingAudio] = useState(false);
+  const [audioProgress, setAudioProgress] = useState(0);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
     const fetchContent = async () => {
@@ -47,6 +52,95 @@ export const DynamicLessonView = ({
     };
     fetchContent();
   }, [lessonId, getLessonContent]);
+
+  // Audio player setup
+  useEffect(() => {
+    if (audioUrl) {
+      audioRef.current = new Audio(audioUrl);
+      
+      audioRef.current.addEventListener('timeupdate', () => {
+        if (audioRef.current) {
+          const progress = (audioRef.current.currentTime / audioRef.current.duration) * 100;
+          setAudioProgress(progress);
+        }
+      });
+      
+      audioRef.current.addEventListener('ended', () => {
+        setIsPlayingAudio(false);
+        setAudioProgress(0);
+      });
+      
+      audioRef.current.addEventListener('error', (e) => {
+        console.error('Audio playback error:', e);
+        setIsPlayingAudio(false);
+        toast.error('Failed to play audio');
+      });
+    }
+    
+    return () => {
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current = null;
+      }
+    };
+  }, [audioUrl]);
+
+  // Generate ElevenLabs audio
+  const generateAudio = async () => {
+    if (!lesson?.content) {
+      toast.error('No content available to generate audio');
+      return;
+    }
+
+    setIsGeneratingAudio(true);
+    try {
+      // Strip markdown for cleaner speech
+      const cleanText = lesson.content
+        .replace(/#{1,6}\s/g, '')
+        .replace(/\*\*/g, '')
+        .replace(/\*/g, '')
+        .replace(/`/g, '')
+        .replace(/>/g, '')
+        .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
+        .slice(0, 5000); // ElevenLabs limit
+
+      const { data, error } = await supabase.functions.invoke('generate-audio-lesson', {
+        body: { text: cleanText }
+      });
+
+      if (error) throw error;
+      
+      if (data.audio) {
+        // Convert base64 to blob URL
+        const binaryString = atob(data.audio);
+        const bytes = new Uint8Array(binaryString.length);
+        for (let i = 0; i < binaryString.length; i++) {
+          bytes[i] = binaryString.charCodeAt(i);
+        }
+        const blob = new Blob([bytes], { type: 'audio/mpeg' });
+        const url = URL.createObjectURL(blob);
+        setAudioUrl(url);
+        toast.success('High-quality audio generated!');
+      }
+    } catch (error) {
+      console.error('Error generating audio:', error);
+      toast.error('Failed to generate audio. Please try again.');
+    } finally {
+      setIsGeneratingAudio(false);
+    }
+  };
+
+  const toggleAudioPlayback = () => {
+    if (!audioRef.current) return;
+    
+    if (isPlayingAudio) {
+      audioRef.current.pause();
+      setIsPlayingAudio(false);
+    } else {
+      audioRef.current.play();
+      setIsPlayingAudio(true);
+    }
+  };
 
   // Generate slides for slideshow mode
   const generateSlides = async () => {
@@ -71,65 +165,6 @@ export const DynamicLessonView = ({
     }
   };
 
-  // Text-to-speech for reading mode
-  const speakContent = useCallback(() => {
-    if (!lesson?.content || !('speechSynthesis' in window)) {
-      toast.error('Speech synthesis not supported in your browser');
-      return;
-    }
-
-    if (isSpeaking) {
-      window.speechSynthesis.cancel();
-      setIsSpeaking(false);
-      setIsPlaying(false);
-      return;
-    }
-
-    // Strip markdown for cleaner speech
-    const cleanText = lesson.content
-      .replace(/#{1,6}\s/g, '')
-      .replace(/\*\*/g, '')
-      .replace(/\*/g, '')
-      .replace(/`/g, '')
-      .replace(/>/g, '')
-      .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1');
-
-    const utterance = new SpeechSynthesisUtterance(cleanText);
-    utterance.rate = 0.9;
-    utterance.pitch = 1;
-
-    const voices = window.speechSynthesis.getVoices();
-    const preferredVoice = voices.find(v => 
-      v.name.includes('Google') || v.name.includes('Samantha') || v.name.includes('Daniel')
-    ) || voices.find(v => v.lang.startsWith('en'));
-    
-    if (preferredVoice) {
-      utterance.voice = preferredVoice;
-    }
-
-    utterance.onstart = () => {
-      setIsSpeaking(true);
-      setIsPlaying(true);
-    };
-    utterance.onend = () => {
-      setIsSpeaking(false);
-      setIsPlaying(false);
-    };
-    utterance.onerror = () => {
-      setIsSpeaking(false);
-      setIsPlaying(false);
-    };
-
-    window.speechSynthesis.speak(utterance);
-  }, [lesson?.content, isSpeaking]);
-
-  // Cleanup speech on unmount
-  useEffect(() => {
-    return () => {
-      window.speechSynthesis.cancel();
-    };
-  }, []);
-
   const handleComplete = async () => {
     setIsCompleting(true);
     await onComplete(lessonId);
@@ -140,6 +175,18 @@ export const DynamicLessonView = ({
     toast.success('Slideshow complete!');
     setViewMode('read');
   };
+
+  // Cleanup audio on unmount
+  useEffect(() => {
+    return () => {
+      if (audioRef.current) {
+        audioRef.current.pause();
+      }
+      if (audioUrl) {
+        URL.revokeObjectURL(audioUrl);
+      }
+    };
+  }, [audioUrl]);
 
   if (isLoading) {
     return (
@@ -158,8 +205,6 @@ export const DynamicLessonView = ({
             <Skeleton className="h-4 w-full" />
             <Skeleton className="h-4 w-full" />
             <Skeleton className="h-4 w-2/3" />
-            <Skeleton className="h-4 w-full" />
-            <Skeleton className="h-4 w-5/6" />
           </CardContent>
         </Card>
       </div>
@@ -219,7 +264,7 @@ export const DynamicLessonView = ({
             <div>
               <h3 className="font-semibold text-text-heading flex items-center gap-2">
                 <Sparkles className="w-4 h-4 text-primary" />
-                AI Video Learning
+                AI Learning Experience
               </h3>
               <p className="text-sm text-text-muted">Choose how you want to experience this lesson</p>
             </div>
@@ -242,7 +287,7 @@ export const DynamicLessonView = ({
               >
                 {isLoadingSlides ? (
                   <>
-                    <div className="w-4 h-4 mr-2 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                     Generating...
                   </>
                 ) : (
@@ -267,39 +312,73 @@ export const DynamicLessonView = ({
         />
       ) : (
         <>
-          {/* Audio Controls for Read Mode */}
-          <Card className="mb-4 border-primary/20">
+          {/* ElevenLabs Audio Player */}
+          <Card className="mb-4 border-violet-500/20 bg-gradient-to-r from-violet-500/5 to-purple-500/5">
             <CardContent className="p-4">
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between gap-4">
                 <div className="flex items-center gap-3">
-                  <div className={`w-10 h-10 rounded-full flex items-center justify-center ${isSpeaking ? 'bg-primary animate-pulse' : 'bg-primary/20'}`}>
-                    <Volume2 className={`w-5 h-5 ${isSpeaking ? 'text-primary-foreground' : 'text-primary'}`} />
+                  <div className={`w-12 h-12 rounded-full flex items-center justify-center ${isPlayingAudio ? 'bg-violet-500 animate-pulse' : 'bg-violet-500/20'}`}>
+                    <Headphones className={`w-6 h-6 ${isPlayingAudio ? 'text-white' : 'text-violet-500'}`} />
                   </div>
                   <div>
-                    <h4 className="font-medium text-text-heading">Listen to Lesson</h4>
+                    <h4 className="font-semibold text-text-heading flex items-center gap-2">
+                      Professional Audio
+                      <Badge variant="outline" className="text-xs bg-violet-500/10 text-violet-500 border-violet-500/30">
+                        ElevenLabs
+                      </Badge>
+                    </h4>
                     <p className="text-sm text-text-muted">
-                      {isSpeaking ? 'Reading aloud...' : 'Use text-to-speech to hear this lesson'}
+                      {audioUrl ? 'High-quality AI voiceover ready' : 'Generate studio-quality narration'}
                     </p>
                   </div>
                 </div>
-                <Button
-                  onClick={speakContent}
-                  variant={isSpeaking ? 'destructive' : 'default'}
-                  size="sm"
-                >
-                  {isSpeaking ? (
-                    <>
-                      <Pause className="w-4 h-4 mr-2" />
-                      Stop
-                    </>
+                
+                <div className="flex items-center gap-2">
+                  {!audioUrl ? (
+                    <Button
+                      onClick={generateAudio}
+                      disabled={isGeneratingAudio}
+                      className="bg-violet-500 hover:bg-violet-600"
+                    >
+                      {isGeneratingAudio ? (
+                        <>
+                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                          Generating...
+                        </>
+                      ) : (
+                        <>
+                          <Volume2 className="w-4 h-4 mr-2" />
+                          Generate Audio
+                        </>
+                      )}
+                    </Button>
                   ) : (
-                    <>
-                      <Play className="w-4 h-4 mr-2" />
-                      Play Audio
-                    </>
+                    <Button
+                      onClick={toggleAudioPlayback}
+                      className={isPlayingAudio ? 'bg-red-500 hover:bg-red-600' : 'bg-violet-500 hover:bg-violet-600'}
+                    >
+                      {isPlayingAudio ? (
+                        <>
+                          <Pause className="w-4 h-4 mr-2" />
+                          Pause
+                        </>
+                      ) : (
+                        <>
+                          <Play className="w-4 h-4 mr-2" />
+                          Listen
+                        </>
+                      )}
+                    </Button>
                   )}
-                </Button>
+                </div>
               </div>
+              
+              {/* Audio Progress */}
+              {audioUrl && (
+                <div className="mt-4">
+                  <Progress value={audioProgress} className="h-1 bg-violet-500/20" />
+                </div>
+              )}
             </CardContent>
           </Card>
 
