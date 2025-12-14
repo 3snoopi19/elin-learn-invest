@@ -231,12 +231,12 @@ export const LessonContent = ({ lesson, onComplete, onNext }: LessonContentProps
               <h4 className="font-semibold mb-2">Step {index + 1}: {step.title}</h4>
               <p className="mb-3">{step.instruction}</p>
               {step.input && (
-                <div className="bg-gray-50 p-3 rounded border">
-                  <label className="block text-sm font-medium mb-1">{step.input.label}</label>
+                <div className="bg-gray-50 dark:bg-slate-800 p-3 rounded border border-gray-200 dark:border-slate-700">
+                  <label className="block text-sm font-medium mb-1 text-gray-900 dark:text-gray-100">{step.input.label}</label>
                   <input 
                     type="text" 
                     placeholder={step.input.placeholder}
-                    className="w-full p-2 border rounded"
+                    className="w-full p-2 border rounded bg-white dark:bg-slate-900 border-gray-300 dark:border-slate-600 text-gray-900 dark:text-gray-100"
                   />
                 </div>
               )}
@@ -276,33 +276,33 @@ export const LessonContent = ({ lesson, onComplete, onNext }: LessonContentProps
 
       {/* NotebookLM Enhanced Learning Section */}
       {notebookLMContent && (
-        <Card className="mb-6 bg-gradient-to-r from-purple-50 to-blue-50 border-purple-200">
+        <Card className="mb-6 bg-gradient-to-r from-purple-50 to-blue-50 dark:from-purple-950/30 dark:to-blue-950/30 border-purple-200 dark:border-purple-800">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-purple-800">
+            <CardTitle className="flex items-center gap-2 text-purple-800 dark:text-purple-200">
               <Sparkles className="w-5 h-5" />
               NotebookLM Study Guide
-              <Badge variant="outline" className="text-xs bg-white text-purple-600 border-purple-300">
+              <Badge variant="outline" className="text-xs bg-white dark:bg-purple-900/50 text-purple-600 dark:text-purple-300 border-purple-300 dark:border-purple-700">
                 AI-Generated
               </Badge>
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
             {/* AI Summary */}
-            <div className="bg-white/60 rounded-lg p-4 border border-purple-200">
-              <h4 className="font-semibold text-purple-800 mb-2 flex items-center gap-2">
+            <div className="bg-white/60 dark:bg-slate-800/60 rounded-lg p-4 border border-purple-200 dark:border-purple-800">
+              <h4 className="font-semibold text-purple-800 dark:text-purple-200 mb-2 flex items-center gap-2">
                 <Brain className="w-4 h-4" />
                 AI Summary
               </h4>
-              <p className="text-purple-700 text-sm">{notebookLMContent.summary}</p>
+              <p className="text-purple-700 dark:text-purple-300 text-sm">{notebookLMContent.summary}</p>
             </div>
 
             {/* Key Insights */}
-            <div className="bg-white/60 rounded-lg p-4 border border-purple-200">
-              <h4 className="font-semibold text-purple-800 mb-3">Key Insights</h4>
+            <div className="bg-white/60 dark:bg-slate-800/60 rounded-lg p-4 border border-purple-200 dark:border-purple-800">
+              <h4 className="font-semibold text-purple-800 dark:text-purple-200 mb-3">Key Insights</h4>
               <div className="grid gap-2">
                 {notebookLMContent.keyInsights.map((insight, index) => (
-                  <div key={index} className="flex items-start gap-2 text-sm text-purple-700">
-                    <CheckCircle className="w-4 h-4 text-green-600 flex-shrink-0 mt-0.5" />
+                  <div key={index} className="flex items-start gap-2 text-sm text-purple-700 dark:text-purple-300">
+                    <CheckCircle className="w-4 h-4 text-green-600 dark:text-green-400 flex-shrink-0 mt-0.5" />
                     <span>{insight}</span>
                   </div>
                 ))}
@@ -311,24 +311,24 @@ export const LessonContent = ({ lesson, onComplete, onNext }: LessonContentProps
 
             {/* Study Guide */}
             <div className="grid md:grid-cols-2 gap-4">
-              <div className="bg-white/60 rounded-lg p-4 border border-purple-200">
-                <h4 className="font-semibold text-purple-800 mb-3">Main Concepts</h4>
+              <div className="bg-white/60 dark:bg-slate-800/60 rounded-lg p-4 border border-purple-200 dark:border-purple-800">
+                <h4 className="font-semibold text-purple-800 dark:text-purple-200 mb-3">Main Concepts</h4>
                 <div className="space-y-2">
                   {notebookLMContent.studyGuide.mainConcepts.map((concept, index) => (
-                    <Badge key={index} variant="outline" className="block text-xs bg-purple-100 text-purple-700 border-purple-300">
+                    <Badge key={index} variant="outline" className="block text-xs bg-purple-100 dark:bg-purple-900/50 text-purple-700 dark:text-purple-300 border-purple-300 dark:border-purple-700">
                       {concept}
                     </Badge>
                   ))}
                 </div>
               </div>
 
-              <div className="bg-white/60 rounded-lg p-4 border border-purple-200">
-                <h4 className="font-semibold text-purple-800 mb-3">Practice Questions</h4>
+              <div className="bg-white/60 dark:bg-slate-800/60 rounded-lg p-4 border border-purple-200 dark:border-purple-800">
+                <h4 className="font-semibold text-purple-800 dark:text-purple-200 mb-3">Practice Questions</h4>
                 <div className="space-y-3">
                   {notebookLMContent.studyGuide.practiceQuestions.slice(0, 2).map((qa, index) => (
                     <div key={index} className="text-sm">
-                      <p className="font-medium text-purple-800">Q: {qa.question}</p>
-                      <p className="text-purple-600 mt-1">A: {qa.answer}</p>
+                      <p className="font-medium text-purple-800 dark:text-purple-200">Q: {qa.question}</p>
+                      <p className="text-purple-600 dark:text-purple-400 mt-1">A: {qa.answer}</p>
                     </div>
                   ))}
                 </div>
@@ -336,15 +336,15 @@ export const LessonContent = ({ lesson, onComplete, onNext }: LessonContentProps
             </div>
 
             {/* Audio Summary Button */}
-            <div className="flex items-center justify-between bg-white/60 rounded-lg p-4 border border-purple-200">
+            <div className="flex items-center justify-between bg-white/60 dark:bg-slate-800/60 rounded-lg p-4 border border-purple-200 dark:border-purple-800">
               <div>
-                <h4 className="font-semibold text-purple-800 flex items-center gap-2">
+                <h4 className="font-semibold text-purple-800 dark:text-purple-200 flex items-center gap-2">
                   <Headphones className="w-4 h-4" />
                   Audio Overview
                 </h4>
-                <p className="text-sm text-purple-600">Listen to an AI-generated summary of this lesson</p>
+                <p className="text-sm text-purple-600 dark:text-purple-400">Listen to an AI-generated summary of this lesson</p>
               </div>
-              <Button size="sm" className="bg-purple-600 hover:bg-purple-700 text-white">
+              <Button size="sm" className="bg-purple-600 hover:bg-purple-700 dark:bg-purple-700 dark:hover:bg-purple-600 text-white">
                 <Play className="w-3 h-3 mr-1" />
                 Play Audio
               </Button>
@@ -354,13 +354,13 @@ export const LessonContent = ({ lesson, onComplete, onNext }: LessonContentProps
       )}
 
       {isGenerating && (
-        <Card className="mb-6 bg-gradient-to-r from-purple-50 to-blue-50 border-purple-200">
+        <Card className="mb-6 bg-gradient-to-r from-purple-50 to-blue-50 dark:from-purple-950/30 dark:to-blue-950/30 border-purple-200 dark:border-purple-800">
           <CardContent className="p-6">
             <div className="flex items-center gap-3">
-              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-purple-600"></div>
+              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-purple-600 dark:border-purple-400"></div>
               <div>
-                <h4 className="font-medium text-purple-800">Generating NotebookLM Study Guide</h4>
-                <p className="text-sm text-purple-600">Creating personalized learning materials...</p>
+                <h4 className="font-medium text-purple-800 dark:text-purple-200">Generating NotebookLM Study Guide</h4>
+                <p className="text-sm text-purple-600 dark:text-purple-400">Creating personalized learning materials...</p>
               </div>
             </div>
           </CardContent>
