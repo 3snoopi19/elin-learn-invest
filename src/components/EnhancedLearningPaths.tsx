@@ -143,11 +143,11 @@ export const EnhancedLearningPaths = () => {
           <div className="mt-3 flex flex-wrap gap-2">
             <Badge variant="outline" className="text-xs bg-violet-500/10 text-violet-500 border-violet-500/30">
               <Video className="w-3 h-3 mr-1" />
-              HeyGen Avatar Video
+              Dynamic Slideshow
             </Badge>
             <Badge variant="outline" className="text-xs bg-purple-500/10 text-purple-500 border-purple-500/30">
               <Headphones className="w-3 h-3 mr-1" />
-              ElevenLabs Audio
+              Web Speech Audio
             </Badge>
             <Badge variant="outline" className="text-xs bg-blue-500/10 text-blue-500 border-blue-500/30">
               <BookOpen className="w-3 h-3 mr-1" />
