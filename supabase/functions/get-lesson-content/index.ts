@@ -13,7 +13,7 @@ serve(async (req) => {
   }
 
   try {
-    const { lessonId } = await req.json();
+    const { lessonId, generateSlides = false } = await req.json();
 
     if (!lessonId) {
       return new Response(
@@ -47,8 +47,8 @@ serve(async (req) => {
       );
     }
 
-    // If content already exists, return it
-    if (lesson.content_markdown && lesson.is_generated) {
+    // If content already exists and no slides requested, return it
+    if (lesson.content_markdown && lesson.is_generated && !generateSlides) {
       console.log('Returning cached lesson content');
       return new Response(
         JSON.stringify({ 
@@ -75,9 +75,31 @@ serve(async (req) => {
     const courseTopic = lesson.module?.course?.topic || 'investing';
     const courseLevel = lesson.module?.course?.level || 'beginner';
 
-    console.log(`Generating content for lesson: ${lesson.title}`);
+    console.log(`Generating content for lesson: ${lesson.title}, generateSlides: ${generateSlides}`);
 
-    const prompt = `You are an expert financial educator creating engaging lesson content. 
+    // Build prompt based on whether we need slides
+    let prompt: string;
+    
+    if (generateSlides) {
+      prompt = `You are an expert financial educator creating a presentation for "${lesson.title}" as part of a ${courseTopic} course for ${courseLevel} learners.
+
+Generate a JSON array of 5-7 slides for this lesson. Each slide should have:
+- title: A clear, engaging slide title
+- bulletPoints: 3-4 key points (short, memorable phrases)
+- icon: One of these Lucide icon names that best fits the content: BookOpen, TrendingUp, DollarSign, PieChart, BarChart3, Wallet, Target, Shield, Lightbulb, CheckCircle, AlertCircle, Info, Star
+
+IMPORTANT: Respond ONLY with valid JSON array, no markdown code blocks or extra text.
+
+Example format:
+[
+  {
+    "title": "Introduction to the Topic",
+    "bulletPoints": ["Key point one", "Key point two", "Key point three"],
+    "icon": "BookOpen"
+  }
+]`;
+    } else {
+      prompt = `You are an expert financial educator creating engaging lesson content. 
 Write in a clear, educational style appropriate for ${courseLevel} learners.
 Use markdown formatting for structure.
 Include practical examples and key takeaways.
@@ -93,6 +115,7 @@ Structure the lesson with:
 5. A brief summary
 
 Use markdown formatting with headers (##), bold text, bullet points, and blockquotes for important notes.`;
+    }
 
     const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
       method: 'POST',
@@ -128,7 +151,63 @@ Use markdown formatting with headers (##), bold text, bullet points, and blockqu
     // Clean up thinking tags if present
     generatedContent = generatedContent.replace(/<think>[\s\S]*?<\/think>/g, '').trim();
 
-    // Save the generated content
+    if (generateSlides) {
+      // Parse slides JSON
+      let slides;
+      try {
+        // Clean up potential markdown code blocks
+        let cleanedContent = generatedContent
+          .replace(/```json\n?|\n?```/g, '')
+          .trim();
+        
+        // Find JSON array in the response
+        const jsonMatch = cleanedContent.match(/\[[\s\S]*\]/);
+        if (jsonMatch) {
+          slides = JSON.parse(jsonMatch[0]);
+        } else {
+          throw new Error('No JSON array found in response');
+        }
+      } catch (parseError) {
+        console.error('Failed to parse slides:', parseError, generatedContent);
+        // Return fallback slides
+        slides = [
+          {
+            title: lesson.title,
+            bulletPoints: ["Welcome to this lesson", "Let's explore the key concepts", "Interactive learning experience"],
+            icon: "BookOpen"
+          },
+          {
+            title: "Key Concepts",
+            bulletPoints: ["Understanding the fundamentals", "Building your knowledge base", "Practical applications"],
+            icon: "Lightbulb"
+          },
+          {
+            title: "Summary",
+            bulletPoints: ["Review what you've learned", "Apply these concepts", "Continue your learning journey"],
+            icon: "CheckCircle"
+          }
+        ];
+      }
+
+      console.log('Slides generated:', slides.length);
+
+      return new Response(
+        JSON.stringify({ 
+          lesson: {
+            id: lesson.id,
+            title: lesson.title,
+            content_type: lesson.content_type,
+            duration_minutes: lesson.duration_minutes,
+            moduleTitle: lesson.module?.title,
+            courseTitle: lesson.module?.course?.title
+          },
+          slides
+        }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Save the generated markdown content
     const { error: updateError } = await supabase
       .from('lessons')
       .update({
