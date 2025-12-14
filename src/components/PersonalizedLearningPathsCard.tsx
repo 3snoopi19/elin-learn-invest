@@ -232,12 +232,12 @@ const PersonalizedLearningPathsCard = () => {
           
           <TabsContent value="recommended" className="space-y-3 mt-4">
             {isGenerating && (
-              <div className="bg-gradient-to-r from-purple-50 to-blue-50 border border-purple-200 rounded-lg p-4 mb-4">
+              <div className="bg-gradient-to-r from-purple-50 to-blue-50 dark:from-purple-950/30 dark:to-blue-950/30 border border-purple-200 dark:border-purple-800 rounded-lg p-4 mb-4">
                 <div className="flex items-center gap-3">
-                  <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-purple-600"></div>
+                  <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-purple-600 dark:border-purple-400"></div>
                   <div>
-                    <h5 className="font-medium text-purple-800">Generating Personalized Content</h5>
-                    <p className="text-sm text-purple-600">NotebookLM is creating custom learning materials for you...</p>
+                    <h5 className="font-medium text-purple-800 dark:text-purple-200">Generating Personalized Content</h5>
+                    <p className="text-sm text-purple-600 dark:text-purple-400">NotebookLM is creating custom learning materials for you...</p>
                   </div>
                 </div>
               </div>
@@ -252,16 +252,16 @@ const PersonalizedLearningPathsCard = () => {
                 </div>
                 <div className="grid gap-3">
                   {notebookLMContent.map((content) => (
-                    <div key={content.id} className="bg-gradient-to-r from-purple-50 to-blue-50 border border-purple-200 rounded-lg p-4">
+                    <div key={content.id} className="bg-gradient-to-r from-purple-50 to-blue-50 dark:from-purple-950/30 dark:to-blue-950/30 border border-purple-200 dark:border-purple-800 rounded-lg p-4">
                       <div className="flex items-start justify-between mb-2">
                         <div className="flex-1">
-                          <h5 className="font-medium text-purple-800 flex items-center gap-2">
+                          <h5 className="font-medium text-purple-800 dark:text-purple-200 flex items-center gap-2">
                             {content.title}
-                            <Badge variant="outline" className="text-xs bg-white text-purple-600 border-purple-300">
+                            <Badge variant="outline" className="text-xs bg-white dark:bg-purple-900/50 text-purple-600 dark:text-purple-300 border-purple-300 dark:border-purple-700">
                               NotebookLM
                             </Badge>
                           </h5>
-                          <p className="text-sm text-purple-600 mt-1">{content.summary}</p>
+                          <p className="text-sm text-purple-600 dark:text-purple-400 mt-1">{content.summary}</p>
                         </div>
                         <Badge variant="outline" className={`text-xs ${getDifficultyColor(content.difficulty)}`}>
                           {content.difficulty}
@@ -269,40 +269,40 @@ const PersonalizedLearningPathsCard = () => {
                       </div>
                       
                        <div className="flex items-center gap-4 mb-3">
-                         <div className="flex items-center gap-1 text-xs text-purple-600">
+                         <div className="flex items-center gap-1 text-xs text-purple-600 dark:text-purple-400">
                            <Clock className="w-3 h-3" />
                            {content.estimatedReadTime}
                          </div>
-                         <div className="flex items-center gap-1 text-xs text-purple-600">
+                         <div className="flex items-center gap-1 text-xs text-purple-600 dark:text-purple-400">
                            <Headphones className="w-3 h-3" />
                            Audio Summary
                          </div>
                          {content.videoExplainer && (
-                           <div className="flex items-center gap-1 text-xs text-purple-600">
+                           <div className="flex items-center gap-1 text-xs text-purple-600 dark:text-purple-400">
                              <Play className="w-3 h-3" />
                              Video ({content.videoExplainer.duration})
                            </div>
                          )}
-                         <div className="flex items-center gap-1 text-xs text-purple-600">
+                         <div className="flex items-center gap-1 text-xs text-purple-600 dark:text-purple-400">
                            <Target className="w-3 h-3" />
                            {content.keyInsights.length} insights
                          </div>
                        </div>
 
                        {content.videoExplainer && (
-                         <div className="mb-3 p-3 bg-white/70 rounded-lg border border-purple-200">
+                         <div className="mb-3 p-3 bg-white/70 dark:bg-slate-800/70 rounded-lg border border-purple-200 dark:border-purple-800">
                            <div className="flex items-center justify-between mb-2">
                              <div className="flex items-center gap-2">
-                               <Play className="h-4 w-4 text-purple-600" />
-                               <span className="font-medium text-purple-800">Video Chapters</span>
+                               <Play className="h-4 w-4 text-purple-600 dark:text-purple-400" />
+                               <span className="font-medium text-purple-800 dark:text-purple-200">Video Chapters</span>
                              </div>
-                             <span className="text-sm text-purple-600">{content.videoExplainer.duration}</span>
+                             <span className="text-sm text-purple-600 dark:text-purple-400">{content.videoExplainer.duration}</span>
                            </div>
                            <div className="space-y-1">
                              {content.videoExplainer.chapters.slice(0, 3).map((chapter, idx) => (
                                <div key={idx} className="flex items-center gap-3 text-sm">
-                                 <span className="text-purple-500 font-mono text-xs">{chapter.timestamp}</span>
-                                 <span className="text-purple-700">{chapter.title}</span>
+                                 <span className="text-purple-500 dark:text-purple-400 font-mono text-xs">{chapter.timestamp}</span>
+                                 <span className="text-purple-700 dark:text-purple-300">{chapter.title}</span>
                                </div>
                              ))}
                            </div>
@@ -312,18 +312,18 @@ const PersonalizedLearningPathsCard = () => {
                       <div className="flex items-center justify-between">
                         <div className="flex flex-wrap gap-1">
                           {content.keyInsights.slice(0, 2).map((insight, index) => (
-                            <Badge key={index} variant="secondary" className="text-xs bg-white text-purple-600">
+                            <Badge key={index} variant="secondary" className="text-xs bg-white dark:bg-purple-900/50 text-purple-600 dark:text-purple-300">
                               {insight.substring(0, 20)}...
                             </Badge>
                           ))}
                         </div>
                          <div className="flex gap-2">
-                           <Button size="sm" variant="outline" className="text-purple-600 border-purple-300 hover:bg-purple-50">
+                           <Button size="sm" variant="outline" className="text-purple-600 dark:text-purple-400 border-purple-300 dark:border-purple-700 hover:bg-purple-50 dark:hover:bg-purple-900/30">
                              <Headphones className="w-3 h-3 mr-1" />
                              Audio
                            </Button>
                            {content.videoExplainer && (
-                             <Button size="sm" variant="outline" className="text-purple-600 border-purple-300 hover:bg-purple-50">
+                             <Button size="sm" variant="outline" className="text-purple-600 dark:text-purple-400 border-purple-300 dark:border-purple-700 hover:bg-purple-50 dark:hover:bg-purple-900/30">
                                <Play className="w-3 h-3 mr-1" />
                                Video
                              </Button>
