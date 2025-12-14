@@ -1,8 +1,8 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
-const googleApiKey = Deno.env.get('GEMINI_API_KEY');
-console.log('Google AI API Key available:', !!googleApiKey);
+const openRouterApiKey = Deno.env.get('OPENROUTER_API_KEY');
+console.log('OpenRouter API Key available:', !!openRouterApiKey);
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -35,15 +35,7 @@ serve(async (req) => {
     
     console.log('Received message (sanitized):', sanitizedMessage.substring(0, 100));
 
-    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-001:generateContent?key=${googleApiKey}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        contents: [{
-          parts: [{
-            text: `You are ELIN (Enhanced Learning Investment Navigator), an AI assistant focused on investment education. 
+    const systemPrompt = `You are ELIN (Enhanced Learning Investment Navigator), an AI assistant focused on investment education. 
 
 CRITICAL COMPLIANCE RULES:
 - You are educational only - NEVER provide specific investment advice
@@ -61,28 +53,38 @@ Your role:
 Response style:
 - Clear, educational, and friendly
 - Use examples for complex concepts but make clear they are hypothetical
-- Always end responses about investments with appropriate disclaimers
+- Always end responses about investments with appropriate disclaimers`;
 
-User message: ${sanitizedMessage}`
-          }]
-        }],
-        generationConfig: {
-          maxOutputTokens: 500,
-          temperature: 0.7,
-        },
+    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${openRouterApiKey}`,
+        'Content-Type': 'application/json',
+        'HTTP-Referer': 'https://lovable.dev',
+        'X-Title': 'ELIN Investment Navigator',
+      },
+      body: JSON.stringify({
+        model: 'tngtech/deepseek-r1t-chimera:free',
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: sanitizedMessage }
+        ],
+        max_tokens: 500,
+        temperature: 0.7,
       }),
     });
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('Google AI API error response:', errorText);
+      console.error('OpenRouter API error response:', errorText);
       console.error('Response status:', response.status);
-      console.error('Response headers:', Object.fromEntries(response.headers.entries()));
-      throw new Error(`Google AI API error: ${response.status} - ${errorText}`);
+      throw new Error(`OpenRouter API error: ${response.status} - ${errorText}`);
     }
 
     const data = await response.json();
-    const aiResponse = data.candidates[0].content.parts[0].text;
+    console.log('OpenRouter response received:', JSON.stringify(data).substring(0, 200));
+    
+    const aiResponse = data.choices?.[0]?.message?.content || 'I apologize, but I could not generate a response. Please try again.';
 
     // Add compliance footer for investment-related responses
     const hasInvestmentContent = /invest|stock|bond|portfolio|market|trading|financial|money|fund|ETF|401k|IRA|retirement/i.test(aiResponse);

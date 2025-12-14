@@ -1,6 +1,6 @@
+import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.55.0";
-import { GoogleGenerativeAI } from "https://esm.sh/@google/generative-ai@0.21.0";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -66,19 +66,16 @@ serve(async (req) => {
       );
     }
 
-    // Generate content with Gemini API directly
-    const GEMINI_API_KEY = Deno.env.get('GEMINI_API_KEY');
-    if (!GEMINI_API_KEY) {
-      throw new Error('GEMINI_API_KEY is not configured');
+    // Generate content with OpenRouter
+    const openRouterApiKey = Deno.env.get('OPENROUTER_API_KEY');
+    if (!openRouterApiKey) {
+      throw new Error('OPENROUTER_API_KEY is not configured');
     }
 
     const courseTopic = lesson.module?.course?.topic || 'investing';
     const courseLevel = lesson.module?.course?.level || 'beginner';
 
     console.log(`Generating content for lesson: ${lesson.title}`);
-
-    const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
-    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
 
     const prompt = `You are an expert financial educator creating engaging lesson content. 
 Write in a clear, educational style appropriate for ${courseLevel} learners.
@@ -97,13 +94,39 @@ Structure the lesson with:
 
 Use markdown formatting with headers (##), bold text, bullet points, and blockquotes for important notes.`;
 
-    const result = await model.generateContent(prompt);
-    const response = await result.response;
-    const generatedContent = response.text();
+    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${openRouterApiKey}`,
+        'Content-Type': 'application/json',
+        'HTTP-Referer': 'https://lovable.dev',
+        'X-Title': 'ELIN Investment Navigator',
+      },
+      body: JSON.stringify({
+        model: 'tngtech/deepseek-r1t-chimera:free',
+        messages: [
+          { role: 'user', content: prompt }
+        ],
+        max_tokens: 2000,
+        temperature: 0.7,
+      }),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('OpenRouter API error:', errorText);
+      throw new Error(`OpenRouter API error: ${response.status}`);
+    }
+
+    const data = await response.json();
+    let generatedContent = data.choices?.[0]?.message?.content;
 
     if (!generatedContent) {
       throw new Error('No content received from AI');
     }
+
+    // Clean up thinking tags if present
+    generatedContent = generatedContent.replace(/<think>[\s\S]*?<\/think>/g, '').trim();
 
     // Save the generated content
     const { error: updateError } = await supabase

@@ -1,6 +1,6 @@
+import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.55.0";
-import { GoogleGenerativeAI } from "https://esm.sh/@google/generative-ai@0.21.0";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -22,16 +22,12 @@ serve(async (req) => {
       );
     }
 
-    const GEMINI_API_KEY = Deno.env.get('GEMINI_API_KEY');
-    if (!GEMINI_API_KEY) {
-      throw new Error('GEMINI_API_KEY is not configured');
+    const openRouterApiKey = Deno.env.get('OPENROUTER_API_KEY');
+    if (!openRouterApiKey) {
+      throw new Error('OPENROUTER_API_KEY is not configured');
     }
 
     console.log(`Generating course for topic: ${topic}, level: ${level}`);
-
-    // Generate course outline with Gemini API directly
-    const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
-    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
 
     const prompt = `You are an expert financial education curriculum designer. Generate structured course outlines for investment and finance topics.
              
@@ -61,22 +57,55 @@ Return a JSON object with this exact structure:
   ]
 }`;
 
-    const result = await model.generateContent(prompt);
-    const response = await result.response;
-    const content = response.text();
+    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${openRouterApiKey}`,
+        'Content-Type': 'application/json',
+        'HTTP-Referer': 'https://lovable.dev',
+        'X-Title': 'ELIN Investment Navigator',
+      },
+      body: JSON.stringify({
+        model: 'tngtech/deepseek-r1t-chimera:free',
+        messages: [
+          { role: 'user', content: prompt }
+        ],
+        max_tokens: 2000,
+        temperature: 0.7,
+      }),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('OpenRouter API error:', errorText);
+      throw new Error(`OpenRouter API error: ${response.status}`);
+    }
+
+    const data = await response.json();
+    const content = data.choices?.[0]?.message?.content;
 
     if (!content) {
       throw new Error('No content received from AI');
     }
 
-    console.log('AI Response:', content);
+    console.log('AI Response:', content.substring(0, 500));
 
     // Parse the JSON response
     let courseOutline;
     try {
-      // Clean up potential markdown code blocks
-      const cleanedContent = content.replace(/```json\n?|\n?```/g, '').trim();
-      courseOutline = JSON.parse(cleanedContent);
+      // Clean up potential markdown code blocks and thinking tags
+      let cleanedContent = content
+        .replace(/```json\n?|\n?```/g, '')
+        .replace(/<think>[\s\S]*?<\/think>/g, '')
+        .trim();
+      
+      // Find JSON object in the response
+      const jsonMatch = cleanedContent.match(/\{[\s\S]*\}/);
+      if (jsonMatch) {
+        courseOutline = JSON.parse(jsonMatch[0]);
+      } else {
+        throw new Error('No JSON found in response');
+      }
     } catch (parseError) {
       console.error('Failed to parse AI response:', parseError, content);
       throw new Error('Failed to parse course structure from AI');
