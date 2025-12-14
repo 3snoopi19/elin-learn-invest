@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.55.0";
+import { GoogleGenerativeAI } from "https://esm.sh/@google/generative-ai@0.21.0";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -21,32 +22,22 @@ serve(async (req) => {
       );
     }
 
-    const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
-    if (!LOVABLE_API_KEY) {
-      throw new Error('LOVABLE_API_KEY is not configured');
+    const GEMINI_API_KEY = Deno.env.get('GEMINI_API_KEY');
+    if (!GEMINI_API_KEY) {
+      throw new Error('GEMINI_API_KEY is not configured');
     }
 
     console.log(`Generating course for topic: ${topic}, level: ${level}`);
 
-    // Generate course outline with Gemini via Lovable AI Gateway
-    const aiResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${LOVABLE_API_KEY}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'google/gemini-2.5-flash',
-        messages: [
-          {
-            role: 'system',
-            content: `You are an expert financial education curriculum designer. Generate structured course outlines for investment and finance topics.
-            
-IMPORTANT: Respond ONLY with valid JSON, no markdown code blocks or extra text.`
-          },
-          {
-            role: 'user',
-            content: `Create a comprehensive course outline for "${topic}" at the ${level} level.
+    // Generate course outline with Gemini API directly
+    const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
+    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+
+    const prompt = `You are an expert financial education curriculum designer. Generate structured course outlines for investment and finance topics.
+             
+IMPORTANT: Respond ONLY with valid JSON, no markdown code blocks or extra text.
+
+Create a comprehensive course outline for "${topic}" at the ${level} level.
 
 The course should have 4-6 modules, each with 3-5 lessons.
 
@@ -68,20 +59,11 @@ Return a JSON object with this exact structure:
       ]
     }
   ]
-}`
-          }
-        ],
-      }),
-    });
+}`;
 
-    if (!aiResponse.ok) {
-      const errorText = await aiResponse.text();
-      console.error('AI Gateway error:', aiResponse.status, errorText);
-      throw new Error(`AI generation failed: ${aiResponse.status}`);
-    }
-
-    const aiData = await aiResponse.json();
-    const content = aiData.choices?.[0]?.message?.content;
+    const result = await model.generateContent(prompt);
+    const response = await result.response;
+    const content = response.text();
 
     if (!content) {
       throw new Error('No content received from AI');
