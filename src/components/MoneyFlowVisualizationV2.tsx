@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState, useEffect } from 'react';
+import React, { useCallback, useMemo, useState, useEffect, useRef } from 'react';
 import {
   ReactFlow,
   addEdge,
@@ -18,7 +18,8 @@ import {
   getBezierPath,
   EdgeLabelRenderer,
   BaseEdge,
-  useReactFlow
+  useReactFlow,
+  ReactFlowProvider
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import { 
@@ -53,7 +54,8 @@ import {
   RotateCcw,
   Bot,
   Sparkles,
-  Activity
+  Activity,
+  Maximize2
 } from 'lucide-react';
 import { Button } from './ui/button';
 import { toast } from 'sonner';
@@ -115,8 +117,11 @@ const SequenceFlowEdge = ({ id, sourceX, sourceY, targetX, targetY, sourcePositi
   const getEdgeColor = () => {
     if (data?.type === 'income') return 'hsl(var(--success))';
     if (data?.type === 'expense') return 'hsl(var(--destructive))';
+    if (data?.type === 'transfer') return 'hsl(var(--warning))';
     return 'hsl(var(--secondary))'; // Account transfers
   };
+
+  const isDashed = data?.type === 'expense' || data?.type === 'transfer';
 
   return (
     <>
@@ -126,20 +131,20 @@ const SequenceFlowEdge = ({ id, sourceX, sourceY, targetX, targetY, sourcePositi
           ...style, 
           strokeWidth: 3,
           stroke: getEdgeColor(),
-          strokeDasharray: data?.type === 'expense' ? '8,4' : undefined,
+          strokeDasharray: isDashed ? '8,4' : undefined,
           filter: 'drop-shadow(0 2px 6px rgba(0,0,0,0.15))'
         }}
         markerEnd={MarkerType.ArrowClosed}
       />
       <EdgeLabelRenderer>
         <div
-          className="absolute bg-card/98 backdrop-blur-md border rounded-full px-4 py-2 text-xs font-semibold text-foreground shadow-lg pointer-events-none z-20 border-border/50"
+          className="absolute bg-card/98 backdrop-blur-md border rounded-full px-3 py-1.5 text-xs font-semibold text-foreground shadow-lg pointer-events-none z-20 border-border/50"
           style={{
             transform: `translate(-50%, -50%) translate(${labelX}px,${labelY}px)`,
             boxShadow: '0 4px 12px rgba(0,0,0,0.15), 0 1px 3px rgba(0,0,0,0.1)'
           }}
         >
-          💸 ${data?.amount || '1,200'}
+          {data?.label || `💸 $${data?.amount || '0'}`}
         </div>
       </EdgeLabelRenderer>
     </>
@@ -148,6 +153,7 @@ const SequenceFlowEdge = ({ id, sourceX, sourceY, targetX, targetY, sourcePositi
 
 const ModernIncomeNode = ({ data }: { data: NodeData }) => {
   const [isHovered, setIsHovered] = useState(false);
+  const isMobile = useIsMobile();
 
   const getIcon = () => {
     switch (data.type) {
@@ -165,48 +171,36 @@ const ModernIncomeNode = ({ data }: { data: NodeData }) => {
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
+      {/* Handles positioned for both horizontal and vertical layouts */}
       <Handle 
         type="source" 
-        position={Position.Right} 
+        position={isMobile ? Position.Bottom : Position.Right} 
         className="w-3 h-3 bg-success border-2 border-card shadow-md"
       />
       
       <div className={cn(
-        "min-w-[200px] p-4 bg-card rounded-xl border-2 shadow-lg transition-all duration-300 cursor-move",
+        "min-w-[180px] p-3 bg-card rounded-xl border-2 shadow-lg transition-all duration-300 cursor-move",
         "hover:shadow-xl hover:-translate-y-1",
         isHovered ? "border-success/40 shadow-success/20 bg-success/5" : "border-border/60",
         "professional-card"
       )}>
-        <div className="flex items-center gap-3 mb-3">
-          <div className="text-2xl">{getIcon()}</div>
+        <div className="flex items-center gap-3 mb-2">
+          <div className="text-xl">{getIcon()}</div>
           <div className="flex-1">
-            <h3 className="font-semibold text-sm text-text-heading">{data.label}</h3>
-            <p className="text-xs text-text-secondary">{data.frequency}</p>
+            <h3 className="font-semibold text-xs text-text-heading">{data.label}</h3>
+            <p className="text-[10px] text-text-secondary">{data.frequency}</p>
           </div>
         </div>
         
-        <div className="text-xl font-bold text-success mb-2">
+        <div className="text-lg font-bold text-success mb-1">
           +${data.amount.toLocaleString()}
         </div>
         
-        <div className="flex items-center justify-between text-xs">
-          <span className="text-text-muted">{data.totalTransactions} transactions</span>
-          <Badge variant="outline" className="bg-success/10 text-success border-success/30">
+        <div className="flex items-center justify-between text-[10px]">
+          <span className="text-text-muted">{data.totalTransactions} txns</span>
+          <Badge variant="outline" className="bg-success/10 text-success border-success/30 text-[10px] px-1.5 py-0">
             Active
           </Badge>
-        </div>
-
-        {/* Hover Enhancement */}
-        <div className={cn(
-          "mt-3 flex gap-2 transition-opacity duration-200",
-          isHovered ? "opacity-100" : "opacity-0"
-        )}>
-          <button className="text-xs px-2 py-1 bg-success/10 text-success rounded hover:bg-success/20 transition-colors">
-            Details
-          </button>
-          <button className="text-xs px-2 py-1 bg-success/10 text-success rounded hover:bg-success/20 transition-colors">
-            Edit
-          </button>
         </div>
       </div>
     </div>
@@ -215,6 +209,7 @@ const ModernIncomeNode = ({ data }: { data: NodeData }) => {
 
 const ModernAccountNode = ({ data }: { data: any }) => {
   const [isHovered, setIsHovered] = useState(false);
+  const isMobile = useIsMobile();
 
   const getIcon = () => {
     switch (data.type) {
@@ -246,44 +241,45 @@ const ModernAccountNode = ({ data }: { data: any }) => {
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
+      {/* Handles positioned for both horizontal and vertical layouts */}
       <Handle 
         type="target" 
-        position={Position.Left} 
+        position={isMobile ? Position.Top : Position.Left} 
         className="w-3 h-3 bg-secondary border-2 border-card shadow-md"
       />
       <Handle 
         type="source" 
-        position={Position.Right} 
+        position={isMobile ? Position.Bottom : Position.Right} 
         className="w-3 h-3 bg-secondary border-2 border-card shadow-md"
       />
       
       <div className={cn(
-        "min-w-[220px] p-4 bg-card rounded-xl border-2 shadow-lg transition-all duration-300 cursor-move",
+        "min-w-[200px] p-3 bg-card rounded-xl border-2 shadow-lg transition-all duration-300 cursor-move",
         "hover:shadow-xl hover:-translate-y-1",
         isHovered ? "border-secondary/40 shadow-secondary/20 bg-secondary/5" : "border-border/60",
         "professional-card"
       )}>
-        <div className="flex items-center gap-3 mb-3">
-          <div className="text-2xl">{getIcon()}</div>
+        <div className="flex items-center gap-3 mb-2">
+          <div className="text-xl">{getIcon()}</div>
           <div className="flex-1">
-            <h3 className="font-semibold text-sm text-text-heading">{data.name}</h3>
-            <p className="text-xs text-text-secondary">{data.institution}</p>
+            <h3 className="font-semibold text-xs text-text-heading">{data.name}</h3>
+            <p className="text-[10px] text-text-secondary">{data.institution}</p>
           </div>
         </div>
         
         <div className={cn(
-          "text-xl font-bold mb-2",
+          "text-lg font-bold mb-1",
           data.balance < 0 ? 'text-destructive' : 'text-text-heading'
         )}>
           {formatCurrency(data.balance)}
         </div>
         
-        <div className="flex items-center justify-between text-xs">
+        <div className="flex items-center justify-between text-[10px]">
           <span className="text-text-muted">Last sync: Today</span>
           <Badge 
             variant="outline"
             className={cn(
-              "border",
+              "border text-[10px] px-1.5 py-0",
               getStatusColor() === 'success' && "bg-success/10 text-success border-success/30",
               getStatusColor() === 'destructive' && "bg-destructive/10 text-destructive border-destructive/30",
               getStatusColor() === 'warning' && "bg-warning/10 text-warning border-warning/30"
@@ -292,19 +288,6 @@ const ModernAccountNode = ({ data }: { data: any }) => {
             {data.balance > 5000 ? 'Healthy' : data.balance < 0 ? 'Credit' : 'Low'}
           </Badge>
         </div>
-
-        {/* Hover Enhancement */}
-        <div className={cn(
-          "mt-3 flex gap-2 transition-opacity duration-200",
-          isHovered ? "opacity-100" : "opacity-0"
-        )}>
-          <button className="text-xs px-2 py-1 bg-secondary/10 text-secondary rounded hover:bg-secondary/20 transition-colors">
-            View
-          </button>
-          <button className="text-xs px-2 py-1 bg-secondary/10 text-secondary rounded hover:bg-secondary/20 transition-colors">
-            Transfer
-          </button>
-        </div>
       </div>
     </div>
   );
@@ -312,6 +295,7 @@ const ModernAccountNode = ({ data }: { data: any }) => {
 
 const ModernExpenseNode = ({ data }: { data: NodeData }) => {
   const [isHovered, setIsHovered] = useState(false);
+  const isMobile = useIsMobile();
 
   const getIcon = () => {
     switch (data.category) {
@@ -331,36 +315,37 @@ const ModernExpenseNode = ({ data }: { data: NodeData }) => {
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
+      {/* Handles positioned for both horizontal and vertical layouts */}
       <Handle 
         type="target" 
-        position={Position.Left} 
+        position={isMobile ? Position.Top : Position.Left} 
         className="w-3 h-3 bg-destructive border-2 border-card shadow-md"
       />
       
       <div className={cn(
-        "min-w-[200px] p-4 bg-card rounded-xl border-2 shadow-lg transition-all duration-300 cursor-move",
+        "min-w-[180px] p-3 bg-card rounded-xl border-2 shadow-lg transition-all duration-300 cursor-move",
         "hover:shadow-xl hover:-translate-y-1",
         isHovered ? "border-destructive/40 shadow-destructive/20 bg-destructive/5" : "border-border/60",
         "professional-card"
       )}>
-        <div className="flex items-center gap-3 mb-3">
-          <div className="text-2xl">{getIcon()}</div>
+        <div className="flex items-center gap-3 mb-2">
+          <div className="text-xl">{getIcon()}</div>
           <div className="flex-1">
-            <h3 className="font-semibold text-sm text-text-heading">{data.label}</h3>
-            <p className="text-xs text-text-secondary">{data.frequency}</p>
+            <h3 className="font-semibold text-xs text-text-heading">{data.label}</h3>
+            <p className="text-[10px] text-text-secondary">{data.frequency}</p>
           </div>
         </div>
         
-        <div className="text-xl font-bold text-destructive mb-2">
+        <div className="text-lg font-bold text-destructive mb-1">
           -${data.amount.toLocaleString()}
         </div>
         
-        <div className="flex items-center justify-between text-xs">
-          <span className="text-text-muted">{data.totalTransactions} transactions</span>
+        <div className="flex items-center justify-between text-[10px]">
+          <span className="text-text-muted">{data.totalTransactions} txns</span>
           <Badge 
             variant="outline"
             className={cn(
-              "border",
+              "border text-[10px] px-1.5 py-0",
               data.amount > 1000 
                 ? "bg-destructive/10 text-destructive border-destructive/30" 
                 : "bg-muted/50 text-text-muted border-border/50"
@@ -368,19 +353,6 @@ const ModernExpenseNode = ({ data }: { data: NodeData }) => {
           >
             {data.amount > 1000 ? 'High' : data.category === 'housing' ? 'Fixed' : 'Variable'}
           </Badge>
-        </div>
-
-        {/* Hover Enhancement */}
-        <div className={cn(
-          "mt-3 flex gap-2 transition-opacity duration-200",
-          isHovered ? "opacity-100" : "opacity-0"
-        )}>
-          <button className="text-xs px-2 py-1 bg-destructive/10 text-destructive rounded hover:bg-destructive/20 transition-colors">
-            Analyze
-          </button>
-          <button className="text-xs px-2 py-1 bg-destructive/10 text-destructive rounded hover:bg-destructive/20 transition-colors">
-            Reduce
-          </button>
         </div>
       </div>
     </div>
@@ -398,30 +370,144 @@ const edgeTypes = {
   sequence: SequenceFlowEdge,
 };
 
-export const MoneyFlowVisualizationV2: React.FC<MoneyFlowVisualizationProps> = ({
+// Collapsible Summary Bar Component for Mobile
+const CollapsibleSummaryBar = ({ 
+  income, 
+  expenses, 
+  netWorth 
+}: { 
+  income: number; 
+  expenses: number; 
+  netWorth: number;
+}) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const cashFlow = income - expenses;
+
+  return (
+    <Collapsible open={isOpen} onOpenChange={setIsOpen}>
+      <CollapsibleTrigger asChild>
+        <div className="bg-card/95 backdrop-blur-md border border-border/50 rounded-xl p-3 cursor-pointer shadow-lg">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-1.5">
+                <TrendingUp className="w-3.5 h-3.5 text-success" />
+                <span className="text-xs font-medium text-success">+${income.toLocaleString()}</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <TrendingDown className="w-3.5 h-3.5 text-destructive" />
+                <span className="text-xs font-medium text-destructive">-${expenses.toLocaleString()}</span>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <Badge 
+                variant="outline" 
+                className={cn(
+                  "text-[10px]",
+                  cashFlow >= 0 ? "bg-success/10 text-success" : "bg-destructive/10 text-destructive"
+                )}
+              >
+                {cashFlow >= 0 ? '+' : ''}{cashFlow.toLocaleString()} flow
+              </Badge>
+              {isOpen ? (
+                <ChevronDown className="w-4 h-4 text-text-muted" />
+              ) : (
+                <ChevronUp className="w-4 h-4 text-text-muted" />
+              )}
+            </div>
+          </div>
+        </div>
+      </CollapsibleTrigger>
+      <CollapsibleContent>
+        <div className="mt-2 bg-card/95 backdrop-blur-md border border-border/50 rounded-xl p-4 shadow-lg space-y-3">
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-1">
+              <p className="text-[10px] text-text-muted uppercase tracking-wider">Monthly Income</p>
+              <p className="text-lg font-bold text-success">+${income.toLocaleString()}</p>
+            </div>
+            <div className="space-y-1">
+              <p className="text-[10px] text-text-muted uppercase tracking-wider">Monthly Expenses</p>
+              <p className="text-lg font-bold text-destructive">-${expenses.toLocaleString()}</p>
+            </div>
+            <div className="space-y-1">
+              <p className="text-[10px] text-text-muted uppercase tracking-wider">Net Worth</p>
+              <p className="text-lg font-bold text-text-heading">${netWorth.toLocaleString()}</p>
+            </div>
+            <div className="space-y-1">
+              <p className="text-[10px] text-text-muted uppercase tracking-wider">Cash Flow</p>
+              <p className={cn("text-lg font-bold", cashFlow >= 0 ? "text-success" : "text-destructive")}>
+                {cashFlow >= 0 ? '+' : ''}{cashFlow.toLocaleString()}
+              </p>
+            </div>
+          </div>
+        </div>
+      </CollapsibleContent>
+    </Collapsible>
+  );
+};
+
+// Inner component that uses useReactFlow hook
+const MoneyFlowCanvasInner: React.FC<MoneyFlowVisualizationProps> = ({
   accounts,
   timeframe,
 }) => {
   const [selectedTimeframe, setSelectedTimeframe] = useState(timeframe || "30");
-  const [showMobileView, setShowMobileView] = useState(false);
   const isMobile = useIsMobile();
-
-  useEffect(() => {
-    setShowMobileView(isMobile);
-  }, [isMobile]);
+  const { fitView } = useReactFlow();
+  const containerRef = useRef<HTMLDivElement>(null);
 
   // Initialize React Flow state
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
 
-  // Initialize nodes and edges with modern styling
+  // Auto fit view on resize and orientation change
   useEffect(() => {
+    const handleResize = () => {
+      setTimeout(() => {
+        fitView({ padding: 0.2, duration: 300 });
+      }, 100);
+    };
+
+    window.addEventListener('resize', handleResize);
+    window.addEventListener('orientationchange', handleResize);
+
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      window.removeEventListener('orientationchange', handleResize);
+    };
+  }, [fitView]);
+
+  // Find credit card account for edge connection
+  const checkingAccount = accounts.find(acc => acc.type === 'checking');
+  const creditCardAccount = accounts.find(acc => acc.type === 'credit');
+  const estimatedCreditPayment = creditCardAccount ? Math.abs(creditCardAccount.balance) : 0;
+
+  // Calculate totals for summary
+  const totalIncome = 5000; // Mock total
+  const totalExpenses = 2450;
+  const netWorth = accounts.reduce((sum, acc) => sum + acc.balance, 0);
+
+  // Initialize nodes and edges with mobile-first vertical layout
+  useEffect(() => {
+    // Position calculation based on layout direction
+    const getPosition = (section: 'income' | 'account' | 'expense', index: number) => {
+      if (isMobile) {
+        // Vertical layout: Top to Bottom
+        const yBase = section === 'income' ? 20 : section === 'account' ? 280 : 540;
+        const xOffset = index * 200;
+        return { x: 20 + xOffset, y: yBase + (index * 20) };
+      } else {
+        // Horizontal layout: Left to Right
+        const xBase = section === 'income' ? 50 : section === 'account' ? 400 : 750;
+        return { x: xBase, y: 100 + index * 200 };
+      }
+    };
+
     // Income nodes
     const incomeNodes: Node[] = [
       {
         id: 'income-salary',
         type: 'income',
-        position: { x: 50, y: 100 },
+        position: getPosition('income', 0),
         data: { 
           label: 'Monthly Salary', 
           amount: 4200,
@@ -434,7 +520,7 @@ export const MoneyFlowVisualizationV2: React.FC<MoneyFlowVisualizationProps> = (
       {
         id: 'income-freelance',
         type: 'income',
-        position: { x: 50, y: 300 },
+        position: getPosition('income', 1),
         data: { 
           label: 'Freelance Work', 
           amount: 800,
@@ -450,7 +536,7 @@ export const MoneyFlowVisualizationV2: React.FC<MoneyFlowVisualizationProps> = (
     const accountNodes: Node[] = accounts.map((account, index) => ({
       id: account.id,
       type: 'account',
-      position: { x: 400, y: 100 + index * 220 },
+      position: getPosition('account', index),
       data: { ...account } as Record<string, unknown>,
       draggable: true,
     }));
@@ -460,7 +546,7 @@ export const MoneyFlowVisualizationV2: React.FC<MoneyFlowVisualizationProps> = (
       {
         id: 'expense-rent',
         type: 'expense',
-        position: { x: 750, y: 100 },
+        position: getPosition('expense', 0),
         data: { 
           label: 'Rent & Utilities', 
           amount: 1800,
@@ -473,7 +559,7 @@ export const MoneyFlowVisualizationV2: React.FC<MoneyFlowVisualizationProps> = (
       {
         id: 'expense-groceries',
         type: 'expense',
-        position: { x: 750, y: 300 },
+        position: getPosition('expense', 1),
         data: { 
           label: 'Groceries', 
           amount: 650,
@@ -492,7 +578,7 @@ export const MoneyFlowVisualizationV2: React.FC<MoneyFlowVisualizationProps> = (
       {
         id: 'e1',
         source: 'income-salary',
-        target: accounts[0]?.id || 'acc_1',
+        target: checkingAccount?.id || 'acc_1',
         type: 'sequence',
         data: { amount: '4,200', type: 'income' },
         animated: true,
@@ -501,7 +587,7 @@ export const MoneyFlowVisualizationV2: React.FC<MoneyFlowVisualizationProps> = (
       {
         id: 'e2',
         source: 'income-freelance',
-        target: accounts[0]?.id || 'acc_1',
+        target: checkingAccount?.id || 'acc_1',
         type: 'sequence',
         data: { amount: '800', type: 'income' },
         animated: true,
@@ -509,7 +595,7 @@ export const MoneyFlowVisualizationV2: React.FC<MoneyFlowVisualizationProps> = (
       },
       {
         id: 'e3',
-        source: accounts[0]?.id || 'acc_1',
+        source: checkingAccount?.id || 'acc_1',
         target: 'expense-rent',
         type: 'sequence',
         data: { amount: '1,800', type: 'expense' },
@@ -517,7 +603,7 @@ export const MoneyFlowVisualizationV2: React.FC<MoneyFlowVisualizationProps> = (
       },
       {
         id: 'e4',
-        source: accounts[0]?.id || 'acc_1',
+        source: checkingAccount?.id || 'acc_1',
         target: 'expense-groceries',
         type: 'sequence',
         data: { amount: '650', type: 'expense' },
@@ -525,167 +611,150 @@ export const MoneyFlowVisualizationV2: React.FC<MoneyFlowVisualizationProps> = (
       }
     ];
 
+    // Add credit card payment edge if both accounts exist
+    if (checkingAccount && creditCardAccount) {
+      flowEdges.push({
+        id: 'e-credit-payment',
+        source: checkingAccount.id,
+        target: creditCardAccount.id,
+        type: 'sequence',
+        data: { 
+          amount: estimatedCreditPayment.toLocaleString(), 
+          type: 'transfer',
+          label: `💳 Credit Payment $${estimatedCreditPayment.toLocaleString()}`
+        },
+        style: { strokeWidth: 3 },
+      });
+    }
+
     setNodes(allNodes);
     setEdges(flowEdges);
-  }, [accounts]);
+
+    // Fit view after nodes are set
+    setTimeout(() => {
+      fitView({ padding: 0.2, duration: 300 });
+    }, 100);
+  }, [accounts, isMobile, checkingAccount, creditCardAccount, estimatedCreditPayment, fitView]);
 
   const onConnect = useCallback(
     (params: Connection) => setEdges((eds) => addEdge(params, eds)),
     [setEdges]
   );
 
-  if (showMobileView) {
-    // Mobile simplified view with collapsible sections
-    return (
-      <div className="space-y-4">
-        <div className="flex items-center justify-between mb-6">
-          <h3 className="mobile-subheading text-text-heading">Money Flow</h3>
-          <Select value={selectedTimeframe} onValueChange={setSelectedTimeframe}>
-            <SelectTrigger className="w-36 mobile-button">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent className="z-50">
-              <SelectItem value="7">7 days</SelectItem>
-              <SelectItem value="30">30 days</SelectItem>
-              <SelectItem value="90">90 days</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-        
-        {/* Enhanced mobile cards with proper theming */}
-        <div className="space-y-3">
-          <Card className="mobile-card">
-            <CardContent className="p-4">
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 bg-success/20 rounded-xl flex items-center justify-center">
-                  <span className="text-xl">💼</span>
-                </div>
-                <div className="flex-1">
-                  <h4 className="font-semibold text-text-heading">Income Sources</h4>
-                  <p className="text-2xl font-bold text-success">+$5,000</p>
-                  <p className="text-xs text-text-muted">Monthly total</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-          
-          <Card className="mobile-card">
-            <CardContent className="p-4">
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 bg-secondary/20 rounded-xl flex items-center justify-center">
-                  <span className="text-xl">🏦</span>
-                </div>
-                <div className="flex-1">
-                  <h4 className="font-semibold text-text-heading">Account Balance</h4>
-                  <p className="text-2xl font-bold text-secondary">${accounts.reduce((sum, acc) => sum + acc.balance, 0).toLocaleString()}</p>
-                  <p className="text-xs text-text-muted">Across {accounts.length} accounts</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-          
-          <Card className="mobile-card">
-            <CardContent className="p-4">
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 bg-destructive/20 rounded-xl flex items-center justify-center">
-                  <span className="text-xl">💸</span>
-                </div>
-                <div className="flex-1">
-                  <h4 className="font-semibold text-text-heading">Monthly Expenses</h4>
-                  <p className="text-2xl font-bold text-destructive">-$2,450</p>
-                  <p className="text-xs text-text-muted">Fixed and variable</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Action button for mobile */}
-        <div className="pt-4">
-          <Button className="w-full mobile-button bg-primary hover:bg-primary-hover">
-            <Activity className="w-4 h-4 mr-2" />
-            View Full Canvas
-          </Button>
-        </div>
-      </div>
-    );
-  }
+  const handleFitView = useCallback(() => {
+    fitView({ padding: 0.2, duration: 300 });
+  }, [fitView]);
 
   return (
-    <div className="h-96 md:h-[600px] w-full relative professional-card rounded-xl border overflow-hidden">
-      {/* Header Controls */}
-      <Panel position="top-left">
-        <div className="bg-card/95 backdrop-blur-md rounded-lg border border-border/50 p-3 shadow-lg">
-          <div className="flex items-center gap-4">
+    <div ref={containerRef} className="flex flex-col h-full">
+      {/* Main Canvas */}
+      <div className={cn(
+        "flex-1 w-full relative professional-card rounded-xl border overflow-hidden",
+        isMobile ? "h-[400px]" : "h-[500px] md:h-[600px]"
+      )}>
+        {/* Header Controls */}
+        <Panel position="top-left">
+          <div className="bg-card/95 backdrop-blur-md rounded-lg border border-border/50 p-2 shadow-lg">
             <div className="flex items-center gap-2">
-              <Activity className="h-4 w-4 text-primary" />
-              <span className="text-sm font-medium text-text-heading">Money Flow</span>
+              <Activity className="h-3.5 w-3.5 text-primary" />
+              <span className="text-xs font-medium text-text-heading">Money Flow</span>
+              <Select value={selectedTimeframe} onValueChange={setSelectedTimeframe}>
+                <SelectTrigger className="w-20 h-7 text-xs">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="z-50">
+                  <SelectItem value="7">7d</SelectItem>
+                  <SelectItem value="30">30d</SelectItem>
+                  <SelectItem value="90">90d</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
-            <Select value={selectedTimeframe} onValueChange={setSelectedTimeframe}>
-              <SelectTrigger className="w-32 h-8">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent className="z-50">
-                <SelectItem value="7">7 days</SelectItem>
-                <SelectItem value="30">30 days</SelectItem>
-                <SelectItem value="90">90 days</SelectItem>
-              </SelectContent>
-            </Select>
           </div>
-        </div>
-      </Panel>
+        </Panel>
 
-      {/* New Automation Button */}
-      <Panel position="top-right">
-        <div className="bg-card/95 backdrop-blur-md rounded-lg border border-border/50 p-2 shadow-lg">
-          <Button 
-            size="sm" 
-            className="bg-primary hover:bg-primary-hover text-primary-foreground"
-            onClick={() => {
-              // TODO: Implement automation interface
-              alert('New Automation feature coming soon! This will allow you to create rules like "When salary arrives, allocate 20% to savings"');
-            }}
-          >
-            <Plus className="h-3 w-3 mr-1" />
-            New Automation
-          </Button>
-        </div>
-      </Panel>
+        {/* Fit View & Automation Buttons */}
+        <Panel position="top-right">
+          <div className="flex items-center gap-2">
+            <Button 
+              size="sm" 
+              variant="outline"
+              className="h-8 w-8 p-0 bg-card/95 backdrop-blur-md border-border/50"
+              onClick={handleFitView}
+            >
+              <Maximize2 className="h-3.5 w-3.5" />
+            </Button>
+            {!isMobile && (
+              <Button 
+                size="sm" 
+                className="bg-primary hover:bg-primary-hover text-primary-foreground h-8"
+                onClick={() => {
+                  toast.info('New Automation feature coming soon!');
+                }}
+              >
+                <Plus className="h-3 w-3 mr-1" />
+                Automate
+              </Button>
+            )}
+          </div>
+        </Panel>
 
-      <ReactFlow
-        nodes={nodes}
-        edges={edges}
-        onNodesChange={onNodesChange}
-        onEdgesChange={onEdgesChange}
-        onConnect={onConnect}
-        nodeTypes={nodeTypes}
-        edgeTypes={edgeTypes}
-        fitView
-        fitViewOptions={{
-          padding: 0.2,
-        }}
-        minZoom={0.5}
-        maxZoom={1.5}
-        defaultViewport={{ x: 0, y: 0, zoom: 0.8 }}
-      >
-        <Background 
-          variant={BackgroundVariant.Dots} 
-          gap={20} 
-          size={1} 
-          color="hsl(var(--border))"
-        />
-        <Controls 
-          className="bg-card/95 backdrop-blur-md border border-border/50 rounded-lg shadow-lg"
-          showZoom={true}
-          showFitView={true}
-          showInteractive={false}
-        />
-        <MiniMap 
-          className="bg-card/95 backdrop-blur-md border border-border/50 rounded-lg shadow-lg"
-          nodeColor="hsl(var(--muted))"
-          maskColor="hsla(var(--card), 0.9)"
-        />
-      </ReactFlow>
+        <ReactFlow
+          nodes={nodes}
+          edges={edges}
+          onNodesChange={onNodesChange}
+          onEdgesChange={onEdgesChange}
+          onConnect={onConnect}
+          nodeTypes={nodeTypes}
+          edgeTypes={edgeTypes}
+          fitView
+          fitViewOptions={{
+            padding: 0.2,
+          }}
+          minZoom={0.3}
+          maxZoom={1.5}
+          defaultViewport={{ x: 0, y: 0, zoom: 0.7 }}
+        >
+          <Background 
+            variant={BackgroundVariant.Dots} 
+            gap={20} 
+            size={1} 
+            color="hsl(var(--border))"
+          />
+          <Controls 
+            className="bg-card/95 backdrop-blur-md border border-border/50 rounded-lg shadow-lg"
+            showZoom={true}
+            showFitView={true}
+            showInteractive={false}
+          />
+          {!isMobile && (
+            <MiniMap 
+              className="bg-card/95 backdrop-blur-md border border-border/50 rounded-lg shadow-lg"
+              nodeColor="hsl(var(--muted))"
+              maskColor="hsla(var(--card), 0.9)"
+            />
+          )}
+        </ReactFlow>
+      </div>
+
+      {/* Collapsible Summary Bar for Mobile */}
+      {isMobile && (
+        <div className="mt-3">
+          <CollapsibleSummaryBar 
+            income={totalIncome}
+            expenses={totalExpenses}
+            netWorth={netWorth}
+          />
+        </div>
+      )}
     </div>
+  );
+};
+
+// Main component wrapped with ReactFlowProvider
+export const MoneyFlowVisualizationV2: React.FC<MoneyFlowVisualizationProps> = (props) => {
+  return (
+    <ReactFlowProvider>
+      <MoneyFlowCanvasInner {...props} />
+    </ReactFlowProvider>
   );
 };
