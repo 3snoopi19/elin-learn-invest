@@ -7,9 +7,11 @@ import {
   Play, Pause, ChevronLeft, ChevronRight, Volume2, VolumeX, 
   RotateCcw, Maximize2, BookOpen, TrendingUp, DollarSign, 
   PieChart, BarChart3, Wallet, Target, Shield, Lightbulb,
-  CheckCircle, AlertCircle, Info, Star
+  CheckCircle, AlertCircle, Info, Star, Loader2
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 
 export interface Slide {
   title: string;
@@ -40,11 +42,12 @@ export const DynamicSlideshow = ({
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
+  const [isLoadingAudio, setIsLoadingAudio] = useState(false);
   const [audioEnabled, setAudioEnabled] = useState(true);
   const [isFullscreen, setIsFullscreen] = useState(false);
-  const [speechProgress, setSpeechProgress] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
-  const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const audioCache = useRef<Map<number, string>>(new Map());
 
   const currentSlideData = slides[currentSlide];
   const progress = ((currentSlide + 1) / slides.length) * 100;
@@ -52,51 +55,107 @@ export const DynamicSlideshow = ({
   // Get icon component
   const IconComponent = iconMap[currentSlideData?.icon] || BookOpen;
 
-  // Text-to-speech using Web Speech API
-  const speakText = useCallback((text: string) => {
-    if (!audioEnabled || !('speechSynthesis' in window)) return;
+  // Stop current audio
+  const stopAudio = useCallback(() => {
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
+    }
+    setIsSpeaking(false);
+  }, []);
 
-    // Cancel any ongoing speech
-    window.speechSynthesis.cancel();
+  // Generate and play audio using ElevenLabs
+  const speakText = useCallback(async (text: string, slideIndex: number) => {
+    if (!audioEnabled) return;
 
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.rate = 0.9;
-    utterance.pitch = 1;
-    utterance.volume = 1;
-
-    // Try to get a good voice
-    const voices = window.speechSynthesis.getVoices();
-    const preferredVoice = voices.find(v => 
-      v.name.includes('Google') || v.name.includes('Samantha') || v.name.includes('Daniel')
-    ) || voices.find(v => v.lang.startsWith('en'));
+    stopAudio();
     
-    if (preferredVoice) {
-      utterance.voice = preferredVoice;
+    // Check cache first
+    const cachedAudio = audioCache.current.get(slideIndex);
+    if (cachedAudio) {
+      const audio = new Audio(cachedAudio);
+      audioRef.current = audio;
+      
+      audio.onplay = () => setIsSpeaking(true);
+      audio.onended = () => {
+        setIsSpeaking(false);
+        if (isPlaying && slideIndex < slides.length - 1) {
+          setTimeout(() => setCurrentSlide(prev => prev + 1), 500);
+        } else if (isPlaying && slideIndex === slides.length - 1) {
+          setIsPlaying(false);
+        }
+      };
+      audio.onerror = () => setIsSpeaking(false);
+      
+      await audio.play();
+      return;
     }
 
-    utterance.onstart = () => setIsSpeaking(true);
-    utterance.onend = () => {
-      setIsSpeaking(false);
-      // Auto-advance if playing
-      if (isPlaying && currentSlide < slides.length - 1) {
-        setTimeout(() => setCurrentSlide(prev => prev + 1), 500);
-      } else if (isPlaying && currentSlide === slides.length - 1) {
-        setIsPlaying(false);
-      }
-    };
-    utterance.onerror = () => setIsSpeaking(false);
+    setIsLoadingAudio(true);
 
-    utteranceRef.current = utterance;
-    window.speechSynthesis.speak(utterance);
-  }, [audioEnabled, isPlaying, currentSlide, slides.length]);
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/elin-tts`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'apikey': import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+            'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+          },
+          body: JSON.stringify({ text }),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error('Failed to generate audio');
+      }
+
+      const data = await response.json();
+      
+      if (data.error) {
+        throw new Error(data.error);
+      }
+
+      if (data.audio) {
+        const audioUrl = `data:audio/mpeg;base64,${data.audio}`;
+        audioCache.current.set(slideIndex, audioUrl);
+        
+        const audio = new Audio(audioUrl);
+        audioRef.current = audio;
+        
+        audio.onplay = () => setIsSpeaking(true);
+        audio.onended = () => {
+          setIsSpeaking(false);
+          if (isPlaying && slideIndex < slides.length - 1) {
+            setTimeout(() => setCurrentSlide(prev => prev + 1), 500);
+          } else if (isPlaying && slideIndex === slides.length - 1) {
+            setIsPlaying(false);
+          }
+        };
+        audio.onerror = () => {
+          setIsSpeaking(false);
+          toast.error('Audio playback failed');
+        };
+
+        await audio.play();
+      }
+    } catch (error) {
+      console.error('ElevenLabs TTS error:', error);
+      toast.error('Voice generation unavailable');
+      setIsSpeaking(false);
+    } finally {
+      setIsLoadingAudio(false);
+    }
+  }, [audioEnabled, isPlaying, slides.length, stopAudio]);
 
   // Speak current slide content
   const speakCurrentSlide = useCallback(() => {
     if (!currentSlideData) return;
     
     const slideText = `${currentSlideData.title}. ${currentSlideData.bulletPoints.join('. ')}`;
-    speakText(slideText);
-  }, [currentSlideData, speakText]);
+    speakText(slideText, currentSlide);
+  }, [currentSlideData, currentSlide, speakText]);
 
   // Handle slide change
   useEffect(() => {
@@ -105,23 +164,17 @@ export const DynamicSlideshow = ({
     }
   }, [currentSlide, isPlaying, speakCurrentSlide, audioEnabled, autoPlayAudio]);
 
-  // Load voices
+  // Cleanup on unmount
   useEffect(() => {
-    const loadVoices = () => {
-      window.speechSynthesis.getVoices();
-    };
-    loadVoices();
-    window.speechSynthesis.onvoiceschanged = loadVoices;
-    
     return () => {
-      window.speechSynthesis.cancel();
+      stopAudio();
     };
-  }, []);
+  }, [stopAudio]);
 
   const handlePlayPause = () => {
     if (isPlaying) {
       setIsPlaying(false);
-      window.speechSynthesis.cancel();
+      stopAudio();
     } else {
       setIsPlaying(true);
       speakCurrentSlide();
@@ -129,12 +182,12 @@ export const DynamicSlideshow = ({
   };
 
   const handlePrevSlide = () => {
-    window.speechSynthesis.cancel();
+    stopAudio();
     setCurrentSlide(prev => Math.max(0, prev - 1));
   };
 
   const handleNextSlide = () => {
-    window.speechSynthesis.cancel();
+    stopAudio();
     if (currentSlide === slides.length - 1) {
       onComplete();
     } else {
@@ -143,14 +196,14 @@ export const DynamicSlideshow = ({
   };
 
   const handleRestart = () => {
-    window.speechSynthesis.cancel();
+    stopAudio();
     setCurrentSlide(0);
     setIsPlaying(false);
   };
 
   const toggleAudio = () => {
     if (audioEnabled) {
-      window.speechSynthesis.cancel();
+      stopAudio();
     }
     setAudioEnabled(!audioEnabled);
   };
@@ -187,10 +240,16 @@ export const DynamicSlideshow = ({
             <span className="text-sm text-slate-400">{lessonTitle}</span>
           </div>
           <div className="flex items-center gap-2">
-            {isSpeaking && (
+            {isLoadingAudio && (
+              <Badge className="bg-violet-500/20 text-violet-400 border-violet-500/30">
+                <Loader2 className="w-3 h-3 mr-1 animate-spin" />
+                Loading voice...
+              </Badge>
+            )}
+            {isSpeaking && !isLoadingAudio && (
               <Badge className="bg-green-500/20 text-green-400 border-green-500/30 animate-pulse">
                 <Volume2 className="w-3 h-3 mr-1" />
-                Speaking...
+                ElevenLabs AI
               </Badge>
             )}
           </div>
@@ -328,7 +387,7 @@ export const DynamicSlideshow = ({
           <button
             key={index}
             onClick={() => {
-              window.speechSynthesis.cancel();
+              stopAudio();
               setCurrentSlide(index);
             }}
             className={`flex-shrink-0 w-24 h-16 rounded-lg border-2 transition-all p-2 ${
