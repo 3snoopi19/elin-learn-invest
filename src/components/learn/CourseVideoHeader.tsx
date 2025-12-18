@@ -74,90 +74,50 @@ export const CourseVideoHeader = ({
   const generateSlides = async () => {
     setIsGenerating(true);
     try {
-      toast.info('Generating slideshow content with AI...');
+      toast.info('Generating AI-powered video slideshow...');
       
-      // Use AI to generate slides
-      const { data, error } = await supabase.functions.invoke('chat-with-elin', {
+      // Use dedicated slideshow generation endpoint
+      const { data, error } = await supabase.functions.invoke('generate-slideshow', {
         body: { 
-          message: `Generate a JSON array of 5 educational slides for a course introduction about "${courseTitle}". 
-          
-          Each slide should have:
-          - title: A short, engaging title (max 6 words)
-          - bulletPoints: Array of exactly 3 bullet points (each 10-20 words)
-          - icon: One of these icon names: BookOpen, TrendingUp, DollarSign, PieChart, BarChart3, Wallet, Target, Shield, Lightbulb, CheckCircle, AlertCircle, Info, Star
-
-          Return ONLY the JSON array, no markdown, no explanation. Example format:
-          [{"title":"...", "bulletPoints":["...","...","..."], "icon":"BookOpen"}]`
+          courseTitle,
+          courseDescription
         }
       });
 
-      if (error) throw error;
-
-      // Parse the response
-      let parsedSlides: Slide[];
-      try {
-        const responseText = data.response?.replace(/```json\n?|\n?```/g, '').trim();
-        parsedSlides = JSON.parse(responseText);
-      } catch (parseError) {
-        console.error('Failed to parse AI response, using fallback slides');
-        // Fallback to generic slides
-        parsedSlides = [
-          {
-            title: `Welcome to ${courseTitle}`,
-            bulletPoints: [
-              "Learn essential concepts to master this topic",
-              "Practical examples and real-world applications",
-              "Build your knowledge step by step"
-            ],
-            icon: "BookOpen"
-          },
-          {
-            title: "Key Concepts",
-            bulletPoints: [
-              "Understanding the fundamentals is crucial for success",
-              "We'll break down complex ideas into simple terms",
-              "Each lesson builds on the previous one"
-            ],
-            icon: "Lightbulb"
-          },
-          {
-            title: "What You'll Learn",
-            bulletPoints: [
-              "Core principles and terminology",
-              "Practical strategies you can apply immediately",
-              "Common pitfalls and how to avoid them"
-            ],
-            icon: "Target"
-          },
-          {
-            title: "Your Learning Journey",
-            bulletPoints: [
-              "Interactive lessons with audio explanations",
-              "Progress tracking to monitor your advancement",
-              "Quizzes to test your understanding"
-            ],
-            icon: "TrendingUp"
-          },
-          {
-            title: "Let's Get Started!",
-            bulletPoints: [
-              "Take your time with each lesson",
-              "Review concepts as needed",
-              "Ready to begin your learning journey?"
-            ],
-            icon: "Star"
-          }
-        ];
+      if (error) {
+        console.error('Slideshow generation error:', error);
+        throw error;
       }
 
-      setSlides(parsedSlides);
-      setShowSlideshow(true);
-      onSlideshowGenerated?.();
-      toast.success('Slideshow generated!');
+      if (data?.error) {
+        if (data.error.includes('Rate limit')) {
+          toast.error('AI rate limit reached. Please wait a moment.');
+        } else if (data.error.includes('credits')) {
+          toast.error('AI credits exhausted. Please add funds.');
+        } else {
+          throw new Error(data.error);
+        }
+        setSlides(BITCOIN_BASICS_SLIDES);
+        setShowSlideshow(true);
+        return;
+      }
+
+      const generatedSlides = data?.slides || [];
+      
+      if (generatedSlides.length > 0) {
+        setSlides(generatedSlides);
+        setShowSlideshow(true);
+        onSlideshowGenerated?.();
+        toast.success('AI video slideshow generated!');
+      } else {
+        console.log('No slides returned, using fallback');
+        setSlides(BITCOIN_BASICS_SLIDES);
+        setShowSlideshow(true);
+        toast.info('Using sample slideshow content');
+      }
     } catch (error) {
       console.error('Error generating slides:', error);
-      toast.error('Failed to generate slideshow. Using sample content.');
-      // Use fallback slides on error
+      toast.error('Using sample content instead');
       setSlides(BITCOIN_BASICS_SLIDES);
       setShowSlideshow(true);
     } finally {
