@@ -39,3 +39,6 @@ verify_jwt = true
 
 [functions.elin-web-search]
 verify_jwt = true
+
+[functions.generate-slideshow]
+verify_jwt = false
