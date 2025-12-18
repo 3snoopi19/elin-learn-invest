@@ -1,8 +1,8 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
-const openRouterApiKey = Deno.env.get('OPENROUTER_API_KEY');
-console.log('OpenRouter API Key available:', !!openRouterApiKey);
+const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
+console.log('OpenAI API Key available:', !!openAIApiKey);
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -55,16 +55,14 @@ Response style:
 - Use examples for complex concepts but make clear they are hypothetical
 - Always end responses about investments with appropriate disclaimers`;
 
-    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+    const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${openRouterApiKey}`,
+        'Authorization': `Bearer ${openAIApiKey}`,
         'Content-Type': 'application/json',
-        'HTTP-Referer': 'https://lovable.dev',
-        'X-Title': 'ELIN Investment Navigator',
       },
       body: JSON.stringify({
-        model: 'tngtech/deepseek-r1t-chimera:free',
+        model: 'gpt-4o-mini',
         messages: [
           { role: 'system', content: systemPrompt },
           { role: 'user', content: sanitizedMessage }
@@ -76,13 +74,13 @@ Response style:
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('OpenRouter API error response:', errorText);
+      console.error('OpenAI API error response:', errorText);
       console.error('Response status:', response.status);
-      throw new Error(`OpenRouter API error: ${response.status} - ${errorText}`);
+      throw new Error(`OpenAI API error: ${response.status} - ${errorText}`);
     }
 
     const data = await response.json();
-    console.log('OpenRouter response received:', JSON.stringify(data).substring(0, 200));
+    console.log('OpenAI response received:', JSON.stringify(data).substring(0, 200));
     
     const aiResponse = data.choices?.[0]?.message?.content || 'I apologize, but I could not generate a response. Please try again.';
 
