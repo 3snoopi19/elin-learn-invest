@@ -22,9 +22,9 @@ serve(async (req) => {
       );
     }
 
-    const openRouterApiKey = Deno.env.get('OPENROUTER_API_KEY');
-    if (!openRouterApiKey) {
-      throw new Error('OPENROUTER_API_KEY is not configured');
+    const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
+    if (!LOVABLE_API_KEY) {
+      throw new Error('LOVABLE_API_KEY is not configured');
     }
 
     console.log(`Generating course for topic: ${topic}, level: ${level}`);
@@ -57,28 +57,38 @@ Return a JSON object with this exact structure:
   ]
 }`;
 
-    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+    const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${openRouterApiKey}`,
+        'Authorization': `Bearer ${LOVABLE_API_KEY}`,
         'Content-Type': 'application/json',
-        'HTTP-Referer': 'https://lovable.dev',
-        'X-Title': 'ELIN Investment Navigator',
       },
       body: JSON.stringify({
-        model: 'tngtech/deepseek-r1t-chimera:free',
+        model: 'google/gemini-2.5-flash',
         messages: [
           { role: 'user', content: prompt }
         ],
-        max_tokens: 2000,
-        temperature: 0.7,
       }),
     });
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('OpenRouter API error:', errorText);
-      throw new Error(`OpenRouter API error: ${response.status}`);
+      console.error('Lovable AI error:', errorText);
+      
+      if (response.status === 429) {
+        return new Response(
+          JSON.stringify({ error: 'Rate limit exceeded. Please try again in a moment.' }),
+          { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+      if (response.status === 402) {
+        return new Response(
+          JSON.stringify({ error: 'AI credits exhausted. Please add funds to your Lovable workspace.' }),
+          { status: 402, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+      
+      throw new Error(`Lovable AI error: ${response.status}`);
     }
 
     const data = await response.json();
