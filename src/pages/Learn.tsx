@@ -1,164 +1,92 @@
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { BookOpen, Clock, Trophy, TrendingUp, Shield, DollarSign, BarChart3, Target, Play, FileText, Download, CheckCircle, Video, PenTool, ArrowLeft, Sparkles } from "lucide-react";
+import { 
+  BookOpen, Clock, Trophy, Play, CheckCircle, Video, Headphones, 
+  Loader2, Sparkles, Plus, Award, Brain, Mic, PenTool, ArrowLeft,
+  Volume2, GraduationCap
+} from "lucide-react";
 import { useState } from "react";
-import { LessonContent } from "@/components/learn/LessonContent";
-import { LearningPathsCard } from "@/components/LearningPathsCard";
-import { EnhancedLearningPaths } from "@/components/EnhancedLearningPaths";
-import { courseContent } from "@/data/courseContent";
+import { motion } from "framer-motion";
+import { cn } from "@/lib/utils";
+import { useCourses } from "@/hooks/useCourses";
+import { CourseVideoHeader } from "@/components/learn/CourseVideoHeader";
+import { DynamicLessonView } from "@/components/learn/DynamicLessonView";
+import { toast } from "sonner";
+
+const getDifficultyColor = (level: string) => {
+  switch (level?.toLowerCase()) {
+    case 'beginner': return 'bg-success/10 text-success border-success/20';
+    case 'intermediate': return 'bg-primary/10 text-primary border-primary/20';
+    case 'advanced': return 'bg-warning/10 text-warning border-warning/20';
+    default: return 'bg-muted text-muted-foreground border-border';
+  }
+};
 
 const Learn = () => {
-  const [selectedCourse, setSelectedCourse] = useState<number | null>(null);
-  const [viewingLesson, setViewingLesson] = useState<any>(null);
-  const [completedLessons, setCompletedLessons] = useState<Set<string>>(new Set());
-  
-  const learningPaths = [
-    {
-      id: 1,
-      title: "Investment Fundamentals",
-      description: "Master the basics of investing, from stocks and bonds to portfolio theory",
-      level: "Beginner",
-      duration: "4 weeks",
-      modules: 8,
-      progress: 25,
-      icon: BookOpen,
-      topics: ["Stock Market Basics", "Bond Fundamentals", "Risk & Return", "Diversification"],
-      totalLessons: 6,
-      completedLessons: 2
-    },
-    {
-      id: 2,
-      title: "Financial Statement Analysis",
-      description: "Learn to read and analyze company financial statements like a pro",
-      level: "Intermediate",
-      duration: "6 weeks",
-      modules: 12,
-      progress: 15,
-      icon: BarChart3,
-      topics: ["Income Statements", "Balance Sheets", "Cash Flow", "Ratio Analysis"],
-      totalLessons: 8,
-      completedLessons: 1
-    },
-    {
-      id: 3,
-      title: "Portfolio Management",
-      description: "Build and manage diversified investment portfolios effectively",
-      level: "Intermediate",
-      duration: "5 weeks",
-      modules: 10,
-      progress: 60,
-      icon: Target,
-      topics: ["Asset Allocation", "Rebalancing", "Risk Management", "Performance Tracking"],
-      totalLessons: 10,
-      completedLessons: 6
-    },
-    {
-      id: 4,
-      title: "Advanced Trading Strategies",
-      description: "Explore sophisticated trading techniques and market timing",
-      level: "Advanced",
-      duration: "8 weeks",
-      modules: 16,
-      progress: 10,
-      icon: TrendingUp,
-      topics: ["Technical Analysis", "Options Trading", "Market Psychology", "Advanced Strategies"],
-      totalLessons: 16,
-      completedLessons: 1
-    },
-    {
-      id: 5,
-      title: "Risk Management & Compliance",
-      description: "Understand regulatory frameworks and risk mitigation strategies",
-      level: "Intermediate",
-      duration: "4 weeks",
-      modules: 8,
-      progress: 0,
-      icon: Shield,
-      topics: ["Regulatory Compliance", "Risk Assessment", "Legal Frameworks", "Ethics"],
-      totalLessons: 8,
-      completedLessons: 0
-    },
-    {
-      id: 6,
-      title: "Alternative Investments",
-      description: "Explore REITs, commodities, crypto, and other alternative assets",
-      level: "Advanced",
-      duration: "6 weeks",
-      modules: 12,
-      progress: 0,
-      icon: DollarSign,
-      topics: ["REITs", "Commodities", "Cryptocurrency", "Private Equity"],
-      totalLessons: 12,
-      completedLessons: 0
-    }
-  ];
+  const { 
+    courses, 
+    isLoading, 
+    isGenerating, 
+    generateCourse, 
+    getLessonContent,
+    markLessonComplete,
+    isLessonComplete,
+    getCourseProgress 
+  } = useCourses();
 
-  const getLevelColor = (level: string) => {
-    switch (level) {
-      case "Beginner": return "bg-success/10 text-success border-success/20";
-      case "Intermediate": return "bg-education/10 text-education border-education/20";
-      case "Advanced": return "bg-warning/10 text-warning border-warning/20";
-      default: return "bg-muted text-muted-foreground border-border";
-    }
-  };
+  const [newTopic, setNewTopic] = useState('');
+  const [newLevel, setNewLevel] = useState('beginner');
+  const [expandedCourse, setExpandedCourse] = useState<string | null>(null);
+  const [viewingLesson, setViewingLesson] = useState<{
+    lessonId: string;
+    courseTitle: string;
+    moduleTitle: string;
+    courseId: string;
+  } | null>(null);
 
-  const getContentTypeIcon = (type: string) => {
-    switch (type) {
-      case "video": return Video;
-      case "article": return FileText;
-      case "quiz": return PenTool;
-      case "interactive": return Target;
-      default: return BookOpen;
+  const handleGenerateCourse = async () => {
+    if (!newTopic.trim()) {
+      toast.error('Please enter a topic');
+      return;
     }
-  };
-
-  const findFirstIncompleteLesson = (courseId: number) => {
-    const course = courseContent[courseId as keyof typeof courseContent];
-    if (!course) return null;
     
-    for (let moduleIndex = 0; moduleIndex < course.modules.length; moduleIndex++) {
-      const module = course.modules[moduleIndex];
-      for (let lessonIndex = 0; lessonIndex < module.lessons.length; lessonIndex++) {
-        const lesson = module.lessons[lessonIndex];
-        if (!lesson.completed) {
-          return { moduleIndex, lessonIndex };
-        }
-      }
-    }
-    return null;
-  };
-
-  const handleLessonClick = (courseId: number, moduleIndex: number, lessonIndex: number) => {
-    const course = learningPaths.find(p => p.id === courseId);
-    if (course && courseContent[courseId as keyof typeof courseContent]) {
-      const moduleData = courseContent[courseId as keyof typeof courseContent].modules[moduleIndex];
-      const lessonData = moduleData?.lessons[lessonIndex];
-      if (lessonData) {
-        setViewingLesson({
-          ...lessonData,
-          courseTitle: course.title,
-          moduleTitle: moduleData.title
-        });
-      }
+    const courseId = await generateCourse(newTopic, newLevel);
+    if (courseId) {
+      setNewTopic('');
+      toast.success('Course generated with AI audio, video & quizzes!');
     }
   };
 
-  const handleCompleteLesson = (lessonId: string) => {
-    setCompletedLessons(prev => new Set([...prev, lessonId]));
+  const handleStartLesson = (lessonId: string, courseTitle: string, moduleTitle: string, courseId: string) => {
+    setViewingLesson({ lessonId, courseTitle, moduleTitle, courseId });
   };
 
-  const handleNextLesson = () => {
-    // Logic to navigate to next lesson
-    setViewingLesson(null);
+  const handleCompleteLesson = async (lessonId: string): Promise<boolean> => {
+    if (!viewingLesson) return false;
+    return await markLessonComplete(lessonId, viewingLesson.courseId);
   };
 
-  // If viewing a lesson, show the lesson content
+  // Calculate overall progress
+  const overallProgress = {
+    totalCourses: courses.length,
+    inProgress: courses.filter(c => getCourseProgress(c.id) > 0 && getCourseProgress(c.id) < 100).length,
+    completed: courses.filter(c => getCourseProgress(c.id) === 100).length,
+    totalLessons: courses.reduce((sum, c) => sum + c.modules.reduce((ms, m) => ms + m.lessons.length, 0), 0),
+    completedLessons: courses.reduce((sum, c) => 
+      sum + c.modules.reduce((ms, m) => 
+        ms + m.lessons.filter(l => isLessonComplete(l.id)).length, 0
+      ), 0
+    )
+  };
+
+  // If viewing a lesson, show the lesson view
   if (viewingLesson) {
     return (
       <div className="min-h-screen bg-background">
@@ -169,19 +97,22 @@ const Learn = () => {
               variant="ghost" 
               onClick={() => setViewingLesson(null)}
               className="mb-4 text-text-body hover:text-text-heading mobile-button"
-              aria-label={`Back to ${viewingLesson.courseTitle} course overview`}
             >
               <ArrowLeft className="h-4 w-4 mr-2" />
-              Back to {viewingLesson.courseTitle}
+              Back to Learning
             </Button>
             <div className="mobile-caption text-text-muted mb-2">
               {viewingLesson.courseTitle} • {viewingLesson.moduleTitle}
             </div>
           </div>
-          <LessonContent 
-            lesson={viewingLesson}
+          <DynamicLessonView
+            lessonId={viewingLesson.lessonId}
+            courseTitle={viewingLesson.courseTitle}
+            moduleTitle={viewingLesson.moduleTitle}
+            onBack={() => setViewingLesson(null)}
             onComplete={handleCompleteLesson}
-            onNext={handleNextLesson}
+            getLessonContent={getLessonContent}
+            isComplete={isLessonComplete(viewingLesson.lessonId)}
           />
         </main>
         <Footer />
@@ -193,276 +124,336 @@ const Learn = () => {
     <div className="min-h-screen bg-background">
       <Header />
       <main className="mobile-container mobile-content py-4 md:py-8">
-        {/* Hero Section - Mobile optimized */}
+        {/* Hero Section */}
         <div className="text-center mb-8 md:mb-12">
-          <h1 className="text-2xl md:text-4xl font-bold mb-3 md:mb-4 bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent px-2">
-            Learning Paths
+          <div className="flex items-center justify-center gap-2 mb-4">
+            <div className="p-3 rounded-2xl bg-gradient-to-br from-violet-500/20 to-purple-500/20">
+              <Brain className="w-8 h-8 text-violet-500" />
+            </div>
+          </div>
+          <h1 className="text-2xl md:text-4xl font-bold mb-3 md:mb-4 bg-gradient-to-r from-violet-500 to-purple-500 bg-clip-text text-transparent px-2">
+            AI-Powered Learning
           </h1>
-          <div className="flex items-center justify-center gap-2 mb-3 md:mb-4">
-            <Badge variant="outline" className="bg-gradient-to-r from-purple-50 to-blue-50 text-purple-700 border-purple-200 text-xs">
+          <div className="flex items-center justify-center gap-2 mb-3">
+            <Badge variant="outline" className="bg-gradient-to-r from-violet-50 to-purple-50 text-violet-700 border-violet-200 text-xs">
               <Sparkles className="w-3 h-3 mr-1" />
-              Powered by NotebookLM AI
+              ELIN Learning Engine
             </Badge>
           </div>
-           <p className="text-sm md:text-xl text-text-secondary mb-4 md:mb-6 max-w-2xl mx-auto px-4">
-             Master investing with AI-generated, personalized learning content created by NotebookLM - now including interactive video explainers for every skill level
-           </p>
-           <div className="flex flex-wrap justify-center gap-3 md:gap-4 text-xs md:text-sm text-text-muted px-2">
-             <div className="flex items-center gap-1 md:gap-2">
-               <Trophy className="h-3 w-3 md:h-4 md:w-4 text-primary" />
-               <span>Expert-curated</span>
-             </div>
-             <div className="flex items-center gap-1 md:gap-2">
-               <Video className="h-3 w-3 md:h-4 md:w-4 text-primary" />
-               <span>AI videos</span>
-             </div>
-             <div className="flex items-center gap-1 md:gap-2">
-               <Clock className="h-3 w-3 md:h-4 md:w-4 text-primary" />
-               <span>Self-paced</span>
-             </div>
-             <div className="flex items-center gap-1 md:gap-2">
-               <BookOpen className="h-3 w-3 md:h-4 md:w-4 text-primary" />
-               <span>Interactive</span>
-             </div>
-           </div>
+          <p className="text-sm md:text-lg text-text-secondary mb-6 max-w-2xl mx-auto px-4">
+            Learn finance your way with AI-generated audio lessons, interactive videos, quizzes, and personalized education paths
+          </p>
+          
+          {/* Feature Pills */}
+          <div className="flex flex-wrap justify-center gap-2 md:gap-3 px-2">
+            <Badge className="bg-violet-500/10 text-violet-600 border-violet-500/30 py-1.5 px-3">
+              <Volume2 className="w-3 h-3 mr-1.5" />
+              AI Audio Lessons
+            </Badge>
+            <Badge className="bg-purple-500/10 text-purple-600 border-purple-500/30 py-1.5 px-3">
+              <Video className="w-3 h-3 mr-1.5" />
+              Video Explainers
+            </Badge>
+            <Badge className="bg-blue-500/10 text-blue-600 border-blue-500/30 py-1.5 px-3">
+              <PenTool className="w-3 h-3 mr-1.5" />
+              Interactive Quizzes
+            </Badge>
+            <Badge className="bg-green-500/10 text-green-600 border-green-500/30 py-1.5 px-3">
+              <GraduationCap className="w-3 h-3 mr-1.5" />
+              Personalized Path
+            </Badge>
+          </div>
         </div>
 
-        <Tabs defaultValue="overview" className="space-y-4 md:space-y-8">
-          <TabsList className="grid w-full grid-cols-3 h-auto">
-            <TabsTrigger value="overview" className="text-xs md:text-sm py-2 md:py-3">
-              <span className="hidden sm:inline">Course </span>Overview
-            </TabsTrigger>
-            <TabsTrigger value="enhanced" className="text-xs md:text-sm py-2 md:py-3">
-              <span className="hidden sm:inline">Enhanced </span>Paths
-            </TabsTrigger>
-            <TabsTrigger value="materials" className="text-xs md:text-sm py-2 md:py-3">
-              <span className="hidden sm:inline">Study </span>Materials
-            </TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="overview" className="space-y-4 md:space-y-6">
-            {/* Learning Paths Grid - Mobile optimized single column */}
-            <div className="mobile-grid">
-              {learningPaths.map((path) => {
-                const IconComponent = path.icon;
-                return (
-                  <Card key={path.id} className="group hover:shadow-lg transition-all duration-300 bg-card border border-border hover:border-primary/20 mobile-card">
-                    <CardHeader className="pb-3 md:pb-4 p-4 md:p-6">
-                      <div className="flex items-start justify-between mb-2">
-                        <div className="p-1.5 md:p-2 rounded-lg bg-primary/10 group-hover:bg-primary/20 transition-colors">
-                          <IconComponent className="h-4 w-4 md:h-6 md:w-6 text-primary" />
-                        </div>
-                        <Badge className={`${getLevelColor(path.level)} border text-xs`}>
-                          {path.level}
-                        </Badge>
-                      </div>
-                      <CardTitle className="text-base md:text-xl text-text-heading group-hover:text-primary transition-colors font-bold">
-                        {path.title}
-                      </CardTitle>
-                      <CardDescription className="text-xs md:text-sm leading-relaxed text-text-secondary">
-                        {path.description}
-                      </CardDescription>
-                    </CardHeader>
-                    
-                    <CardContent className="space-y-3 md:space-y-4 p-4 md:p-6 pt-0">
-                      {/* Course Stats */}
-                      <div className="flex justify-between text-xs md:text-sm text-text-muted">
-                        <span className="flex items-center gap-1">
-                          <Clock className="h-3 w-3" />
-                          {path.duration}
-                        </span>
-                        <span className="flex items-center gap-1">
-                          <BookOpen className="h-3 w-3" />
-                          {path.modules} modules
-                        </span>
-                      </div>
-
-                      {/* Progress */}
-                      <div className="space-y-1.5 md:space-y-2">
-                        <div className="flex justify-between text-xs md:text-sm text-text-body">
-                          <span>Progress</span>
-                          <span className="text-primary font-medium">{path.progress}%</span>
-                        </div>
-                        <Progress value={path.progress} className="h-1.5 md:h-2" />
-                      </div>
-
-                      {/* Topics */}
-                      <div className="space-y-1.5 md:space-y-2">
-                        <h4 className="text-xs md:text-sm font-medium text-text-body">Key Topics:</h4>
-                        <div className="flex flex-wrap gap-1">
-                          {path.topics.slice(0, 2).map((topic, index) => (
-                            <Badge key={index} variant="outline" className="text-xs bg-primary/5 text-primary border-primary/20 hover:bg-primary/10">
-                              {topic}
-                            </Badge>
-                          ))}
-                          {path.topics.length > 2 && (
-                            <Badge variant="outline" className="text-xs bg-muted text-text-muted">
-                              +{path.topics.length - 2} more
-                            </Badge>
-                          )}
-                        </div>
-                      </div>
-
-                      {/* Action Buttons - Mobile Stacked */}
-                      <div className="space-y-2 pt-2">
-                        <Button 
-                          className="w-full bg-primary hover:bg-primary-hover text-primary-foreground font-medium mobile-button text-xs md:text-sm" 
-                          onClick={() => {
-                            if (path.progress > 0) {
-                              const firstIncompleteLesson = findFirstIncompleteLesson(path.id);
-                              if (firstIncompleteLesson) {
-                                handleLessonClick(path.id, firstIncompleteLesson.moduleIndex, firstIncompleteLesson.lessonIndex);
-                              }
-                            } else {
-                              if (courseContent[path.id as keyof typeof courseContent]?.modules?.[0]?.lessons?.[0]) {
-                                handleLessonClick(path.id, 0, 0);
-                              }
-                            }
-                          }}
-                          aria-label={`${path.progress > 0 ? 'Continue' : 'Start'} ${path.title} course`}
-                        >
-                          {path.progress > 0 ? `Continue (${path.progress}%)` : "Start Course"}
-                        </Button>
-                        <div className="grid grid-cols-2 gap-2">
-                          <Button 
-                            className="border-primary text-primary hover:bg-primary/10 mobile-button text-xs" 
-                            variant="outline"
-                            size="sm"
-                            onClick={() => setSelectedCourse(selectedCourse === path.id ? null : path.id)}
-                            aria-label={`View all lessons for ${path.title}`}
-                          >
-                            <BookOpen className="h-3 w-3 md:h-4 md:w-4 mr-1" />
-                            Lessons
-                          </Button>
-                          <Button 
-                            className="border-primary text-primary hover:bg-primary/10 mobile-button text-xs" 
-                            variant="outline"
-                            size="sm"
-                            aria-label={`Download syllabus for ${path.title}`}
-                          >
-                            <Download className="h-3 w-3 md:h-4 md:w-4 mr-1" />
-                            PDF
-                          </Button>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                );
-              })}
-            </div>
-          </TabsContent>
-
-          <TabsContent value="enhanced" className="space-y-6">
-            <EnhancedLearningPaths />
-          </TabsContent>
-
-          <TabsContent value="materials" className="space-y-4 md:space-y-6">
-            {/* Detailed Course Materials - Mobile stacked */}
-            <div className="mobile-grid">
-              {learningPaths.map((path) => {
-                const IconComponent = path.icon;
-                return (
-                  <Card key={`material-${path.id}`} className="border-2">
-                    <CardHeader>
-                      <div className="flex items-center gap-3">
-                        <div className="p-2 rounded-lg bg-primary/10">
-                          <IconComponent className="h-5 w-5 text-primary" />
-                        </div>
-                        <div>
-                          <CardTitle className="text-lg text-text-heading">{path.title}</CardTitle>
-                          <div className="flex items-center gap-2 mt-1">
-                            <Badge className={getLevelColor(path.level)}>
-                              {path.level}
-                            </Badge>
-                            <span className="text-sm text-text-muted">{path.duration}</span>
-                          </div>
-                        </div>
-                      </div>
-                    </CardHeader>
-                    
-                    <CardContent>
-                      <Accordion type="single" collapsible className="w-full">
-                        {courseContent[path.id as keyof typeof courseContent]?.modules?.map((module, moduleIndex) => (
-                          <AccordionItem key={moduleIndex} value={`module-${moduleIndex}`}>
-                            <AccordionTrigger className="text-left">
-                              <div className="flex items-center justify-between w-full pr-4">
-                                <span className="font-medium text-text-heading">{module.title}</span>
-                                <span className="text-sm text-text-muted">
-                                  {module.lessons.length} lessons
-                                </span>
-                              </div>
-                            </AccordionTrigger>
-                            <AccordionContent>
-                              <div className="space-y-3 pt-2">
-                                {module.lessons.map((lesson, lessonIndex) => {
-                                  const IconComponent = getContentTypeIcon(lesson.type);
-                                  return (
-                                    <div key={lessonIndex} className="flex items-center justify-between p-3 rounded-lg border bg-muted/50 hover:bg-muted/80 transition-colors">
-                                      <div className="flex items-center gap-3">
-                                        <div className="flex items-center gap-2">
-                                          {lesson.completed ? (
-                                            <CheckCircle className="h-4 w-4 text-green-600" />
-                                          ) : (
-                                            <IconComponent className="h-4 w-4 text-muted-foreground" />
-                                          )}
-                                        </div>
-                                        <div>
-                                          <p className="font-medium text-sm text-text-body">{lesson.title}</p>
-                                          <div className="flex items-center gap-2 text-xs text-text-muted">
-                                            <span className="capitalize">{lesson.type}</span>
-                                            <span>•</span>
-                                            <span>{lesson.duration}</span>
-                                          </div>
-                                        </div>
-                                      </div>
-                                       <Button 
-                                         size="sm" 
-                                         variant={lesson.completed ? "outline" : "default"}
-                                         className={`text-xs ${lesson.completed ? 'border-primary text-primary hover:bg-primary/10' : 'bg-primary hover:bg-primary-hover'}`}
-                                         onClick={() => handleLessonClick(path.id, moduleIndex, lessonIndex)}
-                                       >
-                                         {lesson.completed ? "Review" : "Start"}
-                                       </Button>
-                                    </div>
-                                  );
-                                })}
-                              </div>
-                            </AccordionContent>
-                          </AccordionItem>
-                        )) || (
-                          <div className="text-center py-8 text-muted-foreground">
-                            <BookOpen className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                            <p className="text-lg font-medium mb-2">Course Content Coming Soon</p>
-                            <p className="text-sm">
-                              {path.totalLessons} lessons • {path.completedLessons}/{path.totalLessons} completed
-                            </p>
-                          </div>
-                        )}
-                      </Accordion>
-                    </CardContent>
-                  </Card>
-                );
-              })}
-            </div>
-          </TabsContent>
-        </Tabs>
-
-        {/* Call to Action */}
-        <div className="mt-16 text-center">
-          <Card className="max-w-2xl mx-auto bg-gradient-to-r from-primary/5 to-primary/10 border-primary/20">
-            <CardHeader>
-              <CardTitle className="text-2xl">Ready to Begin Your Journey?</CardTitle>
-              <CardDescription className="text-base">
-                Start with our Investment Fundamentals course and build your knowledge step by step
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Button size="lg" className="bg-primary hover:bg-primary-hover text-primary-foreground">
-                Get Started Today
+        {/* Generate New Course */}
+        <Card className="mb-6 bg-gradient-to-r from-violet-500/10 via-purple-500/10 to-blue-500/10 border-violet-500/20">
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center gap-2 text-lg">
+              <Sparkles className="w-5 h-5 text-violet-500" />
+              Generate Your Personal Course
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex flex-col sm:flex-row gap-3">
+              <Input
+                placeholder="What do you want to learn? (e.g., Options Trading, Bitcoin)"
+                value={newTopic}
+                onChange={(e) => setNewTopic(e.target.value)}
+                className="flex-1"
+                onKeyDown={(e) => e.key === 'Enter' && handleGenerateCourse()}
+              />
+              <Select value={newLevel} onValueChange={setNewLevel}>
+                <SelectTrigger className="w-full sm:w-40">
+                  <SelectValue placeholder="Level" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="beginner">Beginner</SelectItem>
+                  <SelectItem value="intermediate">Intermediate</SelectItem>
+                  <SelectItem value="advanced">Advanced</SelectItem>
+                </SelectContent>
+              </Select>
+              <Button 
+                onClick={handleGenerateCourse}
+                disabled={isGenerating || !newTopic.trim()}
+                className="bg-gradient-to-r from-violet-500 to-purple-500 hover:from-violet-600 hover:to-purple-600"
+              >
+                {isGenerating ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Creating...
+                  </>
+                ) : (
+                  <>
+                    <Plus className="w-4 h-4 mr-2" />
+                    Generate
+                  </>
+                )}
               </Button>
+            </div>
+            <p className="mt-3 text-xs text-muted-foreground">
+              AI will create a complete course with audio narration, video slides, quizzes, and study materials
+            </p>
+          </CardContent>
+        </Card>
+
+        {/* Progress Overview */}
+        {courses.length > 0 && (
+          <Card className="mb-6 bg-gradient-to-r from-primary/5 to-success/5 border-primary/20">
+            <CardContent className="pt-6">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-primary">{overallProgress.totalCourses}</div>
+                  <div className="text-xs text-muted-foreground">Courses</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-warning">{overallProgress.inProgress}</div>
+                  <div className="text-xs text-muted-foreground">In Progress</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-success">{overallProgress.completed}</div>
+                  <div className="text-xs text-muted-foreground">Completed</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-foreground">
+                    {overallProgress.completedLessons}/{overallProgress.totalLessons}
+                  </div>
+                  <div className="text-xs text-muted-foreground">Lessons</div>
+                </div>
+              </div>
+              
+              {overallProgress.totalLessons > 0 && (
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="flex items-center gap-2">
+                      <Trophy className="w-4 h-4 text-primary" />
+                      Overall Progress
+                    </span>
+                    <span className="font-medium text-primary">
+                      {Math.round((overallProgress.completedLessons / overallProgress.totalLessons) * 100)}%
+                    </span>
+                  </div>
+                  <Progress 
+                    value={(overallProgress.completedLessons / overallProgress.totalLessons) * 100} 
+                    className="h-2"
+                  />
+                </div>
+              )}
             </CardContent>
           </Card>
+        )}
+
+        {/* Loading State */}
+        {isLoading && (
+          <div className="flex items-center justify-center py-12">
+            <Loader2 className="w-8 h-8 animate-spin text-violet-500" />
+            <span className="ml-3 text-muted-foreground">Loading your courses...</span>
+          </div>
+        )}
+
+        {/* Empty State */}
+        {!isLoading && courses.length === 0 && (
+          <Card className="text-center py-12 border-dashed border-2">
+            <CardContent>
+              <div className="p-4 rounded-full bg-violet-500/10 w-fit mx-auto mb-4">
+                <Brain className="w-12 h-12 text-violet-500" />
+              </div>
+              <h3 className="text-lg font-medium mb-2">Start Your Learning Journey</h3>
+              <p className="text-muted-foreground mb-4 max-w-md mx-auto">
+                Generate your first AI-powered course above. ELIN will create personalized content with audio, video, and quizzes tailored to your learning style.
+              </p>
+              <div className="flex flex-wrap justify-center gap-2">
+                <Badge variant="outline" className="text-xs">Stock Market Basics</Badge>
+                <Badge variant="outline" className="text-xs">Cryptocurrency 101</Badge>
+                <Badge variant="outline" className="text-xs">Portfolio Management</Badge>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Course Cards */}
+        <div className="space-y-6">
+          {courses.map((course, index) => {
+            const progress = getCourseProgress(course.id);
+            const totalLessons = course.modules.reduce((acc, m) => acc + m.lessons.length, 0);
+            const completedLessons = course.modules.reduce((acc, m) => 
+              acc + m.lessons.filter(l => isLessonComplete(l.id)).length, 0
+            );
+
+            return (
+              <motion.div
+                key={course.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.1 }}
+              >
+                <Card className="overflow-hidden border-2 hover:border-violet-500/30 transition-all">
+                  {/* Video Header */}
+                  {expandedCourse === course.id && (
+                    <CourseVideoHeader
+                      courseTitle={course.title}
+                      courseDescription={course.description || ''}
+                    />
+                  )}
+
+                  <CardHeader className="pb-4">
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-2">
+                          <Badge className={getDifficultyColor(course.level)} variant="outline">
+                            {course.level}
+                          </Badge>
+                          <Badge variant="outline" className="text-xs bg-violet-500/10 text-violet-600">
+                            <Sparkles className="w-3 h-3 mr-1" />
+                            AI Generated
+                          </Badge>
+                        </div>
+                        <CardTitle className="text-xl mb-2">{course.title}</CardTitle>
+                        <p className="text-sm text-muted-foreground">{course.description}</p>
+                      </div>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setExpandedCourse(expandedCourse === course.id ? null : course.id)}
+                        className="shrink-0"
+                      >
+                        <Video className={cn(
+                          "w-5 h-5 transition-colors",
+                          expandedCourse === course.id ? "text-violet-500" : "text-muted-foreground"
+                        )} />
+                      </Button>
+                    </div>
+
+                    {/* Course Features */}
+                    <div className="flex flex-wrap gap-2 mt-3">
+                      <Badge variant="secondary" className="text-xs">
+                        <Headphones className="w-3 h-3 mr-1" />
+                        Audio
+                      </Badge>
+                      <Badge variant="secondary" className="text-xs">
+                        <Video className="w-3 h-3 mr-1" />
+                        Video
+                      </Badge>
+                      <Badge variant="secondary" className="text-xs">
+                        <PenTool className="w-3 h-3 mr-1" />
+                        Quiz
+                      </Badge>
+                    </div>
+
+                    {/* Progress */}
+                    <div className="mt-4 space-y-2">
+                      <div className="flex items-center justify-between text-sm">
+                        <span>{completedLessons}/{totalLessons} lessons completed</span>
+                        <span className="font-medium text-violet-500">{progress}%</span>
+                      </div>
+                      <Progress value={progress} className="h-2" />
+                    </div>
+                  </CardHeader>
+
+                  <CardContent className="pt-0">
+                    {/* Modules Accordion */}
+                    <Accordion type="single" collapsible className="w-full">
+                      {course.modules.map((module) => (
+                        <AccordionItem key={module.id} value={module.id}>
+                          <AccordionTrigger className="text-left hover:no-underline">
+                            <div className="flex items-center justify-between w-full pr-4">
+                              <span className="font-medium">{module.title}</span>
+                              <Badge variant="secondary" className="text-xs">
+                                {module.lessons.filter(l => isLessonComplete(l.id)).length}/{module.lessons.length}
+                              </Badge>
+                            </div>
+                          </AccordionTrigger>
+                          <AccordionContent>
+                            <div className="space-y-2 pl-2">
+                              {module.lessons.map((lesson) => {
+                                const complete = isLessonComplete(lesson.id);
+                                return (
+                                  <div
+                                    key={lesson.id}
+                                    className={cn(
+                                      "flex items-center justify-between p-3 rounded-lg border transition-colors cursor-pointer",
+                                      complete 
+                                        ? "bg-success/5 border-success/20" 
+                                        : "hover:bg-muted/50 border-border"
+                                    )}
+                                    onClick={() => handleStartLesson(lesson.id, course.title, module.title, course.id)}
+                                  >
+                                    <div className="flex items-center gap-3">
+                                      {complete ? (
+                                        <CheckCircle className="w-5 h-5 text-success" />
+                                      ) : (
+                                        <Play className="w-5 h-5 text-violet-500" />
+                                      )}
+                                      <div>
+                                        <div className="font-medium text-sm">{lesson.title}</div>
+                                        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                                          <Clock className="w-3 h-3" />
+                                          {lesson.duration_minutes} min
+                                          <span className="flex items-center gap-1">
+                                            <Headphones className="w-3 h-3" />
+                                            <Video className="w-3 h-3" />
+                                            <PenTool className="w-3 h-3" />
+                                          </span>
+                                        </div>
+                                      </div>
+                                    </div>
+                                    <Button 
+                                      size="sm" 
+                                      variant={complete ? "outline" : "default"}
+                                      className={!complete ? "bg-violet-500 hover:bg-violet-600" : ""}
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleStartLesson(lesson.id, course.title, module.title, course.id);
+                                      }}
+                                    >
+                                      {complete ? 'Review' : 'Start'}
+                                    </Button>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          </AccordionContent>
+                        </AccordionItem>
+                      ))}
+                    </Accordion>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            );
+          })}
         </div>
+
+        {/* Bottom CTA */}
+        {courses.length > 0 && (
+          <Card className="mt-8 bg-gradient-to-r from-violet-500/10 to-purple-500/10 border-violet-500/20">
+            <CardContent className="py-6 text-center">
+              <Award className="w-8 h-8 text-violet-500 mx-auto mb-3" />
+              <h3 className="font-semibold mb-2">Keep Learning!</h3>
+              <p className="text-sm text-muted-foreground">
+                Generate more courses to expand your financial knowledge
+              </p>
+            </CardContent>
+          </Card>
+        )}
       </main>
       <Footer />
     </div>
