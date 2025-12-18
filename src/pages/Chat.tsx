@@ -52,7 +52,7 @@ const Chat = () => {
     if (user && messages.length === 0) {
       const greeting: Message = {
         id: '1',
-        content: `Hi ${user.user_metadata?.first_name || 'there'}! 👋 I'm ELIN, your Enhanced Learning Investment Navigator.\n\nI'm here to provide you with an interactive, personalized learning experience about investing. Whether you're a complete beginner or looking to deepen your knowledge, I can adapt to your learning style and pace.\n\n🎯 **What I can help you with:**\n• Answer any finance questions with clear explanations\n• Guide you through structured lessons\n• Create interactive quizzes and scenarios\n• Show visual charts and examples\n• Track your learning progress\n• **Credit card payment optimization** - Ask me "How much should I pay to avoid interest?"\n\n**Important:** I provide educational information only and cannot give personalized investment advice. For specific investment recommendations, please consult with a licensed financial advisor.\n\nChoose a learning mode below or just ask me anything!`,
+        content: `Hi ${user.user_metadata?.first_name || 'there'}! 👋 I'm ELIN, your Enhanced Learning Investment Navigator - now in **🔥 GOD MODE**!\n\nI'm operating with advanced reasoning capabilities, deep market knowledge, and comprehensive investment education expertise.\n\n🧠 **My God Mode Capabilities:**\n• Deep expertise across stocks, bonds, ETFs, crypto, options, forex, and more\n• Technical & fundamental analysis explanations\n• Portfolio theory and risk management strategies\n• Economic analysis and market psychology insights\n• Tax-advantaged investing strategies\n\n🎯 **What I can help you with:**\n• Answer complex finance questions with step-by-step reasoning\n• Guide you through structured lessons at any level\n• Create interactive quizzes and real-world scenarios\n• Show visual charts and explain market concepts\n• Track your learning progress\n\n**Important:** I provide educational information only and cannot give personalized investment advice. For specific recommendations, please consult with a licensed financial advisor.\n\nLet's supercharge your investment knowledge! What would you like to learn about?`,
         sender: 'elin',
         timestamp: new Date(),
         hasDisclaimer: true
@@ -159,8 +159,19 @@ const Chat = () => {
         ${messageType === 'visual' ? 'Explain how this could be visualized in a chart or graph.' : ''}
       `;
 
+      // Build conversation history for context (God Mode feature)
+      const conversationHistory = messages
+        .filter(msg => msg.content && msg.sender)
+        .map(msg => ({
+          role: msg.sender === 'user' ? 'user' : 'assistant',
+          content: msg.content
+        }));
+
       const { data, error } = await supabase.functions.invoke('chat-with-elin', {
-        body: { message: enhancedPrompt }
+        body: { 
+          message: enhancedPrompt,
+          conversationHistory: conversationHistory
+        }
       });
 
       if (error) {
