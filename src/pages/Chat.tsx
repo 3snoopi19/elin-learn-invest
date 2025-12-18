@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useNavigate } from "react-router-dom";
-import { Send, Bot, AlertCircle, BookOpen, Sparkles, Settings2 } from "lucide-react";
+import { Send, Bot, AlertCircle, BookOpen, Sparkles, Settings2, Volume2, VolumeX, Globe, Mic, MicOff, Loader2 } from "lucide-react";
 import { COMPLIANCE_DISCLAIMER } from "@/lib/compliance";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
@@ -26,6 +26,11 @@ import { Message, ChartData, QuizQuestion } from "@/types/chat";
 import { useLearningProgress } from "@/hooks/useLearningProgress";
 import { LoadingScreen } from "@/components/ui/LoadingScreen";
 
+// Streaming chat URL
+const CHAT_URL = `https://hyilgirnewnwtthbvbqn.supabase.co/functions/v1/chat-with-elin`;
+const TTS_URL = `https://hyilgirnewnwtthbvbqn.supabase.co/functions/v1/elin-tts`;
+const SEARCH_URL = `https://hyilgirnewnwtthbvbqn.supabase.co/functions/v1/elin-web-search`;
+
 const Chat = () => {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
@@ -35,11 +40,16 @@ const Chat = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState('');
   const [isTyping, setIsTyping] = useState(false);
+  const [isStreaming, setIsStreaming] = useState(false);
   const [currentMode, setCurrentMode] = useState<string>('ask-anything');
   const [showQuickReplies, setShowQuickReplies] = useState(true);
   const [showProgress, setShowProgress] = useState(false);
   const [showPersonalization, setShowPersonalization] = useState(false);
+  const [voiceEnabled, setVoiceEnabled] = useState(false);
+  const [isSearching, setIsSearching] = useState(false);
+  const [isSpeaking, setIsSpeaking] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -123,6 +133,151 @@ const Chat = () => {
     };
   };
 
+  // Web search function
+  const performWebSearch = async (query: string, searchType: string = 'general'): Promise<string | null> => {
+    try {
+      setIsSearching(true);
+      const { data, error } = await supabase.functions.invoke('elin-web-search', {
+        body: { query, searchType }
+      });
+      
+      if (error) throw error;
+      return data?.result || null;
+    } catch (error) {
+      console.error('Web search error:', error);
+      return null;
+    } finally {
+      setIsSearching(false);
+    }
+  };
+
+  // Text-to-speech function
+  const speakText = async (text: string) => {
+    if (!voiceEnabled) return;
+    
+    try {
+      setIsSpeaking(true);
+      
+      // Clean text for TTS
+      const cleanText = text
+        .replace(/[*#`_~]/g, '')
+        .replace(/\n+/g, '. ')
+        .replace(/•/g, '')
+        .replace(/📋|📊|📈|💡|🎯|⚠️|🔥|🧠|💳|✅|❌|🌟|👋|---/g, '')
+        .replace(/\s+/g, ' ')
+        .trim()
+        .slice(0, 800);
+
+      if (!cleanText) return;
+
+      const response = await fetch(TTS_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`,
+        },
+        body: JSON.stringify({ text: cleanText }),
+      });
+
+      if (!response.ok) throw new Error('TTS failed');
+
+      const data = await response.json();
+      if (data.audio) {
+        const audioUrl = `data:audio/mpeg;base64,${data.audio}`;
+        audioRef.current = new Audio(audioUrl);
+        audioRef.current.onended = () => setIsSpeaking(false);
+        await audioRef.current.play();
+      }
+    } catch (error) {
+      console.error('TTS error:', error);
+      setIsSpeaking(false);
+    }
+  };
+
+  // Stop speaking
+  const stopSpeaking = () => {
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current = null;
+    }
+    setIsSpeaking(false);
+  };
+
+  // Streaming chat function
+  const streamChat = async (
+    userMessage: string,
+    conversationHistory: { role: string; content: string }[],
+    searchContext?: string | null
+  ): Promise<string> => {
+    const session = await supabase.auth.getSession();
+    const token = session.data.session?.access_token;
+
+    const response = await fetch(CHAT_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        message: userMessage,
+        conversationHistory,
+        stream: true,
+        searchContext
+      }),
+    });
+
+    if (!response.ok || !response.body) {
+      throw new Error('Stream failed');
+    }
+
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+    let textBuffer = '';
+    let fullResponse = '';
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+
+      textBuffer += decoder.decode(value, { stream: true });
+
+      let newlineIndex: number;
+      while ((newlineIndex = textBuffer.indexOf('\n')) !== -1) {
+        let line = textBuffer.slice(0, newlineIndex);
+        textBuffer = textBuffer.slice(newlineIndex + 1);
+
+        if (line.endsWith('\r')) line = line.slice(0, -1);
+        if (line.startsWith(':') || line.trim() === '') continue;
+        if (!line.startsWith('data: ')) continue;
+
+        const jsonStr = line.slice(6).trim();
+        if (jsonStr === '[DONE]') break;
+
+        try {
+          const parsed = JSON.parse(jsonStr);
+          const content = parsed.choices?.[0]?.delta?.content;
+          if (content) {
+            fullResponse += content;
+            // Update the last message with streaming content
+            setMessages(prev => {
+              const last = prev[prev.length - 1];
+              if (last?.sender === 'elin') {
+                return prev.map((m, i) => 
+                  i === prev.length - 1 ? { ...m, content: fullResponse } : m
+                );
+              }
+              return prev;
+            });
+          }
+        } catch {
+          // Continue on parse error
+        }
+      }
+    }
+
+    return fullResponse;
+  };
+
   const callELINAPI = async (userMessage: string, messageType?: string): Promise<{ 
     response: string; 
     hasDisclaimer: boolean;
@@ -138,8 +293,20 @@ const Chat = () => {
       );
 
       if (isCreditCardQuery) {
-        // Provide credit card payment guidance
         return generateCreditCardResponse(userMessage);
+      }
+
+      // Check if we need web search
+      const searchKeywords = ['current', 'today', 'latest', 'news', 'price', 'market now', 'what is happening', 'recent'];
+      const needsSearch = searchKeywords.some(keyword => 
+        userMessage.toLowerCase().includes(keyword.toLowerCase())
+      );
+
+      let searchContext: string | null = null;
+      if (needsSearch) {
+        const searchType = userMessage.toLowerCase().includes('news') ? 'news' : 
+                          userMessage.toLowerCase().includes('stock') ? 'stock' : 'market';
+        searchContext = await performWebSearch(userMessage, searchType);
       }
 
       // Enhanced prompt with context
@@ -159,7 +326,7 @@ const Chat = () => {
         ${messageType === 'visual' ? 'Explain how this could be visualized in a chart or graph.' : ''}
       `;
 
-      // Build conversation history for context (God Mode feature)
+      // Build conversation history
       const conversationHistory = messages
         .filter(msg => msg.content && msg.sender)
         .map(msg => ({
@@ -167,23 +334,38 @@ const Chat = () => {
           content: msg.content
         }));
 
-      const { data, error } = await supabase.functions.invoke('chat-with-elin', {
-        body: { 
-          message: enhancedPrompt,
-          conversationHistory: conversationHistory
-        }
-      });
-
-      if (error) {
-        console.error('ELIN API error details:', error);
-        throw error;
-      }
+      // Use streaming for real-time response
+      setIsStreaming(true);
       
-      // Check if we should generate additional content based on message type
+      // Add placeholder message for streaming
+      const placeholderId = (Date.now() + 1).toString();
+      setMessages(prev => [...prev, {
+        id: placeholderId,
+        content: '',
+        sender: 'elin',
+        timestamp: new Date(),
+        hasDisclaimer: true
+      }]);
+
+      const fullResponse = await streamChat(enhancedPrompt, conversationHistory, searchContext);
+      
+      // Add disclaimer to final response
+      const hasInvestmentContent = /invest|stock|bond|portfolio|market|trading|financial|money|fund|ETF|401k|IRA|retirement|crypto/i.test(fullResponse);
+      const finalResponse = hasInvestmentContent 
+        ? `${fullResponse}\n\n---\n📋 **Educational Disclaimer**: This information is for educational purposes only. Always consult a financial advisor.`
+        : fullResponse;
+
+      // Update final message
+      setMessages(prev => prev.map((m, i) => 
+        i === prev.length - 1 ? { ...m, content: finalResponse, hasDisclaimer: hasInvestmentContent } : m
+      ));
+
+      setIsStreaming(false);
+
+      // Handle additional content
       let additionalContent = {};
       
       if (messageType === 'visual' && userMessage.toLowerCase().includes('chart')) {
-        // Generate sample chart data for demonstration
         additionalContent = {
           chartData: {
             type: 'line' as const,
@@ -203,7 +385,6 @@ const Chat = () => {
       }
       
       if (messageType === 'quiz') {
-        // Generate a sample quiz
         additionalContent = {
           quiz: {
             id: `quiz-${Date.now()}`,
@@ -215,22 +396,23 @@ const Chat = () => {
               "Faster portfolio growth"
             ],
             correctAnswer: 1,
-            explanation: "Diversification helps reduce risk by spreading investments across different assets, sectors, or regions, so that poor performance in one area doesn't significantly impact the entire portfolio."
+            explanation: "Diversification helps reduce risk by spreading investments across different assets."
           }
         };
       }
       
-      return { ...data, ...additionalContent };
+      return { response: finalResponse, hasDisclaimer: hasInvestmentContent, ...additionalContent };
     } catch (error) {
-      console.error('Error calling ELIN API:', error);
+      console.error('ELIN API error:', error);
+      setIsStreaming(false);
       toast({
         title: "Connection Error",
-        description: "ELIN is temporarily unavailable. Please try again later.",
+        description: "ELIN is temporarily unavailable. Please try again.",
         variant: "destructive"
       });
       
       return {
-        response: "I'm currently experiencing connection issues. In the meantime, you can explore our Learn section for comprehensive investment education resources, or try the Portfolio Tracker to practice with investment concepts.",
+        response: "I'm experiencing connection issues. Please try again in a moment.",
         hasDisclaimer: false
       };
     }
@@ -238,9 +420,8 @@ const Chat = () => {
 
   const handleSendMessage = async (messageText?: string, messageType?: string) => {
     const textToSend = messageText || inputValue.trim();
-    if (!textToSend) return;
+    if (!textToSend || isStreaming) return;
 
-    // Sanitize input to prevent injection attempts
     const sanitizedInput = sanitizeChatInput(textToSend);
     
     if (!sanitizedInput) {
@@ -264,37 +445,15 @@ const Chat = () => {
     setIsTyping(true);
     setShowQuickReplies(false);
 
-    // Get AI response with enhanced context
+    // Get AI response with streaming
     const aiResponse = await callELINAPI(sanitizedInput, messageType);
     
-    const elinMessage: Message = {
-      id: (Date.now() + 1).toString(),
-      content: aiResponse.response,
-      sender: 'elin',
-      timestamp: new Date(),
-      hasDisclaimer: aiResponse.hasDisclaimer,
-      type: messageType === 'quiz' ? 'quiz' : 'message',
-      chartData: aiResponse.chartData,
-      chartTitle: aiResponse.chartTitle,
-      quiz: aiResponse.quiz
-    };
-
-    setMessages(prev => [...prev, elinMessage]);
     setIsTyping(false);
     setShowQuickReplies(true);
     
     // Speak the response if voice is enabled
-    if (window.elinSpeak && settings.voiceEnabled) {
-      // Clean the response text for speech
-      const cleanText = aiResponse.response
-        .replace(/[*#`]/g, '') // Remove markdown characters
-        .replace(/\n+/g, '. ') // Replace line breaks with periods
-        .replace(/•/g, '') // Remove bullet points
-        .substring(0, 300); // Limit length for speech
-      
-      setTimeout(() => {
-        window.elinSpeak?.(cleanText);
-      }, 500);
+    if (voiceEnabled && aiResponse.response) {
+      await speakText(aiResponse.response);
     }
     
     // Update learning progress

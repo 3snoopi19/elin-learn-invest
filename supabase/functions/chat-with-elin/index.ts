@@ -2,7 +2,7 @@ import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
 const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
-console.log('Lovable AI Key available:', !!LOVABLE_API_KEY);
+console.log('ELIN God Mode - Lovable AI Key available:', !!LOVABLE_API_KEY);
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -24,6 +24,7 @@ You are not just an assistant - you are a sophisticated financial education AI w
 6. **Behavioral Finance**: Cognitive biases, market psychology, emotional investing pitfalls, and how to overcome them.
 7. **Tax Strategies**: Tax-advantaged accounts (401k, IRA, Roth), tax-loss harvesting, capital gains strategies.
 8. **Advanced Concepts**: Options strategies, derivatives, leverage, margin, short selling, algorithmic trading concepts.
+9. **Real-Time Search**: You can search for current market data, news, and information when needed.
 
 🔥 GOD MODE FEATURES:
 - **Chain of Thought**: Break down complex topics into logical steps
@@ -32,6 +33,7 @@ You are not just an assistant - you are a sophisticated financial education AI w
 - **Visual Explanations**: Describe concepts that would be on charts/graphs
 - **Interconnected Learning**: Show how concepts connect to each other
 - **Adaptive Teaching**: Adjust complexity based on user's questions
+- **Voice-Enabled**: Can speak responses aloud for interactive learning
 
 📋 CRITICAL COMPLIANCE (ALWAYS FOLLOW):
 - You are EDUCATIONAL ONLY - NEVER provide specific investment advice
@@ -61,7 +63,7 @@ serve(async (req) => {
   }
 
   try {
-    const { message, conversationHistory = [] } = await req.json();
+    const { message, conversationHistory = [], stream = false, searchContext = null } = await req.json();
     
     // Server-side input validation
     if (!message || typeof message !== 'string') {
@@ -71,7 +73,7 @@ serve(async (req) => {
       });
     }
     
-    const sanitizedMessage = message.trim().slice(0, 4000); // Allow longer messages
+    const sanitizedMessage = message.trim().slice(0, 4000);
     if (!sanitizedMessage) {
       return new Response(JSON.stringify({ error: 'Message cannot be empty' }), {
         status: 400,
@@ -87,19 +89,70 @@ serve(async (req) => {
       });
     }
     
-    console.log('ELIN God Mode - Received message:', sanitizedMessage.substring(0, 100));
+    console.log('ELIN God Mode - Message:', sanitizedMessage.substring(0, 100), '| Stream:', stream);
 
-    // Build conversation messages with history for context
+    // Build conversation messages with history and search context
+    let enhancedMessage = sanitizedMessage;
+    if (searchContext) {
+      enhancedMessage = `[Web Search Results]\n${searchContext}\n\n[User Question]\n${sanitizedMessage}`;
+    }
+
     const messages = [
       { role: 'system', content: ELIN_SYSTEM_PROMPT },
       ...conversationHistory.slice(-10).map((msg: { role: string; content: string }) => ({
         role: msg.role,
-        content: msg.content.slice(0, 2000) // Limit history message length
+        content: msg.content.slice(0, 2000)
       })),
-      { role: 'user', content: sanitizedMessage }
+      { role: 'user', content: enhancedMessage }
     ];
 
-    // Use the more powerful model for God Mode
+    // Streaming response
+    if (stream) {
+      const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${LOVABLE_API_KEY}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: 'google/gemini-2.5-flash',
+          messages: messages,
+          stream: true,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Lovable AI streaming error:', response.status, errorText);
+        
+        if (response.status === 429) {
+          return new Response(JSON.stringify({ error: 'Rate limit exceeded. Please try again.' }), {
+            status: 429,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
+        }
+        if (response.status === 402) {
+          return new Response(JSON.stringify({ error: 'AI credits exhausted.' }), {
+            status: 402,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
+        }
+        
+        throw new Error(`AI error: ${response.status}`);
+      }
+
+      // Return the stream directly
+      return new Response(response.body, {
+        headers: { 
+          ...corsHeaders, 
+          'Content-Type': 'text/event-stream',
+          'Cache-Control': 'no-cache',
+          'Connection': 'keep-alive'
+        },
+      });
+    }
+
+    // Non-streaming response (original behavior)
     const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -107,30 +160,29 @@ serve(async (req) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'google/gemini-2.5-pro', // Upgraded to pro model for God Mode
+        model: 'google/gemini-2.5-pro',
         messages: messages,
       }),
     });
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('Lovable AI error response:', errorText);
-      console.error('Response status:', response.status);
+      console.error('Lovable AI error:', response.status, errorText);
       
       if (response.status === 429) {
-        return new Response(JSON.stringify({ error: 'Rate limit exceeded. Please try again in a moment.' }), {
+        return new Response(JSON.stringify({ error: 'Rate limit exceeded.' }), {
           status: 429,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });
       }
       if (response.status === 402) {
-        return new Response(JSON.stringify({ error: 'AI credits exhausted. Please add funds to your Lovable workspace.' }), {
+        return new Response(JSON.stringify({ error: 'AI credits exhausted.' }), {
           status: 402,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });
       }
       
-      // Fallback to flash model if pro fails
+      // Fallback to flash model
       console.log('Falling back to flash model...');
       const fallbackResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
         method: 'POST',
@@ -145,11 +197,11 @@ serve(async (req) => {
       });
       
       if (!fallbackResponse.ok) {
-        throw new Error(`Lovable AI error: ${response.status} - ${errorText}`);
+        throw new Error(`AI error: ${response.status}`);
       }
       
       const fallbackData = await fallbackResponse.json();
-      const fallbackAiResponse = fallbackData.choices?.[0]?.message?.content || 'I apologize, but I could not generate a response. Please try again.';
+      const fallbackAiResponse = fallbackData.choices?.[0]?.message?.content || 'I apologize, but I could not generate a response.';
       
       return new Response(JSON.stringify({ 
         response: addDisclaimer(fallbackAiResponse),
@@ -162,9 +214,7 @@ serve(async (req) => {
     }
 
     const data = await response.json();
-    console.log('ELIN God Mode response received');
-    
-    const aiResponse = data.choices?.[0]?.message?.content || 'I apologize, but I could not generate a response. Please try again.';
+    const aiResponse = data.choices?.[0]?.message?.content || 'I apologize, but I could not generate a response.';
 
     return new Response(JSON.stringify({ 
       response: addDisclaimer(aiResponse),
@@ -175,7 +225,7 @@ serve(async (req) => {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   } catch (error) {
-    console.error('Error in chat-with-elin function:', error);
+    console.error('ELIN error:', error);
     return new Response(JSON.stringify({ 
       error: error instanceof Error ? error.message : 'An unknown error occurred' 
     }), {
