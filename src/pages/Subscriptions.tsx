@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
+import { ScenarioPlanner } from '@/components/finance/ScenarioPlanner';
 
 interface DetectedIssue {
   id: string;
@@ -373,6 +374,18 @@ const Subscriptions = () => {
             })}
           </AnimatePresence>
         </div>
+
+        {/* Scenario Planner - Can I Afford It? */}
+        {scanPhase === 'complete' && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5 }}
+            className="mt-8"
+          >
+            <ScenarioPlanner />
+          </motion.div>
+        )}
 
         {/* Hidden while scanning */}
         {scanPhase !== 'complete' && (
