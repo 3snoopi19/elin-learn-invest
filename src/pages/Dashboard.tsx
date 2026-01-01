@@ -16,7 +16,8 @@ import { PredictiveBalanceCard } from "@/components/finance/PredictiveBalanceCar
 import { SpendDefenseBar } from "@/components/gamification/SpendDefenseBar";
 import { GoalVisualization } from "@/components/gamification/GoalVisualization";
 import { DailyBriefingModal } from "@/components/feed/DailyBriefingModal";
-import { MessageSquare, Repeat, PiggyBank, Settings, Sparkles } from "lucide-react";
+import { DidYouKnowCard } from "@/components/feed/DidYouKnowCard";
+import { MessageSquare, Repeat, PiggyBank, Settings, Sparkles, BookOpen } from "lucide-react";
 
 const Dashboard = () => {
   const { user, loading } = useAuth();
@@ -148,17 +149,23 @@ const Dashboard = () => {
           </div>
         </div>
 
+        {/* Did You Know Card - Contextual Tips */}
+        <div className="mb-6">
+          {cardsLoading ? <SkeletonLoader variant="card" /> : <DidYouKnowCard animationDelay={0.55} />}
+        </div>
+
         {/* Transactions Feed */}
         <div className="mb-8">
           {cardsLoading ? <SkeletonLoader variant="list" /> : <TransactionsFeed animationDelay={0.6} />}
         </div>
 
         {/* Quick Actions */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 pb-8">
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-3 pb-8">
           {[
             { title: "Chat with ELIN", icon: MessageSquare, route: "/chat", color: "from-primary/20 to-primary/5" },
             { title: "Subscriptions", icon: Repeat, route: "/subscriptions", color: "from-secondary/20 to-secondary/5" },
             { title: "Savings Goals", icon: PiggyBank, route: "/money-flow", color: "from-success/20 to-success/5" },
+            { title: "Resources", icon: BookOpen, route: "/resources", color: "from-amber-500/20 to-amber-600/5" },
             { title: "Settings", icon: Settings, route: "/settings", color: "from-muted to-muted/50" },
           ].map((action, index) => (
             <motion.div
