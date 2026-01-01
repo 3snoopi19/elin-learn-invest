@@ -1,9 +1,9 @@
 import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import { Mic, MicOff, Volume2, VolumeX, Play, Square } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useToast } from "@/components/ui/use-toast";
+import { cn } from "@/lib/utils";
 
 interface VoiceInterfaceProps {
   onVoiceInput: (text: string) => void;
@@ -197,147 +197,146 @@ export const VoiceInterface = ({ onVoiceInput, isListening = false, className }:
   }, [voiceEnabled]);
 
   return (
-    <Card className={`bg-card/50 backdrop-blur-sm border-primary/20 ${className}`}>
-      <CardContent className="p-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            {/* Voice Input */}
-            <motion.div
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              <Button
-                variant={isRecording ? "destructive" : "outline"}
-                size="sm"
-                onClick={isRecording ? stopRecording : startRecording}
-                className={`relative ${isRecording ? "bg-destructive hover:bg-destructive/90" : "border-primary text-primary hover:bg-primary/10"}`}
-              >
-                <AnimatePresence mode="wait">
-                  {isRecording ? (
-                    <motion.div
-                      key="recording"
-                      initial={{ scale: 0 }}
-                      animate={{ scale: 1 }}
-                      exit={{ scale: 0 }}
-                      className="flex items-center gap-2"
-                    >
-                      <Square className="w-4 h-4" />
-                      Stop
-                    </motion.div>
-                  ) : (
-                    <motion.div
-                      key="idle"
-                      initial={{ scale: 0 }}
-                      animate={{ scale: 1 }}
-                      exit={{ scale: 0 }}
-                      className="flex items-center gap-2"
-                    >
-                      <Mic className="w-4 h-4" />
-                      Voice
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-                
-                {/* Audio level indicator */}
-                {isRecording && (
-                  <motion.div
-                    className="absolute inset-0 rounded border-2 border-white/50"
-                    animate={{
-                      scale: 1 + (audioLevel / 100) * 0.3,
-                      opacity: 0.5 + (audioLevel / 100) * 0.5
-                    }}
-                    transition={{ duration: 0.1 }}
-                  />
-                )}
-              </Button>
-            </motion.div>
-
-            {/* Voice Output Toggle */}
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setVoiceEnabled(!voiceEnabled)}
-              className={`${voiceEnabled ? "border-primary text-primary hover:bg-primary/10" : "border-muted-foreground text-muted-foreground"}`}
-            >
-              {voiceEnabled ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
-            </Button>
-
-            {/* Speaking indicator */}
-            {isPlaying && (
-              <motion.div
-                initial={{ opacity: 0, x: -10 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -10 }}
-                className="flex items-center gap-2 text-primary"
-              >
+    <div className={`flex items-center justify-between gap-3 ${className}`}>
+      <div className="flex items-center gap-3">
+        {/* Main Voice Input Button - Large for mobile accessibility */}
+        <motion.div
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+        >
+          <Button
+            variant={isRecording ? "destructive" : "default"}
+            onClick={isRecording ? stopRecording : startRecording}
+            className={cn(
+              "relative min-w-[56px] min-h-[56px] w-14 h-14 rounded-full shadow-lg",
+              isRecording 
+                ? "bg-destructive hover:bg-destructive/90 animate-pulse" 
+                : "bg-primary hover:bg-primary-hover"
+            )}
+          >
+            <AnimatePresence mode="wait">
+              {isRecording ? (
                 <motion.div
-                  animate={{ scale: [1, 1.2, 1] }}
-                  transition={{ repeat: Infinity, duration: 1 }}
+                  key="recording"
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  exit={{ scale: 0 }}
+                  className="flex items-center justify-center"
                 >
-                  <Volume2 className="w-4 h-4" />
+                  <Square className="w-6 h-6" />
                 </motion.div>
-                <span className="text-sm">Speaking...</span>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={stopSpeaking}
-                  className="h-6 w-6 p-0"
+              ) : (
+                <motion.div
+                  key="idle"
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  exit={{ scale: 0 }}
+                  className="flex items-center justify-center"
                 >
-                  <Square className="w-3 h-3" />
-                </Button>
-              </motion.div>
-            )}
-          </div>
-
-          {/* Live transcript */}
-          <AnimatePresence>
-            {transcript && (
+                  <Mic className="w-6 h-6" />
+                </motion.div>
+              )}
+            </AnimatePresence>
+            
+            {/* Audio level indicator ring */}
+            {isRecording && (
               <motion.div
-                initial={{ opacity: 0, width: 0 }}
-                animate={{ opacity: 1, width: "auto" }}
-                exit={{ opacity: 0, width: 0 }}
-                className="bg-primary/10 rounded px-3 py-1 text-sm text-primary max-w-xs truncate"
-              >
-                "{transcript}"
-              </motion.div>
+                className="absolute inset-0 rounded-full border-4 border-white/50"
+                animate={{
+                  scale: 1 + (audioLevel / 100) * 0.3,
+                  opacity: 0.5 + (audioLevel / 100) * 0.5
+                }}
+                transition={{ duration: 0.1 }}
+              />
             )}
-          </AnimatePresence>
-        </div>
+          </Button>
+        </motion.div>
 
-        {/* Recording visualization */}
+        {/* Voice Output Toggle */}
+        <Button
+          variant="outline"
+          onClick={() => setVoiceEnabled(!voiceEnabled)}
+          className={cn(
+            "min-w-[44px] min-h-[44px] w-11 h-11 rounded-full",
+            voiceEnabled ? "border-primary text-primary hover:bg-primary/10" : "border-muted-foreground text-muted-foreground"
+          )}
+        >
+          {voiceEnabled ? <Volume2 className="w-5 h-5" /> : <VolumeX className="w-5 h-5" />}
+        </Button>
+
+        {/* Speaking indicator */}
         <AnimatePresence>
-          {isRecording && (
+          {isPlaying && (
             <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: "auto" }}
-              exit={{ opacity: 0, height: 0 }}
-              className="mt-3 pt-3 border-t border-border/30"
+              initial={{ opacity: 0, x: -10 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -10 }}
+              className="flex items-center gap-2 text-primary"
             >
-              <div className="flex items-center gap-2">
-                <div className="flex gap-1">
-                  {[...Array(5)].map((_, i) => (
-                    <motion.div
-                      key={i}
-                      className="w-1 bg-primary rounded-full"
-                      animate={{
-                        height: [4, 8 + (audioLevel / 100) * 16, 4],
-                      }}
-                      transition={{
-                        duration: 0.5,
-                        repeat: Infinity,
-                        repeatType: "reverse",
-                        delay: i * 0.1,
-                      }}
-                    />
-                  ))}
-                </div>
-                <span className="text-xs text-muted-foreground">Listening...</span>
-              </div>
+              <motion.div
+                animate={{ scale: [1, 1.2, 1] }}
+                transition={{ repeat: Infinity, duration: 1 }}
+              >
+                <Volume2 className="w-5 h-5" />
+              </motion.div>
+              <span className="text-sm hidden sm:inline">Speaking...</span>
+              <Button
+                variant="ghost"
+                onClick={stopSpeaking}
+                className="h-11 w-11 p-0 min-w-[44px] min-h-[44px]"
+              >
+                <Square className="w-4 h-4" />
+              </Button>
             </motion.div>
           )}
         </AnimatePresence>
-      </CardContent>
-    </Card>
+      </div>
+
+      {/* Live transcript - Mobile friendly */}
+      <AnimatePresence>
+        {transcript && (
+          <motion.div
+            initial={{ opacity: 0, width: 0 }}
+            animate={{ opacity: 1, width: "auto" }}
+            exit={{ opacity: 0, width: 0 }}
+            className="bg-primary/10 rounded-lg px-3 py-2 text-sm text-primary max-w-[200px] sm:max-w-xs truncate"
+          >
+            "{transcript}"
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Recording visualization - simplified for mobile */}
+      <AnimatePresence>
+        {isRecording && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="flex items-center gap-2"
+          >
+            <div className="flex gap-1">
+              {[...Array(5)].map((_, i) => (
+                <motion.div
+                  key={i}
+                  className="w-1.5 bg-primary rounded-full"
+                  animate={{
+                    height: [8, 16 + (audioLevel / 100) * 20, 8],
+                  }}
+                  transition={{
+                    duration: 0.5,
+                    repeat: Infinity,
+                    repeatType: "reverse",
+                    delay: i * 0.1,
+                  }}
+                />
+              ))}
+            </div>
+            <span className="text-sm text-muted-foreground hidden sm:inline">Listening...</span>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
   );
 };
 

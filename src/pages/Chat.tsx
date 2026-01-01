@@ -631,31 +631,32 @@ const Chat = () => {
                   isVisible={showQuickReplies && !isTyping && messages.length > 1}
                 />
 
-                {/* Voice Interface and Input - Mobile optimized */}
-                <div className="space-y-2 md:space-y-3 p-3 md:p-4 border-t border-border/30">
+                {/* Voice Interface and Input - Mobile optimized with keyboard handling */}
+                <div className="space-y-3 p-3 md:p-4 border-t border-border/30 sticky bottom-0 bg-card/95 backdrop-blur-md">
                   <VoiceInterface 
                     onVoiceInput={(text) => handleSendMessage(text)}
                     isListening={isTyping}
                   />
                   
-                  <div className="flex space-x-2">
+                  <div className="flex items-center gap-2">
                     <Input
                       value={inputValue}
                       onChange={(e) => setInputValue(e.target.value)}
                       onKeyPress={handleKeyPress}
                       placeholder="Ask about investing or request a lesson..."
-                      className="flex-1 bg-background border-border/50 focus:border-education focus:ring-education text-sm md:text-base"
+                      className="flex-1 bg-background border-border/50 focus:border-education focus:ring-education text-base min-h-[44px]"
                       maxLength={2000}
                       aria-label="Type your message to ELIN"
+                      inputMode="text"
+                      enterKeyHint="send"
                     />
                     <Button 
                       onClick={() => handleSendMessage()} 
                       disabled={!inputValue.trim() || isTyping}
                       aria-label="Send message"
-                      className="bg-education hover:bg-education/90 mobile-button min-w-[44px]"
-                      size="sm"
+                      className="bg-education hover:bg-education/90 min-w-[44px] min-h-[44px] h-11 w-11"
                     >
-                      <Send className="h-4 w-4" />
+                      <Send className="h-5 w-5" />
                     </Button>
                   </div>
                 </div>
