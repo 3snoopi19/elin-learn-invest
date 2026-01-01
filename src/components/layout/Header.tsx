@@ -70,11 +70,11 @@ export const Header = () => {
       </Button>
       <Button 
         variant="ghost" 
-        onClick={() => navigate('/learn')}
+        onClick={() => navigate('/resources')}
         className="text-muted-foreground hover:text-foreground hover:bg-primary/10 transition-colors"
-        aria-label="Learning Paths"
+        aria-label="Financial Resources"
       >
-        Learn
+        Resources
       </Button>
     </>
   );

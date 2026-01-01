@@ -17,6 +17,7 @@ import Filings from "./pages/Filings";
 import Portfolio from "./pages/Portfolio";
 import PortfolioSimulator from "./pages/PortfolioSimulator";
 import Learn from "./pages/Learn";
+import Resources from "./pages/Resources";
 import Settings from "./pages/Settings";
 import Pricing from "./pages/Pricing";
 import About from "./pages/About";
@@ -53,6 +54,7 @@ const AppContent = () => {
         <Route path="/portfolio" element={<Portfolio />} />
         <Route path="/portfolio-simulator" element={<PortfolioSimulator />} />
         <Route path="/learn" element={<Learn />} />
+        <Route path="/resources" element={<Resources />} />
         <Route path="/settings" element={<Settings />} />
         <Route path="/pricing" element={<Pricing />} />
         <Route path="/about" element={<About />} />
