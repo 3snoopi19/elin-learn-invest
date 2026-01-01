@@ -390,10 +390,10 @@ export const DynamicLessonView = ({
                   h1: ({ children }) => <h1 className="text-2xl font-bold text-text-heading mb-4">{children}</h1>,
                   h2: ({ children }) => <h2 className="text-xl font-semibold text-text-heading mt-6 mb-3">{children}</h2>,
                   h3: ({ children }) => <h3 className="text-lg font-medium text-text-heading mt-4 mb-2">{children}</h3>,
-                  p: ({ children }) => <p className="text-text-body mb-4 leading-relaxed">{children}</p>,
-                  ul: ({ children }) => <ul className="list-disc pl-6 mb-4 space-y-2">{children}</ul>,
-                  ol: ({ children }) => <ol className="list-decimal pl-6 mb-4 space-y-2">{children}</ol>,
-                  li: ({ children }) => <li className="text-text-body">{children}</li>,
+                  p: ({ children }) => <p className="text-text-body mb-5 leading-loose">{children}</p>,
+                  ul: ({ children }) => <ul className="list-disc pl-6 mb-5 space-y-3">{children}</ul>,
+                  ol: ({ children }) => <ol className="list-decimal pl-6 mb-5 space-y-3">{children}</ol>,
+                  li: ({ children }) => <li className="text-text-body leading-relaxed">{children}</li>,
                   blockquote: ({ children }) => (
                     <blockquote className="border-l-4 border-primary pl-4 py-2 my-4 bg-primary/5 rounded-r-lg">
                       {children}
@@ -409,24 +409,31 @@ export const DynamicLessonView = ({
         </>
       )}
 
-      {/* Actions */}
-      <div className="flex justify-between items-center">
-        <Button variant="outline" onClick={onBack}>
+      {/* Actions - Stacked vertically on mobile, horizontal on desktop */}
+      <div className="flex flex-col gap-3 sm:flex-row sm:justify-between sm:items-center pb-8 mb-safe">
+        <Button 
+          variant="outline" 
+          onClick={onBack}
+          className="w-full sm:w-auto order-2 sm:order-1"
+        >
           Previous Lesson
         </Button>
-        <div className="flex gap-2">
+        <div className="flex flex-col gap-3 sm:flex-row sm:gap-2 order-1 sm:order-2">
+          <Button 
+            onClick={onBack}
+            className="w-full sm:w-auto"
+          >
+            Next Lesson
+          </Button>
           {!isComplete && (
             <Button 
               onClick={handleComplete}
               disabled={isCompleting}
-              className="bg-success hover:bg-success/90"
+              className="bg-success hover:bg-success/90 w-full sm:w-auto"
             >
               {isCompleting ? 'Saving...' : 'Mark as Complete'}
             </Button>
           )}
-          <Button onClick={onBack}>
-            Next Lesson
-          </Button>
         </div>
       </div>
     </div>
