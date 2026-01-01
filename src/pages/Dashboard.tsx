@@ -15,7 +15,8 @@ import { SpendingAnomaliesCard } from "@/components/finance/SpendingAnomaliesCar
 import { PredictiveBalanceCard } from "@/components/finance/PredictiveBalanceCard";
 import { SpendDefenseBar } from "@/components/gamification/SpendDefenseBar";
 import { GoalVisualization } from "@/components/gamification/GoalVisualization";
-import { MessageSquare, Repeat, PiggyBank, Settings } from "lucide-react";
+import { DailyBriefingModal } from "@/components/feed/DailyBriefingModal";
+import { MessageSquare, Repeat, PiggyBank, Settings, Sparkles } from "lucide-react";
 
 const Dashboard = () => {
   const { user, loading } = useAuth();
@@ -23,6 +24,7 @@ const Dashboard = () => {
   const [searchParams] = useSearchParams();
   const [userProfile, setUserProfile] = useState<any>(null);
   const [cardsLoading, setCardsLoading] = useState(true);
+  const [showBriefing, setShowBriefing] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -71,6 +73,9 @@ const Dashboard = () => {
       <Header />
       
       <main className="mobile-content mobile-container py-4 md:py-8 pb-32 md:pb-8">
+        {/* Daily Briefing Modal */}
+        <DailyBriefingModal isOpen={showBriefing} onClose={() => setShowBriefing(false)} />
+
         {/* Hero Greeting */}
         <div className="mb-6 md:mb-8">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -82,6 +87,19 @@ const Dashboard = () => {
                 Here's your financial command center
               </p>
             </div>
+            
+            {/* Daily Briefing Button */}
+            <motion.button
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={() => setShowBriefing(true)}
+              className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-primary/20 to-primary/10 border border-primary/30 hover:border-primary/50 transition-all group"
+            >
+              <Sparkles className="w-5 h-5 text-primary group-hover:animate-pulse" />
+              <span className="font-medium text-primary">Daily Briefing</span>
+            </motion.button>
           </div>
         </div>
 
