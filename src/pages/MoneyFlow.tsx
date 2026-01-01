@@ -3,6 +3,7 @@ import { MoneyFlowInsights } from "@/components/MoneyFlowInsights";
 import { MobileOptimizedLayout } from "@/components/ui/MobileOptimizedLayout";
 import { ResponsiveContainer } from "@/components/ui/ResponsiveContainer";
 import { MobileStack, MobileSection } from "@/components/ui/MobileStack";
+import { PredictiveBalanceCard } from "@/components/finance/PredictiveBalanceCard";
 
 const mockAccounts = [
   {
@@ -58,6 +59,9 @@ export default function MoneyFlowPage() {
               totals={totals}
               className="animate-fade-in-up"
             />
+
+            {/* Future View - Predictive Balance Engine */}
+            <PredictiveBalanceCard animationDelay={0.1} />
             
             {/* Main Visualization - Enhanced for Sequence.io style */}
             <div className="professional-card p-4 md:p-6 bg-gradient-to-br from-background via-background-subtle to-background animate-fade-in-up animate-delay-200">

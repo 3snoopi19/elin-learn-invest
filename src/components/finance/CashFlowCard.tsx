@@ -1,8 +1,15 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { ArrowDownLeft, ArrowUpRight, Calendar, Target } from 'lucide-react';
+import { ArrowDownLeft, ArrowUpRight, Calendar, Target, Users, TrendingDown, TrendingUp } from 'lucide-react';
 import { motion } from 'framer-motion';
+
+interface SpendingCategory {
+  name: string;
+  amount: number;
+  percentile?: number;
+  comparisonType: 'top' | 'below' | 'above' | 'average';
+}
 
 interface CashFlowCardProps {
   income?: number;
@@ -10,6 +17,55 @@ interface CashFlowCardProps {
   budget?: number;
   animationDelay?: number;
 }
+
+// Mock spending categories with peer comparison data
+const mockCategories: SpendingCategory[] = [
+  { name: 'Dining Out', amount: 450, percentile: 15, comparisonType: 'top' },
+  { name: 'Groceries', amount: 380, percentile: 20, comparisonType: 'below' },
+  { name: 'Transport', amount: 210, percentile: 8, comparisonType: 'above' },
+  { name: 'Entertainment', amount: 185, percentile: 25, comparisonType: 'below' },
+];
+
+const PeerBadge = ({ category }: { category: SpendingCategory }) => {
+  const getBadgeConfig = () => {
+    switch (category.comparisonType) {
+      case 'top':
+        return {
+          icon: TrendingUp,
+          text: `Top ${category.percentile}% spender`,
+          className: 'bg-warning/10 text-warning border-warning/30'
+        };
+      case 'below':
+        return {
+          icon: TrendingDown,
+          text: `${category.percentile}% less than avg`,
+          className: 'bg-success/10 text-success border-success/30'
+        };
+      case 'above':
+        return {
+          icon: TrendingUp,
+          text: `${category.percentile}% above avg`,
+          className: 'bg-destructive/10 text-destructive border-destructive/30'
+        };
+      default:
+        return {
+          icon: Users,
+          text: 'Average',
+          className: 'bg-muted text-text-secondary border-border'
+        };
+    }
+  };
+
+  const config = getBadgeConfig();
+  const Icon = config.icon;
+
+  return (
+    <Badge variant="outline" className={`text-[10px] px-1.5 py-0.5 ${config.className}`}>
+      <Icon className="w-2.5 h-2.5 mr-1" />
+      {config.text}
+    </Badge>
+  );
+};
 
 export const CashFlowCard = ({
   income = 6850.00,
@@ -74,6 +130,31 @@ export const CashFlowCard = ({
                 -${spending.toLocaleString('en-US', { minimumFractionDigits: 2 })}
               </div>
               <Progress value={budgetUsed} className="h-2 bg-destructive/20" />
+            </div>
+          </div>
+
+          {/* Spending Categories with Peer Comparison */}
+          <div className="space-y-2">
+            <h4 className="text-sm font-medium text-text-secondary flex items-center gap-2">
+              <Users className="w-4 h-4" />
+              Spending by Category (vs. peers in your city)
+            </h4>
+            <div className="space-y-2">
+              {mockCategories.map((cat, idx) => (
+                <motion.div
+                  key={cat.name}
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.3, delay: animationDelay + 0.1 * idx }}
+                  className="flex items-center justify-between p-2 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors"
+                >
+                  <div className="flex items-center gap-3">
+                    <span className="text-sm font-medium text-text-heading">{cat.name}</span>
+                    <span className="text-sm text-text-muted">${cat.amount}</span>
+                  </div>
+                  <PeerBadge category={cat} />
+                </motion.div>
+              ))}
             </div>
           </div>
 
