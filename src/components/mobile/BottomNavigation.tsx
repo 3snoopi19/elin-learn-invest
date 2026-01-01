@@ -20,28 +20,16 @@ interface NavItem {
 
 const navigationItems: NavItem[] = [
   {
-    id: 'dashboard',
-    icon: Home,
-    label: 'Home',
-    path: '/dashboard'
+    id: 'money-flow',
+    icon: BarChart3,
+    label: 'Money Flow',
+    path: '/money-flow'
   },
   {
     id: 'chat',
     icon: MessageSquare,
-    label: 'ELIN',
+    label: 'Chat',
     path: '/chat'
-  },
-  {
-    id: 'portfolio',
-    icon: TrendingUp,
-    label: 'Portfolio',
-    path: '/portfolio'
-  },
-  {
-    id: 'filings',
-    icon: FileSearch,
-    label: 'Research',
-    path: '/filings'
   },
   {
     id: 'learn',

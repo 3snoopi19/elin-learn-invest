@@ -146,6 +146,7 @@ All colors MUST be HSL.
   html {
     /* Smooth theme transition */
     transition: background-color 0.3s ease, color 0.3s ease;
+    font-size: 16px; /* Base font size for mobile readability */
   }
   
   body {
@@ -155,6 +156,8 @@ All colors MUST be HSL.
     min-height: 100vh;
     transition: background 0.4s cubic-bezier(0.4, 0, 0.2, 1), 
                 color 0.3s ease;
+    font-size: 16px; /* Enforce 16px base for mobile */
+    -webkit-text-size-adjust: 100%; /* Prevent iOS text zoom */
   }
   
   /* Smooth theme transitions for all elements */
@@ -508,20 +511,20 @@ All colors MUST be HSL.
     @apply p-4 md:p-6;
   }
   
-  /* Touch-optimized buttons - minimum 44px height for accessibility */
+  /* Touch-optimized buttons - ENFORCED 44px minimum for accessibility */
   .mobile-button {
-    @apply px-4 py-3 md:px-6 md:py-3 text-sm md:text-base font-medium;
-    min-height: 48px; /* Slightly larger for better touch targets */
-    min-width: 48px;
+    @apply px-4 py-3 md:px-6 md:py-3 text-base font-medium;
+    min-height: 44px !important;
+    min-width: 44px !important;
   }
   
-  /* Touch-friendly interactive elements */
+  /* Touch-friendly interactive elements - CRITICAL for accessibility */
   .touch-target {
-    min-height: 48px;
-    min-width: 48px;
+    min-height: 44px !important;
+    min-width: 44px !important;
   }
   
-  /* All clickable elements should have adequate touch targets */
+  /* All clickable elements MUST have adequate touch targets */
   button, 
   a, 
   [role="button"],
@@ -529,14 +532,16 @@ All colors MUST be HSL.
   input[type="submit"],
   .clickable {
     min-height: 44px;
+    min-width: 44px;
   }
   
-  /* Form inputs with better touch targets */
+  /* Form inputs with better touch targets and no iOS zoom */
   input, 
   select, 
   textarea {
     min-height: 44px;
-    @apply text-base; /* Prevent zoom on iOS */
+    @apply text-base; /* 16px prevents iOS zoom on focus */
+    font-size: 16px !important; /* Enforce 16px to prevent iOS zoom */
   }
   
   /* Safe area support for mobile devices */

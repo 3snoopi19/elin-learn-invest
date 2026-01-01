@@ -165,30 +165,39 @@ const ModernIncomeNode = ({ data }: { data: NodeData }) => {
     }
   };
 
+  // On mobile, tap to expand instead of hover
+  const handleInteraction = () => {
+    if (isMobile) {
+      setIsHovered(!isHovered);
+    }
+  };
+
   return (
     <div 
       className="group relative"
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
+      onMouseEnter={() => !isMobile && setIsHovered(true)}
+      onMouseLeave={() => !isMobile && setIsHovered(false)}
+      onClick={handleInteraction}
     >
       {/* Handles positioned for both horizontal and vertical layouts */}
       <Handle 
         type="source" 
         position={isMobile ? Position.Bottom : Position.Right} 
-        className="w-3 h-3 bg-success border-2 border-card shadow-md"
+        className="w-4 h-4 bg-success border-2 border-card shadow-md"
       />
       
       <div className={cn(
-        "min-w-[180px] p-3 bg-card rounded-xl border-2 shadow-lg transition-all duration-300 cursor-move",
-        "hover:shadow-xl hover:-translate-y-1",
+        "p-4 bg-card rounded-xl border-2 shadow-lg transition-all duration-300",
+        isMobile ? "min-w-[160px] min-h-[88px] cursor-pointer" : "min-w-[180px] cursor-move",
+        !isMobile && "hover:shadow-xl hover:-translate-y-1",
         isHovered ? "border-success/40 shadow-success/20 bg-success/5" : "border-border/60",
         "professional-card"
       )}>
         <div className="flex items-center gap-3 mb-2">
           <div className="text-xl">{getIcon()}</div>
           <div className="flex-1">
-            <h3 className="font-semibold text-xs text-text-heading">{data.label}</h3>
-            <p className="text-[10px] text-text-secondary">{data.frequency}</p>
+            <h3 className="font-semibold text-sm text-text-heading">{data.label}</h3>
+            <p className="text-xs text-text-secondary">{data.frequency}</p>
           </div>
         </div>
         
@@ -196,12 +205,17 @@ const ModernIncomeNode = ({ data }: { data: NodeData }) => {
           +${data.amount.toLocaleString()}
         </div>
         
-        <div className="flex items-center justify-between text-[10px]">
+        <div className="flex items-center justify-between text-xs">
           <span className="text-text-muted">{data.totalTransactions} txns</span>
-          <Badge variant="outline" className="bg-success/10 text-success border-success/30 text-[10px] px-1.5 py-0">
+          <Badge variant="outline" className="bg-success/10 text-success border-success/30 text-xs px-2 py-0.5">
             Active
           </Badge>
         </div>
+        {isMobile && isHovered && (
+          <div className="mt-2 pt-2 border-t border-border/30 text-xs text-text-secondary">
+            Tap again to collapse
+          </div>
+        )}
       </div>
     </div>
   );
@@ -235,35 +249,44 @@ const ModernAccountNode = ({ data }: { data: any }) => {
     return 'warning';
   };
 
+  // On mobile, tap to expand instead of hover
+  const handleInteraction = () => {
+    if (isMobile) {
+      setIsHovered(!isHovered);
+    }
+  };
+
   return (
     <div 
       className="group relative"
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
+      onMouseEnter={() => !isMobile && setIsHovered(true)}
+      onMouseLeave={() => !isMobile && setIsHovered(false)}
+      onClick={handleInteraction}
     >
       {/* Handles positioned for both horizontal and vertical layouts */}
       <Handle 
         type="target" 
         position={isMobile ? Position.Top : Position.Left} 
-        className="w-3 h-3 bg-secondary border-2 border-card shadow-md"
+        className="w-4 h-4 bg-secondary border-2 border-card shadow-md"
       />
       <Handle 
         type="source" 
         position={isMobile ? Position.Bottom : Position.Right} 
-        className="w-3 h-3 bg-secondary border-2 border-card shadow-md"
+        className="w-4 h-4 bg-secondary border-2 border-card shadow-md"
       />
       
       <div className={cn(
-        "min-w-[200px] p-3 bg-card rounded-xl border-2 shadow-lg transition-all duration-300 cursor-move",
-        "hover:shadow-xl hover:-translate-y-1",
+        "p-4 bg-card rounded-xl border-2 shadow-lg transition-all duration-300",
+        isMobile ? "min-w-[180px] min-h-[88px] cursor-pointer" : "min-w-[200px] cursor-move",
+        !isMobile && "hover:shadow-xl hover:-translate-y-1",
         isHovered ? "border-secondary/40 shadow-secondary/20 bg-secondary/5" : "border-border/60",
         "professional-card"
       )}>
         <div className="flex items-center gap-3 mb-2">
           <div className="text-xl">{getIcon()}</div>
           <div className="flex-1">
-            <h3 className="font-semibold text-xs text-text-heading">{data.name}</h3>
-            <p className="text-[10px] text-text-secondary">{data.institution}</p>
+            <h3 className="font-semibold text-sm text-text-heading">{data.name}</h3>
+            <p className="text-xs text-text-secondary">{data.institution}</p>
           </div>
         </div>
         
@@ -274,12 +297,12 @@ const ModernAccountNode = ({ data }: { data: any }) => {
           {formatCurrency(data.balance)}
         </div>
         
-        <div className="flex items-center justify-between text-[10px]">
+        <div className="flex items-center justify-between text-sm">
           <span className="text-text-muted">Last sync: Today</span>
           <Badge 
             variant="outline"
             className={cn(
-              "border text-[10px] px-1.5 py-0",
+              "border text-xs px-2 py-0.5",
               getStatusColor() === 'success' && "bg-success/10 text-success border-success/30",
               getStatusColor() === 'destructive' && "bg-destructive/10 text-destructive border-destructive/30",
               getStatusColor() === 'warning' && "bg-warning/10 text-warning border-warning/30"
@@ -288,6 +311,11 @@ const ModernAccountNode = ({ data }: { data: any }) => {
             {data.balance > 5000 ? 'Healthy' : data.balance < 0 ? 'Credit' : 'Low'}
           </Badge>
         </div>
+        {isMobile && isHovered && (
+          <div className="mt-2 pt-2 border-t border-border/30 text-xs text-text-secondary">
+            Tap again to collapse
+          </div>
+        )}
       </div>
     </div>
   );
@@ -309,30 +337,39 @@ const ModernExpenseNode = ({ data }: { data: NodeData }) => {
     }
   };
 
+  // On mobile, tap to expand instead of hover
+  const handleInteraction = () => {
+    if (isMobile) {
+      setIsHovered(!isHovered);
+    }
+  };
+
   return (
     <div 
       className="group relative"
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
+      onMouseEnter={() => !isMobile && setIsHovered(true)}
+      onMouseLeave={() => !isMobile && setIsHovered(false)}
+      onClick={handleInteraction}
     >
       {/* Handles positioned for both horizontal and vertical layouts */}
       <Handle 
         type="target" 
         position={isMobile ? Position.Top : Position.Left} 
-        className="w-3 h-3 bg-destructive border-2 border-card shadow-md"
+        className="w-4 h-4 bg-destructive border-2 border-card shadow-md"
       />
       
       <div className={cn(
-        "min-w-[180px] p-3 bg-card rounded-xl border-2 shadow-lg transition-all duration-300 cursor-move",
-        "hover:shadow-xl hover:-translate-y-1",
+        "p-4 bg-card rounded-xl border-2 shadow-lg transition-all duration-300",
+        isMobile ? "min-w-[160px] min-h-[88px] cursor-pointer" : "min-w-[180px] cursor-move",
+        !isMobile && "hover:shadow-xl hover:-translate-y-1",
         isHovered ? "border-destructive/40 shadow-destructive/20 bg-destructive/5" : "border-border/60",
         "professional-card"
       )}>
         <div className="flex items-center gap-3 mb-2">
           <div className="text-xl">{getIcon()}</div>
           <div className="flex-1">
-            <h3 className="font-semibold text-xs text-text-heading">{data.label}</h3>
-            <p className="text-[10px] text-text-secondary">{data.frequency}</p>
+            <h3 className="font-semibold text-sm text-text-heading">{data.label}</h3>
+            <p className="text-xs text-text-secondary">{data.frequency}</p>
           </div>
         </div>
         
@@ -340,12 +377,12 @@ const ModernExpenseNode = ({ data }: { data: NodeData }) => {
           -${data.amount.toLocaleString()}
         </div>
         
-        <div className="flex items-center justify-between text-[10px]">
+        <div className="flex items-center justify-between text-xs">
           <span className="text-text-muted">{data.totalTransactions} txns</span>
           <Badge 
             variant="outline"
             className={cn(
-              "border text-[10px] px-1.5 py-0",
+              "border text-xs px-2 py-0.5",
               data.amount > 1000 
                 ? "bg-destructive/10 text-destructive border-destructive/30" 
                 : "bg-muted/50 text-text-muted border-border/50"
@@ -354,6 +391,11 @@ const ModernExpenseNode = ({ data }: { data: NodeData }) => {
             {data.amount > 1000 ? 'High' : data.category === 'housing' ? 'Fixed' : 'Variable'}
           </Badge>
         </div>
+        {isMobile && isHovered && (
+          <div className="mt-2 pt-2 border-t border-border/30 text-xs text-text-secondary">
+            Tap again to collapse
+          </div>
+        )}
       </div>
     </div>
   );
@@ -502,7 +544,7 @@ const MoneyFlowCanvasInner: React.FC<MoneyFlowVisualizationProps> = ({
       }
     };
 
-    // Income nodes
+    // Income nodes - disable drag on mobile
     const incomeNodes: Node[] = [
       {
         id: 'income-salary',
@@ -515,7 +557,7 @@ const MoneyFlowCanvasInner: React.FC<MoneyFlowVisualizationProps> = ({
           frequency: 'Monthly',
           totalTransactions: 12
         },
-        draggable: true,
+        draggable: !isMobile,
       },
       {
         id: 'income-freelance',
@@ -528,20 +570,20 @@ const MoneyFlowCanvasInner: React.FC<MoneyFlowVisualizationProps> = ({
           frequency: 'Weekly',
           totalTransactions: 8
         },
-        draggable: true,
+        draggable: !isMobile,
       }
     ];
 
-    // Account nodes with better positioning
+    // Account nodes with better positioning - disable drag on mobile
     const accountNodes: Node[] = accounts.map((account, index) => ({
       id: account.id,
       type: 'account',
       position: getPosition('account', index),
       data: { ...account } as Record<string, unknown>,
-      draggable: true,
+      draggable: !isMobile,
     }));
 
-    // Expense nodes
+    // Expense nodes - disable drag on mobile
     const expenseNodes: Node[] = [
       {
         id: 'expense-rent',
@@ -554,7 +596,7 @@ const MoneyFlowCanvasInner: React.FC<MoneyFlowVisualizationProps> = ({
           frequency: 'Monthly',
           totalTransactions: 2
         },
-        draggable: true,
+        draggable: !isMobile,
       },
       {
         id: 'expense-groceries',
@@ -567,7 +609,7 @@ const MoneyFlowCanvasInner: React.FC<MoneyFlowVisualizationProps> = ({
           frequency: 'Weekly',
           totalTransactions: 15
         },
-        draggable: true,
+        draggable: !isMobile,
       }
     ];
 
@@ -647,22 +689,52 @@ const MoneyFlowCanvasInner: React.FC<MoneyFlowVisualizationProps> = ({
 
   return (
     <div ref={containerRef} className="flex flex-col h-full">
-      {/* Main Canvas */}
+      {/* Mobile View Only Badge */}
+      {isMobile && (
+        <div className="flex items-center justify-between mb-3 px-1">
+          <Badge variant="outline" className="bg-muted/50 text-text-secondary border-border/50 text-xs">
+            <Eye className="w-3 h-3 mr-1" />
+            View Only Mode
+          </Badge>
+          <div className="flex gap-2">
+            <Button 
+              size="sm" 
+              variant="outline"
+              className="h-11 min-w-[100px] text-sm bg-success/10 text-success border-success/30"
+              onClick={() => toast.info('Add Income feature coming soon!')}
+            >
+              <Plus className="h-4 w-4 mr-1" />
+              Income
+            </Button>
+            <Button 
+              size="sm" 
+              variant="outline"
+              className="h-11 min-w-[100px] text-sm bg-destructive/10 text-destructive border-destructive/30"
+              onClick={() => toast.info('Add Expense feature coming soon!')}
+            >
+              <Plus className="h-4 w-4 mr-1" />
+              Expense
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {/* Main Canvas - Fixed height to prevent scroll trap */}
       <div className={cn(
-        "flex-1 w-full relative professional-card rounded-xl border overflow-hidden",
-        isMobile ? "h-[400px]" : "h-[500px] md:h-[600px]"
+        "w-full relative professional-card rounded-xl border overflow-hidden",
+        isMobile ? "h-[350px] flex-shrink-0" : "flex-1 h-[500px] md:h-[600px]"
       )}>
         {/* Header Controls */}
         <Panel position="top-left">
           <div className="bg-card/95 backdrop-blur-md rounded-lg border border-border/50 p-2 shadow-lg">
             <div className="flex items-center gap-2">
-              <Activity className="h-3.5 w-3.5 text-primary" />
-              <span className="text-xs font-medium text-text-heading">Money Flow</span>
+              <Activity className="h-4 w-4 text-primary" />
+              <span className="text-sm font-medium text-text-heading">Money Flow</span>
               <Select value={selectedTimeframe} onValueChange={setSelectedTimeframe}>
-                <SelectTrigger className="w-20 h-7 text-xs">
+                <SelectTrigger className="w-20 h-9 text-sm min-h-[44px]">
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent className="z-50">
+                <SelectContent className="z-50 bg-card">
                   <SelectItem value="7">7d</SelectItem>
                   <SelectItem value="30">30d</SelectItem>
                   <SelectItem value="90">90d</SelectItem>
@@ -678,20 +750,20 @@ const MoneyFlowCanvasInner: React.FC<MoneyFlowVisualizationProps> = ({
             <Button 
               size="sm" 
               variant="outline"
-              className="h-8 w-8 p-0 bg-card/95 backdrop-blur-md border-border/50"
+              className="h-11 w-11 p-0 bg-card/95 backdrop-blur-md border-border/50 min-w-[44px] min-h-[44px]"
               onClick={handleFitView}
             >
-              <Maximize2 className="h-3.5 w-3.5" />
+              <Maximize2 className="h-4 w-4" />
             </Button>
             {!isMobile && (
               <Button 
                 size="sm" 
-                className="bg-primary hover:bg-primary-hover text-primary-foreground h-8"
+                className="bg-primary hover:bg-primary-hover text-primary-foreground h-11 min-h-[44px]"
                 onClick={() => {
                   toast.info('New Automation feature coming soon!');
                 }}
               >
-                <Plus className="h-3 w-3 mr-1" />
+                <Plus className="h-4 w-4 mr-1" />
                 Automate
               </Button>
             )}
@@ -701,9 +773,9 @@ const MoneyFlowCanvasInner: React.FC<MoneyFlowVisualizationProps> = ({
         <ReactFlow
           nodes={nodes}
           edges={edges}
-          onNodesChange={onNodesChange}
-          onEdgesChange={onEdgesChange}
-          onConnect={onConnect}
+          onNodesChange={isMobile ? undefined : onNodesChange}
+          onEdgesChange={isMobile ? undefined : onEdgesChange}
+          onConnect={isMobile ? undefined : onConnect}
           nodeTypes={nodeTypes}
           edgeTypes={edgeTypes}
           fitView
@@ -713,6 +785,15 @@ const MoneyFlowCanvasInner: React.FC<MoneyFlowVisualizationProps> = ({
           minZoom={0.3}
           maxZoom={1.5}
           defaultViewport={{ x: 0, y: 0, zoom: 0.7 }}
+          nodesDraggable={!isMobile}
+          nodesConnectable={!isMobile}
+          elementsSelectable={!isMobile}
+          panOnDrag={!isMobile}
+          panOnScroll={false}
+          zoomOnScroll={!isMobile}
+          zoomOnPinch={true}
+          zoomOnDoubleClick={!isMobile}
+          preventScrolling={false}
         >
           <Background 
             variant={BackgroundVariant.Dots} 
@@ -720,18 +801,20 @@ const MoneyFlowCanvasInner: React.FC<MoneyFlowVisualizationProps> = ({
             size={1} 
             color="hsl(var(--border))"
           />
-          <Controls 
-            className="bg-card/95 backdrop-blur-md border border-border/50 rounded-lg shadow-lg"
-            showZoom={true}
-            showFitView={true}
-            showInteractive={false}
-          />
           {!isMobile && (
-            <MiniMap 
-              className="bg-card/95 backdrop-blur-md border border-border/50 rounded-lg shadow-lg"
-              nodeColor="hsl(var(--muted))"
-              maskColor="hsla(var(--card), 0.9)"
-            />
+            <>
+              <Controls 
+                className="bg-card/95 backdrop-blur-md border border-border/50 rounded-lg shadow-lg"
+                showZoom={true}
+                showFitView={true}
+                showInteractive={false}
+              />
+              <MiniMap 
+                className="bg-card/95 backdrop-blur-md border border-border/50 rounded-lg shadow-lg"
+                nodeColor="hsl(var(--muted))"
+                maskColor="hsla(var(--card), 0.9)"
+              />
+            </>
           )}
         </ReactFlow>
       </div>
