@@ -21,7 +21,7 @@ export const MobileOptimizedLayout = ({
     <div className={cn("bg-background", fullHeight ? "min-h-screen" : "", className)}>
       {showHeader && <Header />}
       
-      <main className="mobile-content mobile-container pb-20 md:pb-0">
+      <main className="mobile-content mobile-container pb-28 md:pb-8" role="main">
         {children}
       </main>
       

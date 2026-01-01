@@ -511,11 +511,102 @@ All colors MUST be HSL.
     @apply p-4 md:p-6;
   }
   
+  /* ========== GLOBAL DESIGN POLISH ========== */
+  
+  /* 1. GLOBAL TYPOGRAPHY & READABILITY */
+  
+  /* Base body text - minimum 16px for mobile readability */
+  body, p, span, div, li, td, th, label {
+    font-size: 16px;
+    line-height: 1.5;
+  }
+  
+  /* Secondary/hint text - minimum 14px with improved contrast */
+  .text-sm, small, .hint, .subtitle, .text-muted-foreground, .text-slate-400 {
+    font-size: 14px !important;
+    min-height: auto;
+  }
+  
+  /* Improve grey text contrast - slate-400 to slate-300 equivalent */
+  .dark .text-slate-400,
+  .dark .text-gray-400,
+  .dark .text-muted-foreground {
+    color: hsl(220 9% 65%) !important; /* Brighter grey for dark mode */
+  }
+  
+  .text-slate-400,
+  .text-gray-400 {
+    color: hsl(215 15% 50%) !important; /* Better contrast for light mode */
+  }
+  
+  /* Standardized page headings - Bold and consistent size */
+  h1, .page-title {
+    @apply text-2xl md:text-3xl font-bold;
+    color: hsl(var(--text-heading));
+  }
+  
+  h2, .section-title {
+    @apply text-xl md:text-2xl font-bold;
+    color: hsl(var(--text-heading));
+  }
+  
+  h3, .card-header-title {
+    @apply text-lg md:text-xl font-semibold;
+    color: hsl(var(--text-heading));
+  }
+  
+  h4, h5, h6 {
+    @apply font-semibold;
+    color: hsl(var(--text-heading));
+  }
+  
+  /* 2. MOBILE SIZING & SPACING */
+  
+  /* Full width containers on mobile with consistent padding */
+  @media (max-width: 767px) {
+    .container, .max-w-7xl, .max-w-6xl, .max-w-5xl, .max-w-4xl {
+      padding-left: 1rem !important; /* p-4 */
+      padding-right: 1rem !important;
+      margin-left: 0 !important;
+      margin-right: 0 !important;
+      max-width: 100% !important;
+    }
+    
+    /* Cards take full width on mobile */
+    .card, .professional-card, .neon-card, .mobile-card {
+      width: 100% !important;
+      margin-left: 0 !important;
+      margin-right: 0 !important;
+    }
+  }
+  
+  /* Standardized vertical rhythm */
+  .space-y-consistent > * + * {
+    margin-top: 1rem; /* gap-4 equivalent */
+  }
+  
+  .space-y-consistent-lg > * + * {
+    margin-top: 1.5rem; /* gap-6 equivalent */
+  }
+  
+  /* 3. TOUCH & INTERACTION */
+  
   /* Touch-optimized buttons - ENFORCED 44px minimum for accessibility */
   .mobile-button {
     @apply px-4 py-3 md:px-6 md:py-3 text-base font-medium;
     min-height: 44px !important;
     min-width: 44px !important;
+  }
+  
+  /* Full width primary buttons on mobile */
+  @media (max-width: 767px) {
+    .btn-primary, 
+    .primary-action,
+    button[class*="bg-primary"],
+    .mobile-full-width-btn {
+      width: 100% !important;
+      display: block;
+    }
   }
   
   /* Touch-friendly interactive elements - CRITICAL for accessibility */
@@ -542,6 +633,18 @@ All colors MUST be HSL.
     min-height: 44px;
     @apply text-base; /* 16px prevents iOS zoom on focus */
     font-size: 16px !important; /* Enforce 16px to prevent iOS zoom */
+  }
+  
+  /* Bottom Navigation - HIGH z-index to prevent overlap */
+  .bottom-nav, nav[class*="fixed"][class*="bottom"] {
+    z-index: 50 !important;
+  }
+  
+  /* Main content padding to prevent hiding behind bottom nav */
+  @media (max-width: 767px) {
+    main, .main-content, [role="main"] {
+      padding-bottom: calc(100px + env(safe-area-inset-bottom, 16px)) !important;
+    }
   }
   
   /* Safe area support for mobile devices */
