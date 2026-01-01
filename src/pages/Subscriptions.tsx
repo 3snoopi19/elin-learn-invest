@@ -1,110 +1,179 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { Textarea } from '@/components/ui/textarea';
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet';
+import { Progress } from '@/components/ui/progress';
 import { 
-  Repeat, DollarSign, Calendar, AlertTriangle, Sparkles, 
-  Mail, Phone, MessageSquare, Copy, Check, X, TrendingDown,
-  Loader2, Bot
+  Scan, DollarSign, AlertTriangle, Sparkles, 
+  Phone, X, TrendingDown, Check, Crown, Zap,
+  Bot, Shield, Clock, ArrowRight, Loader2, Wifi, Dumbbell, Film
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
-import { supabase } from '@/integrations/supabase/client';
 
-interface Subscription {
+interface DetectedIssue {
   id: string;
+  type: 'unused' | 'duplicate' | 'negotiable';
   serviceName: string;
   logoEmoji: string;
   monthlyCost: number;
-  annualCost: number;
-  category: string;
-  nextBillingDate: Date;
-  status: 'active' | 'cancelled' | 'paused';
-  usageLevel: 'high' | 'medium' | 'low' | 'unused';
-  aiSuggestion?: string;
+  potentialSavings: number;
+  description: string;
+  action: 'cancel' | 'refund' | 'negotiate';
+  successRate?: number;
 }
 
-const mockSubscriptions: Subscription[] = [
-  { id: '1', serviceName: 'Netflix', logoEmoji: '🎬', monthlyCost: 15.99, annualCost: 191.88, category: 'Entertainment', nextBillingDate: new Date('2026-01-15'), status: 'active', usageLevel: 'high' },
-  { id: '2', serviceName: 'Spotify', logoEmoji: '🎵', monthlyCost: 10.99, annualCost: 131.88, category: 'Entertainment', nextBillingDate: new Date('2026-01-08'), status: 'active', usageLevel: 'high' },
-  { id: '3', serviceName: 'Disney+', logoEmoji: '✨', monthlyCost: 13.99, annualCost: 167.88, category: 'Entertainment', nextBillingDate: new Date('2026-01-20'), status: 'active', usageLevel: 'medium', aiSuggestion: 'Bundle with Hulu to save $5.98/mo' },
-  { id: '4', serviceName: 'Hulu', logoEmoji: '📺', monthlyCost: 17.99, annualCost: 215.88, category: 'Entertainment', nextBillingDate: new Date('2026-01-22'), status: 'active', usageLevel: 'low', aiSuggestion: 'Low usage detected - consider cancelling' },
-  { id: '5', serviceName: 'Gym Membership', logoEmoji: '💪', monthlyCost: 49.99, annualCost: 599.88, category: 'Health', nextBillingDate: new Date('2026-01-05'), status: 'active', usageLevel: 'low', aiSuggestion: 'Only 2 visits last month. Try negotiating a lower rate.' },
-  { id: '6', serviceName: 'Amazon Prime', logoEmoji: '📦', monthlyCost: 14.99, annualCost: 179.88, category: 'Shopping', nextBillingDate: new Date('2026-02-01'), status: 'active', usageLevel: 'high' },
-  { id: '7', serviceName: 'iCloud+', logoEmoji: '☁️', monthlyCost: 2.99, annualCost: 35.88, category: 'Storage', nextBillingDate: new Date('2026-01-12'), status: 'active', usageLevel: 'high' },
-  { id: '8', serviceName: 'Adobe Creative', logoEmoji: '🎨', monthlyCost: 54.99, annualCost: 659.88, category: 'Productivity', nextBillingDate: new Date('2026-01-18'), status: 'active', usageLevel: 'medium', aiSuggestion: 'Cheaper alternatives exist for casual use' },
+const detectedIssues: DetectedIssue[] = [
+  {
+    id: '1',
+    type: 'unused',
+    serviceName: 'Planet Fitness',
+    logoEmoji: '💪',
+    monthlyCost: 49.99,
+    potentialSavings: 49.99,
+    description: 'Only 2 check-ins in the last 3 months',
+    action: 'cancel',
+  },
+  {
+    id: '2',
+    type: 'duplicate',
+    serviceName: 'Netflix',
+    logoEmoji: '🎬',
+    monthlyCost: 15.99,
+    potentialSavings: 15.99,
+    description: 'Duplicate charge detected on Dec 15',
+    action: 'refund',
+  },
+  {
+    id: '3',
+    type: 'negotiable',
+    serviceName: 'Comcast Internet',
+    logoEmoji: '📡',
+    monthlyCost: 89.99,
+    potentialSavings: 25.00,
+    description: 'Rate increased 18% since signup',
+    action: 'negotiate',
+    successRate: 85,
+  },
 ];
 
-const usageBadgeStyles = {
-  high: 'bg-success/10 text-success border-success/30',
-  medium: 'bg-warning/10 text-warning border-warning/30',
-  low: 'bg-destructive/10 text-destructive border-destructive/30',
-  unused: 'bg-muted text-muted-foreground border-muted',
+const issueIcons = {
+  unused: Dumbbell,
+  duplicate: Film,
+  negotiable: Wifi,
+};
+
+const issueColors = {
+  unused: 'from-destructive/20 to-destructive/5 border-destructive/30',
+  duplicate: 'from-warning/20 to-warning/5 border-warning/30',
+  negotiable: 'from-primary/20 to-primary/5 border-primary/30',
+};
+
+const actionLabels = {
+  cancel: 'Cancel for Me',
+  refund: 'Get Refund',
+  negotiate: 'Negotiate Rate',
 };
 
 const Subscriptions = () => {
-  const [subscriptions] = useState<Subscription[]>(mockSubscriptions);
-  const [selectedSub, setSelectedSub] = useState<Subscription | null>(null);
-  const [negotiatorOpen, setNegotiatorOpen] = useState(false);
-  const [negotiatorMode, setNegotiatorMode] = useState<'cancel' | 'negotiate'>('cancel');
-  const [generatedScript, setGeneratedScript] = useState<string>('');
-  const [isGenerating, setIsGenerating] = useState(false);
-  const [copied, setCopied] = useState(false);
+  const [scanPhase, setScanPhase] = useState<'idle' | 'scanning' | 'complete'>('idle');
+  const [scanProgress, setScanProgress] = useState(0);
+  const [scanningText, setScanningText] = useState('Connecting to accounts...');
+  const [revealedIssues, setRevealedIssues] = useState<string[]>([]);
+  const [selectedIssue, setSelectedIssue] = useState<DetectedIssue | null>(null);
+  const [negotiateDialogOpen, setNegotiateDialogOpen] = useState(false);
+  const [premiumSheetOpen, setPremiumSheetOpen] = useState(false);
+  const [isNegotiating, setIsNegotiating] = useState(false);
+  const [negotiationStep, setNegotiationStep] = useState(0);
 
-  const totalMonthly = subscriptions.filter(s => s.status === 'active').reduce((sum, s) => sum + s.monthlyCost, 0);
-  const totalAnnual = subscriptions.filter(s => s.status === 'active').reduce((sum, s) => sum + s.annualCost, 0);
-  const potentialSavings = subscriptions.filter(s => s.usageLevel === 'low' || s.usageLevel === 'unused').reduce((sum, s) => sum + s.monthlyCost, 0);
+  // Start scanning animation on mount
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setScanPhase('scanning');
+      startScanAnimation();
+    }, 500);
+    return () => clearTimeout(timer);
+  }, []);
 
-  const handleOpenNegotiator = async (sub: Subscription, mode: 'cancel' | 'negotiate') => {
-    setSelectedSub(sub);
-    setNegotiatorMode(mode);
-    setNegotiatorOpen(true);
-    setGeneratedScript('');
-    setIsGenerating(true);
+  const startScanAnimation = () => {
+    const scanTexts = [
+      'Connecting to accounts...',
+      'Analyzing 12 months of transactions...',
+      'Cross-referencing subscription databases...',
+      'Detecting billing patterns...',
+      'Identifying savings opportunities...',
+    ];
 
-    try {
-      const prompt = mode === 'cancel'
-        ? `Generate a polite but firm cancellation email for my ${sub.serviceName} subscription that costs $${sub.monthlyCost}/month. Include: 1) A clear subject line 2) A professional greeting 3) Statement that I want to cancel 4) Request for confirmation 5) Professional closing. Keep it concise.`
-        : `Generate a negotiation script for calling ${sub.serviceName} customer service to negotiate a lower rate on my $${sub.monthlyCost}/month subscription. Include: 1) Opening statement 2) Key talking points (loyal customer, found cheaper alternatives, considering cancellation) 3) Target price suggestion 4) Fallback options 5) Polite closing. Make it conversational.`;
+    let progress = 0;
+    let textIndex = 0;
 
-      const { data, error } = await supabase.functions.invoke('chat-with-elin', {
-        body: { 
-          message: prompt,
-          conversationHistory: [],
-          stream: false 
-        }
-      });
+    const progressInterval = setInterval(() => {
+      progress += 2;
+      setScanProgress(progress);
 
-      if (error) throw error;
-
-      // Clean up the response (remove educational disclaimer if present)
-      let script = data.response || 'Unable to generate script. Please try again.';
-      const disclaimerIndex = script.indexOf('\n\n---\n📋');
-      if (disclaimerIndex > 0) {
-        script = script.substring(0, disclaimerIndex);
+      if (progress >= 20 && textIndex === 0) {
+        setScanningText(scanTexts[1]);
+        textIndex = 1;
+      } else if (progress >= 40 && textIndex === 1) {
+        setScanningText(scanTexts[2]);
+        textIndex = 2;
+      } else if (progress >= 60 && textIndex === 2) {
+        setScanningText(scanTexts[3]);
+        textIndex = 3;
+      } else if (progress >= 80 && textIndex === 3) {
+        setScanningText(scanTexts[4]);
+        textIndex = 4;
       }
 
-      setGeneratedScript(script);
-    } catch (error) {
-      console.error('Error generating script:', error);
-      setGeneratedScript('Failed to generate script. Please try again.');
-      toast.error('Failed to generate script');
-    } finally {
-      setIsGenerating(false);
+      if (progress >= 100) {
+        clearInterval(progressInterval);
+        setScanPhase('complete');
+        revealIssuesSequentially();
+      }
+    }, 50);
+  };
+
+  const revealIssuesSequentially = () => {
+    detectedIssues.forEach((issue, index) => {
+      setTimeout(() => {
+        setRevealedIssues(prev => [...prev, issue.id]);
+      }, 300 * (index + 1));
+    });
+  };
+
+  const handleActionClick = (issue: DetectedIssue) => {
+    setSelectedIssue(issue);
+    if (issue.action === 'negotiate') {
+      setNegotiateDialogOpen(true);
+      setNegotiationStep(0);
+    } else {
+      // Show premium sheet for cancel/refund actions
+      setPremiumSheetOpen(true);
     }
   };
 
-  const handleCopy = () => {
-    navigator.clipboard.writeText(generatedScript);
-    setCopied(true);
-    toast.success('Copied to clipboard!');
-    setTimeout(() => setCopied(false), 2000);
+  const handleProceedNegotiation = () => {
+    setIsNegotiating(true);
+    setNegotiationStep(1);
+    
+    // Simulate negotiation steps
+    setTimeout(() => setNegotiationStep(2), 2000);
+    setTimeout(() => {
+      setNegotiationStep(3);
+      setIsNegotiating(false);
+      // After showing success, open premium sheet
+      setTimeout(() => {
+        setNegotiateDialogOpen(false);
+        setPremiumSheetOpen(true);
+      }, 2000);
+    }, 4000);
   };
+
+  const totalSavings = detectedIssues.reduce((sum, i) => sum + i.potentialSavings, 0);
 
   return (
     <div className="min-h-screen bg-background">
@@ -115,255 +184,378 @@ const Subscriptions = () => {
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mb-8"
+          className="text-center mb-8"
         >
+          <Badge className="mb-4 bg-primary/10 text-primary border-primary/30 px-4 py-1.5">
+            <Sparkles className="w-3.5 h-3.5 mr-1.5" />
+            AI-Powered Analysis
+          </Badge>
           <h1 className="text-3xl md:text-4xl font-bold text-text-heading mb-2">
-            Subscription Manager
+            AI Action Center
           </h1>
-          <p className="text-text-secondary text-lg">
-            AI-powered insights to help you save money on recurring payments
+          <p className="text-text-secondary text-lg max-w-xl mx-auto">
+            ELIN scans your finances to find wasted money and takes action for you
           </p>
         </motion.div>
 
-        {/* Summary Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
-            <Card className="professional-card">
-              <CardContent className="p-5">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-text-muted">Monthly Cost</p>
-                    <p className="text-3xl font-bold text-text-heading">${totalMonthly.toFixed(2)}</p>
-                    <p className="text-xs text-text-secondary">${totalAnnual.toFixed(2)}/year</p>
-                  </div>
-                  <div className="w-12 h-12 rounded-xl bg-primary/20 flex items-center justify-center">
-                    <DollarSign className="w-6 h-6 text-primary" />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </motion.div>
+        {/* Waste Scanner */}
+        <AnimatePresence mode="wait">
+          {scanPhase !== 'complete' && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="mb-8"
+            >
+              <Card className="professional-card overflow-hidden border-primary/30">
+                <CardContent className="p-8">
+                  <div className="flex flex-col items-center text-center">
+                    {/* Scanning Animation */}
+                    <div className="relative mb-6">
+                      <motion.div
+                        animate={{ rotate: 360 }}
+                        transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+                        className="w-24 h-24 rounded-full border-4 border-primary/30 border-t-primary"
+                      />
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <Scan className="w-10 h-10 text-primary" />
+                      </div>
+                    </div>
 
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
-            <Card className="professional-card">
-              <CardContent className="p-5">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-text-muted">Active Subscriptions</p>
-                    <p className="text-3xl font-bold text-text-heading">{subscriptions.filter(s => s.status === 'active').length}</p>
-                    <p className="text-xs text-text-secondary">{subscriptions.filter(s => s.usageLevel === 'low').length} low usage</p>
-                  </div>
-                  <div className="w-12 h-12 rounded-xl bg-secondary/20 flex items-center justify-center">
-                    <Repeat className="w-6 h-6 text-secondary" />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </motion.div>
+                    <h3 className="text-xl font-semibold text-text-heading mb-2">
+                      {scanPhase === 'idle' ? 'Initializing...' : 'Scanning Your Finances'}
+                    </h3>
+                    <p className="text-text-secondary mb-4">
+                      {scanningText}
+                    </p>
 
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
-            <Card className="professional-card bg-gradient-to-br from-success/10 to-success/5 border-success/20">
-              <CardContent className="p-5">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-success">Potential Savings</p>
-                    <p className="text-3xl font-bold text-success">${potentialSavings.toFixed(2)}/mo</p>
-                    <p className="text-xs text-success/80">${(potentialSavings * 12).toFixed(2)}/year</p>
+                    <div className="w-full max-w-md">
+                      <Progress value={scanProgress} className="h-2 mb-2" />
+                      <div className="flex justify-between text-xs text-text-muted">
+                        <span>Analyzing transactions</span>
+                        <span>{scanProgress}%</span>
+                      </div>
+                    </div>
                   </div>
-                  <div className="w-12 h-12 rounded-xl bg-success/20 flex items-center justify-center">
-                    <TrendingDown className="w-6 h-6 text-success" />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </motion.div>
-        </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
-        {/* Subscriptions List */}
-        <Card className="professional-card">
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <CardTitle className="text-lg font-semibold text-text-heading flex items-center gap-2">
-                <Repeat className="w-5 h-5 text-primary" />
-                Your Subscriptions
-              </CardTitle>
-              <Badge variant="outline" className="text-xs">
-                Sorted by cost
-              </Badge>
-            </div>
-          </CardHeader>
-          <CardContent className="p-0">
-            <ScrollArea className="max-h-[600px]">
-              <div className="divide-y divide-border">
-                {subscriptions
-                  .sort((a, b) => b.monthlyCost - a.monthlyCost)
-                  .map((sub, index) => (
-                    <motion.div
-                      key={sub.id}
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: index * 0.05 }}
-                      className="p-4 hover:bg-muted/30 transition-colors"
-                    >
-                      <div className="flex items-center justify-between gap-4">
-                        <div className="flex items-center gap-4 min-w-0 flex-1">
-                          <div className="w-12 h-12 rounded-xl bg-card border border-border flex items-center justify-center text-2xl shadow-sm flex-shrink-0">
-                            {sub.logoEmoji}
+        {/* Results Summary */}
+        <AnimatePresence>
+          {scanPhase === 'complete' && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mb-8"
+            >
+              <Card className="professional-card bg-gradient-to-br from-success/10 to-success/5 border-success/30">
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between flex-wrap gap-4">
+                    <div className="flex items-center gap-4">
+                      <div className="w-14 h-14 rounded-2xl bg-success/20 flex items-center justify-center">
+                        <TrendingDown className="w-7 h-7 text-success" />
+                      </div>
+                      <div>
+                        <p className="text-sm text-success font-medium">Potential Monthly Savings</p>
+                        <p className="text-4xl font-bold text-success">${totalSavings.toFixed(2)}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <div className="text-right">
+                        <p className="text-2xl font-bold text-text-heading">{detectedIssues.length}</p>
+                        <p className="text-sm text-text-muted">Issues Found</p>
+                      </div>
+                      <Badge className="bg-primary text-white border-0 px-4 py-2">
+                        <Sparkles className="w-4 h-4 mr-1" />
+                        AI Analyzed
+                      </Badge>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Detected Issues Cards */}
+        <div className="space-y-4">
+          <AnimatePresence>
+            {detectedIssues.map((issue, index) => {
+              const isRevealed = revealedIssues.includes(issue.id);
+              const Icon = issueIcons[issue.type];
+
+              return (
+                <motion.div
+                  key={issue.id}
+                  initial={{ opacity: 0, x: -50, height: 0 }}
+                  animate={isRevealed ? { opacity: 1, x: 0, height: 'auto' } : {}}
+                  transition={{ duration: 0.4, delay: index * 0.1 }}
+                >
+                  {isRevealed && (
+                    <Card className={`professional-card bg-gradient-to-br ${issueColors[issue.type]} border overflow-hidden`}>
+                      <CardContent className="p-0">
+                        <div className="flex flex-col md:flex-row">
+                          {/* Left Section - Service Info */}
+                          <div className="flex-1 p-6">
+                            <div className="flex items-start gap-4">
+                              <div className="w-16 h-16 rounded-2xl bg-card border border-border flex items-center justify-center text-3xl shadow-lg">
+                                {issue.logoEmoji}
+                              </div>
+                              <div className="flex-1">
+                                <div className="flex items-center gap-2 mb-1">
+                                  <Badge 
+                                    variant="outline" 
+                                    className={`text-xs ${
+                                      issue.type === 'unused' ? 'bg-destructive/10 text-destructive border-destructive/30' :
+                                      issue.type === 'duplicate' ? 'bg-warning/10 text-warning border-warning/30' :
+                                      'bg-primary/10 text-primary border-primary/30'
+                                    }`}
+                                  >
+                                    <Icon className="w-3 h-3 mr-1" />
+                                    {issue.type === 'unused' ? 'Unused' : issue.type === 'duplicate' ? 'Duplicate' : 'Negotiable'}
+                                  </Badge>
+                                </div>
+                                <h3 className="text-xl font-bold text-text-heading mb-1">
+                                  {issue.serviceName}
+                                </h3>
+                                <p className="text-text-secondary text-sm mb-3">
+                                  {issue.description}
+                                </p>
+                                <div className="flex items-center gap-4 text-sm">
+                                  <span className="text-text-muted">
+                                    Current: <span className="font-semibold text-text-heading">${issue.monthlyCost}/mo</span>
+                                  </span>
+                                  <span className="text-success font-semibold">
+                                    Save ${issue.potentialSavings}/mo
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
                           </div>
-                          <div className="min-w-0 flex-1">
-                            <div className="flex items-center gap-2 flex-wrap">
-                              <span className="font-medium text-text-heading">{sub.serviceName}</span>
-                              <Badge variant="outline" className={`text-xs ${usageBadgeStyles[sub.usageLevel]}`}>
-                                {sub.usageLevel} usage
-                              </Badge>
-                            </div>
-                            <div className="flex items-center gap-2 text-sm text-text-muted mt-0.5">
-                              <span>{sub.category}</span>
-                              <span>•</span>
-                              <Calendar className="w-3 h-3" />
-                              <span>Renews {sub.nextBillingDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
-                            </div>
-                            {sub.aiSuggestion && (
-                              <div className="flex items-center gap-1.5 mt-2 text-xs text-primary">
-                                <Sparkles className="w-3 h-3" />
-                                {sub.aiSuggestion}
+
+                          {/* Right Section - Action */}
+                          <div className="flex flex-col justify-center items-stretch p-6 bg-card/50 border-t md:border-t-0 md:border-l border-border/50 min-w-[200px]">
+                            {issue.successRate && (
+                              <div className="text-center mb-3">
+                                <div className="text-2xl font-bold text-primary">{issue.successRate}%</div>
+                                <div className="text-xs text-text-muted">Success Rate</div>
                               </div>
                             )}
+                            <Button
+                              size="lg"
+                              onClick={() => handleActionClick(issue)}
+                              className={`w-full font-semibold ${
+                                issue.action === 'negotiate' 
+                                  ? 'bg-primary hover:bg-primary-hover' 
+                                  : issue.action === 'refund'
+                                  ? 'bg-warning hover:bg-warning/90 text-warning-foreground'
+                                  : 'bg-destructive hover:bg-destructive/90'
+                              }`}
+                            >
+                              {issue.action === 'negotiate' && <Phone className="w-4 h-4 mr-2" />}
+                              {issue.action === 'cancel' && <X className="w-4 h-4 mr-2" />}
+                              {issue.action === 'refund' && <DollarSign className="w-4 h-4 mr-2" />}
+                              {actionLabels[issue.action]}
+                            </Button>
+                            <p className="text-xs text-text-muted text-center mt-2">
+                              {issue.action === 'negotiate' ? 'ELIN calls for you' : 'We handle everything'}
+                            </p>
                           </div>
                         </div>
+                      </CardContent>
+                    </Card>
+                  )}
+                </motion.div>
+              );
+            })}
+          </AnimatePresence>
+        </div>
 
-                        <div className="flex items-center gap-4 flex-shrink-0">
-                          <div className="text-right">
-                            <div className="text-lg font-bold text-text-heading">${sub.monthlyCost}</div>
-                            <div className="text-xs text-text-muted">/month</div>
-                          </div>
-                          <div className="flex flex-col gap-1.5">
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              className="h-8 text-xs border-primary/30 text-primary hover:bg-primary/10"
-                              onClick={() => handleOpenNegotiator(sub, 'negotiate')}
-                            >
-                              <Phone className="w-3 h-3 mr-1" />
-                              Negotiate
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              className="h-8 text-xs border-destructive/30 text-destructive hover:bg-destructive/10"
-                              onClick={() => handleOpenNegotiator(sub, 'cancel')}
-                            >
-                              <X className="w-3 h-3 mr-1" />
-                              Cancel
-                            </Button>
-                          </div>
-                        </div>
-                      </div>
-                    </motion.div>
-                  ))}
-              </div>
-            </ScrollArea>
-          </CardContent>
-        </Card>
+        {/* Hidden while scanning */}
+        {scanPhase !== 'complete' && (
+          <div className="text-center py-12 text-text-muted">
+            <p className="text-sm">Scanning your financial history...</p>
+          </div>
+        )}
       </main>
 
-      {/* AI Negotiator Dialog */}
-      <Dialog open={negotiatorOpen} onOpenChange={setNegotiatorOpen}>
-        <DialogContent className="max-w-2xl max-h-[85vh] overflow-hidden flex flex-col">
+      {/* Negotiate Dialog */}
+      <Dialog open={negotiateDialogOpen} onOpenChange={setNegotiateDialogOpen}>
+        <DialogContent className="max-w-lg">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Bot className="w-5 h-5 text-primary" />
-              AI {negotiatorMode === 'cancel' ? 'Cancellation' : 'Negotiation'} Assistant
+              AI Negotiation Assistant
             </DialogTitle>
             <DialogDescription>
-              {selectedSub && (
-                <span>
-                  {negotiatorMode === 'cancel' 
-                    ? `Draft a cancellation email for ${selectedSub.serviceName}` 
-                    : `Negotiation script for ${selectedSub.serviceName} ($${selectedSub.monthlyCost}/mo)`
-                  }
-                </span>
-              )}
+              {selectedIssue && `Negotiating your ${selectedIssue.serviceName} bill`}
             </DialogDescription>
           </DialogHeader>
 
-          <div className="flex-1 overflow-auto py-4">
-            {isGenerating ? (
-              <div className="flex flex-col items-center justify-center py-12">
-                <Loader2 className="w-8 h-8 text-primary animate-spin mb-4" />
-                <p className="text-sm text-text-muted">ELIN is crafting your {negotiatorMode === 'cancel' ? 'cancellation email' : 'negotiation script'}...</p>
-              </div>
-            ) : (
-              <div className="space-y-4">
-                <div className="flex items-center gap-2 mb-2">
-                  {negotiatorMode === 'cancel' ? (
-                    <Mail className="w-4 h-4 text-primary" />
-                  ) : (
-                    <MessageSquare className="w-4 h-4 text-primary" />
-                  )}
-                  <span className="text-sm font-medium text-text-heading">
-                    {negotiatorMode === 'cancel' ? 'Email Draft' : 'Phone Script'}
-                  </span>
+          <div className="py-6">
+            {negotiationStep === 0 && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="space-y-6"
+              >
+                <div className="flex items-start gap-4 p-4 rounded-xl bg-primary/10 border border-primary/20">
+                  <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
+                    <Bot className="w-5 h-5 text-primary" />
+                  </div>
+                  <div>
+                    <p className="font-medium text-text-heading mb-2">ELIN</p>
+                    <p className="text-text-body leading-relaxed">
+                      I can call {selectedIssue?.serviceName} for you and negotiate a lower rate. Based on similar cases, 
+                      I have an <span className="font-bold text-primary">{selectedIssue?.successRate}% success rate</span> and 
+                      typically save customers <span className="font-bold text-success">${selectedIssue?.potentialSavings}/month</span>.
+                    </p>
+                    <p className="text-text-body mt-3">
+                      Ready to proceed?
+                    </p>
+                  </div>
                 </div>
-                <Textarea
-                  value={generatedScript}
-                  onChange={(e) => setGeneratedScript(e.target.value)}
-                  className="min-h-[300px] font-mono text-sm leading-relaxed"
-                  placeholder="Your script will appear here..."
-                />
-                <div className="flex items-center justify-between">
-                  <p className="text-xs text-text-muted">
-                    Feel free to edit the script before copying
-                  </p>
+
+                <div className="grid grid-cols-2 gap-3">
                   <Button
-                    size="sm"
-                    onClick={handleCopy}
-                    disabled={!generatedScript}
+                    variant="outline"
+                    onClick={() => setNegotiateDialogOpen(false)}
+                  >
+                    Not Now
+                  </Button>
+                  <Button
+                    onClick={handleProceedNegotiation}
                     className="bg-primary hover:bg-primary-hover"
                   >
-                    {copied ? (
-                      <>
-                        <Check className="w-4 h-4 mr-1" />
-                        Copied!
-                      </>
-                    ) : (
-                      <>
-                        <Copy className="w-4 h-4 mr-1" />
-                        Copy to Clipboard
-                      </>
-                    )}
+                    <Phone className="w-4 h-4 mr-2" />
+                    Yes, Call Them
                   </Button>
                 </div>
-              </div>
+              </motion.div>
+            )}
+
+            {negotiationStep >= 1 && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="space-y-4"
+              >
+                {/* Step 1: Dialing */}
+                <div className={`flex items-center gap-3 p-3 rounded-lg ${negotiationStep >= 1 ? 'bg-muted' : 'opacity-50'}`}>
+                  {negotiationStep === 1 && isNegotiating ? (
+                    <Loader2 className="w-5 h-5 text-primary animate-spin" />
+                  ) : (
+                    <Check className="w-5 h-5 text-success" />
+                  )}
+                  <span className="text-sm">Connecting to {selectedIssue?.serviceName}...</span>
+                </div>
+
+                {/* Step 2: On hold */}
+                <div className={`flex items-center gap-3 p-3 rounded-lg ${negotiationStep >= 2 ? 'bg-muted' : 'opacity-50'}`}>
+                  {negotiationStep === 2 && isNegotiating ? (
+                    <Loader2 className="w-5 h-5 text-primary animate-spin" />
+                  ) : negotiationStep > 2 ? (
+                    <Check className="w-5 h-5 text-success" />
+                  ) : (
+                    <Clock className="w-5 h-5 text-text-muted" />
+                  )}
+                  <span className="text-sm">Speaking with retention department...</span>
+                </div>
+
+                {/* Step 3: Success */}
+                {negotiationStep === 3 && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="p-4 rounded-xl bg-success/10 border border-success/30 text-center"
+                  >
+                    <Check className="w-10 h-10 text-success mx-auto mb-2" />
+                    <p className="font-semibold text-success text-lg">Negotiation Ready!</p>
+                    <p className="text-sm text-text-secondary mt-1">
+                      Unlock ELIN Premium to complete this negotiation
+                    </p>
+                  </motion.div>
+                )}
+              </motion.div>
             )}
           </div>
-
-          {/* Quick Tips */}
-          {!isGenerating && selectedSub && (
-            <div className="border-t border-border pt-4 mt-4">
-              <h4 className="text-sm font-medium text-text-heading mb-2 flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-primary" />
-                AI Tips for {selectedSub.serviceName}
-              </h4>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs">
-                {negotiatorMode === 'cancel' ? (
-                  <>
-                    <div className="p-2 rounded bg-muted/50">💡 Many services offer retention discounts when you try to cancel</div>
-                    <div className="p-2 rounded bg-muted/50">📅 Cancel 1-2 days before billing to avoid charges</div>
-                  </>
-                ) : (
-                  <>
-                    <div className="p-2 rounded bg-muted/50">💰 Mention competitor prices: Netflix Basic is $6.99, Peacock is $5.99</div>
-                    <div className="p-2 rounded bg-muted/50">🎯 Target 20-30% discount as a reasonable ask</div>
-                    <div className="p-2 rounded bg-muted/50">⏰ Best time to call: Tuesday-Thursday 10am-2pm</div>
-                    <div className="p-2 rounded bg-muted/50">🔄 Ask for "retention department" for better deals</div>
-                  </>
-                )}
-              </div>
-            </div>
-          )}
         </DialogContent>
       </Dialog>
+
+      {/* Premium Upsell Sheet */}
+      <Sheet open={premiumSheetOpen} onOpenChange={setPremiumSheetOpen}>
+        <SheetContent side="bottom" className="h-[85vh] rounded-t-3xl">
+          <div className="max-w-lg mx-auto py-6">
+            <SheetHeader className="text-center mb-6">
+              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center mx-auto mb-4 shadow-lg shadow-primary/30">
+                <Crown className="w-8 h-8 text-white" />
+              </div>
+              <SheetTitle className="text-2xl font-bold">
+                ELIN Premium
+              </SheetTitle>
+              <SheetDescription className="text-base">
+                Let ELIN handle the hard work while you save money
+              </SheetDescription>
+            </SheetHeader>
+
+            {/* Features */}
+            <div className="space-y-4 mb-8">
+              {[
+                { icon: Phone, title: 'We Wait on Hold', desc: 'ELIN calls companies and negotiates for you' },
+                { icon: Zap, title: 'Automated Savings', desc: 'Continuously scans and cancels unused subscriptions' },
+                { icon: Shield, title: 'Refund Recovery', desc: 'Detects duplicate charges and gets your money back' },
+                { icon: Bot, title: 'Unlimited AI Plans', desc: 'Personalized financial optimization strategies' },
+              ].map((feature, idx) => (
+                <motion.div
+                  key={idx}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: idx * 0.1 }}
+                  className="flex items-start gap-4 p-4 rounded-xl bg-muted/50"
+                >
+                  <div className="w-10 h-10 rounded-lg bg-primary/20 flex items-center justify-center flex-shrink-0">
+                    <feature.icon className="w-5 h-5 text-primary" />
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-text-heading">{feature.title}</h4>
+                    <p className="text-sm text-text-secondary">{feature.desc}</p>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+
+            {/* Pricing */}
+            <div className="p-6 rounded-2xl bg-gradient-to-br from-primary/10 to-primary/5 border border-primary/30 mb-6">
+              <div className="flex items-baseline justify-center gap-1 mb-2">
+                <span className="text-4xl font-bold text-text-heading">$9.99</span>
+                <span className="text-text-muted">/month</span>
+              </div>
+              <p className="text-center text-sm text-text-secondary">
+                Average members save <span className="font-semibold text-success">$240/year</span>
+              </p>
+            </div>
+
+            {/* CTA */}
+            <Button
+              size="lg"
+              className="w-full bg-primary hover:bg-primary-hover text-lg py-6 shadow-lg shadow-primary/30"
+              onClick={() => {
+                toast.success('Premium coming soon!');
+                setPremiumSheetOpen(false);
+              }}
+            >
+              Start 7-Day Free Trial
+              <ArrowRight className="w-5 h-5 ml-2" />
+            </Button>
+            <p className="text-center text-xs text-text-muted mt-3">
+              Cancel anytime. No commitment required.
+            </p>
+          </div>
+        </SheetContent>
+      </Sheet>
 
       <Footer />
     </div>

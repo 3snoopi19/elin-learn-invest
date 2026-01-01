@@ -2,11 +2,9 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { 
   Home, 
   MessageSquare, 
-  TrendingUp, 
-  BookOpen, 
-  User,
-  BarChart3,
-  FileSearch
+  Repeat, 
+  LayoutDashboard,
+  Sparkles
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { useAuth } from "@/contexts/AuthContext";
@@ -20,22 +18,22 @@ interface NavItem {
 
 const navigationItems: NavItem[] = [
   {
-    id: 'money-flow',
-    icon: BarChart3,
-    label: 'Money Flow',
-    path: '/money-flow'
+    id: 'dashboard',
+    icon: LayoutDashboard,
+    label: 'Home',
+    path: '/dashboard'
+  },
+  {
+    id: 'subscriptions',
+    icon: Sparkles,
+    label: 'AI Center',
+    path: '/subscriptions'
   },
   {
     id: 'chat',
     icon: MessageSquare,
     label: 'Chat',
     path: '/chat'
-  },
-  {
-    id: 'learn',
-    icon: BookOpen,
-    label: 'Learn',
-    path: '/learn'
   }
 ];
 
