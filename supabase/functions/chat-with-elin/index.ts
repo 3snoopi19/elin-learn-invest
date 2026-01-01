@@ -73,7 +73,17 @@ serve(async (req) => {
       });
     }
     
-    const sanitizedMessage = message.trim().slice(0, 4000);
+    // Comprehensive server-side sanitization (mirrors client-side sanitizeChatInput)
+    const sanitizedMessage = message
+      .replace(/<script[^>]*>.*?<\/script>/gi, '') // Remove script tags
+      .replace(/<[^>]+>/g, '') // Remove HTML tags
+      .replace(/javascript:/gi, '') // Remove javascript: protocol
+      .replace(/on\w+\s*=/gi, '') // Remove event handlers
+      .replace(/data:/gi, '') // Remove data: protocol
+      .replace(/vbscript:/gi, '') // Remove vbscript: protocol
+      .trim()
+      .slice(0, 4000);
+    
     if (!sanitizedMessage) {
       return new Response(JSON.stringify({ error: 'Message cannot be empty' }), {
         status: 400,
