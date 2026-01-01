@@ -222,7 +222,7 @@ export function DailyBriefingModal({ isOpen, onClose }: DailyBriefingModalProps)
     },
   ];
 
-  const SLIDE_DURATION = 6000; // 6 seconds per slide
+  const SLIDE_DURATION = 5000; // 5 seconds per slide
 
   // Auto-advance slides
   useEffect(() => {

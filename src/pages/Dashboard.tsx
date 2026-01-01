@@ -88,17 +88,28 @@ const Dashboard = () => {
               </p>
             </div>
             
-            {/* Daily Briefing Button */}
+            {/* Daily Briefing Button - Instagram Story Ring Style */}
             <motion.button
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
               onClick={() => setShowBriefing(true)}
-              className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-primary/20 to-primary/10 border border-primary/30 hover:border-primary/50 transition-all group"
+              className="relative flex items-center gap-3 group"
             >
-              <Sparkles className="w-5 h-5 text-primary group-hover:animate-pulse" />
-              <span className="font-medium text-primary">Daily Briefing</span>
+              {/* Story Ring - Gradient Border */}
+              <div className="relative">
+                <div className="absolute -inset-0.5 rounded-full bg-gradient-to-tr from-amber-500 via-pink-500 to-purple-600 animate-pulse" />
+                <div className="relative w-12 h-12 rounded-full bg-card flex items-center justify-center border-2 border-background">
+                  <Sparkles className="w-5 h-5 text-primary" />
+                </div>
+                {/* New indicator dot */}
+                <div className="absolute -top-0.5 -right-0.5 w-3 h-3 rounded-full bg-gradient-to-r from-amber-500 to-pink-500 border-2 border-background" />
+              </div>
+              <div className="hidden md:block text-left">
+                <p className="text-sm font-semibold text-foreground group-hover:text-primary transition-colors">Daily Briefing</p>
+                <p className="text-xs text-muted-foreground">Tap to play</p>
+              </div>
             </motion.button>
           </div>
         </div>
