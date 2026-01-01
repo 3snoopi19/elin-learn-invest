@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { motion } from "framer-motion";
 import { Plane, MapPin, Sparkles, Target, Home, Car, GraduationCap, Palmtree } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -18,7 +18,7 @@ interface GoalVisualizationProps {
   animationDelay?: number;
 }
 
-const iconMap = {
+const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
   trip: Plane,
   home: Home,
   car: Car,
@@ -42,9 +42,7 @@ export const GoalVisualization = ({
   const progress = (goal.current / goal.target) * 100;
   const Icon = iconMap[goal.icon];
 
-  // Calculate milestones
   const milestones = [0, 25, 50, 75, 100];
-  const currentMilestone = milestones.filter(m => progress >= m).length - 1;
 
   return (
     <motion.div
@@ -53,16 +51,12 @@ export const GoalVisualization = ({
       transition={{ duration: 0.5, delay: animationDelay }}
     >
       <Card className="relative overflow-hidden border-0 bg-gradient-to-br from-card to-card/80">
-        {/* Animated background */}
         <div className="absolute inset-0 overflow-hidden">
           <motion.div
-            animate={{ 
-              backgroundPosition: ["0% 0%", "100% 100%"],
-            }}
+            animate={{ backgroundPosition: ["0% 0%", "100% 100%"] }}
             transition={{ duration: 20, repeat: Infinity, repeatType: "reverse" }}
             className="absolute inset-0 opacity-10 bg-gradient-to-br from-primary via-transparent to-secondary bg-[length:400%_400%]"
           />
-          {/* Cloud decorations for trip goals */}
           {goal.icon === "trip" && (
             <>
               <motion.div
@@ -86,7 +80,6 @@ export const GoalVisualization = ({
               Goal Progress
             </CardTitle>
             
-            {/* Goal tabs */}
             <div className="flex gap-1">
               {goals.map((g, i) => {
                 const GIcon = iconMap[g.icon];
@@ -98,8 +91,8 @@ export const GoalVisualization = ({
                     onClick={() => setActiveGoal(i)}
                     className={`p-2 rounded-lg transition-colors ${
                       i === activeGoal 
-                        ? 'bg-primary/20 text-primary' 
-                        : 'bg-muted/50 text-muted-foreground hover:bg-muted'
+                        ? "bg-primary/20 text-primary" 
+                        : "bg-muted/50 text-muted-foreground hover:bg-muted"
                     }`}
                   >
                     <GIcon className="w-4 h-4" />
@@ -111,7 +104,6 @@ export const GoalVisualization = ({
         </CardHeader>
 
         <CardContent className="relative z-10">
-          {/* Goal header */}
           <div className="flex items-center justify-between mb-4">
             <div>
               <h3 className="font-semibold text-text-heading">{goal.name}</h3>
@@ -124,18 +116,14 @@ export const GoalVisualization = ({
             </Badge>
           </div>
 
-          {/* Visual journey track */}
           <div className="relative py-8">
-            {/* Track background */}
             <div className="absolute left-0 right-0 top-1/2 h-2 -translate-y-1/2 bg-muted/50 rounded-full overflow-hidden">
-              {/* Progress fill */}
               <motion.div
                 initial={{ width: 0 }}
                 animate={{ width: `${progress}%` }}
                 transition={{ duration: 1.5, delay: animationDelay + 0.3, ease: "easeOut" }}
                 className="absolute inset-y-0 left-0 bg-gradient-to-r from-primary to-secondary rounded-full"
               >
-                {/* Shimmer */}
                 <motion.div
                   animate={{ x: ["-100%", "200%"] }}
                   transition={{ duration: 2, repeat: Infinity, repeatDelay: 2 }}
@@ -144,7 +132,6 @@ export const GoalVisualization = ({
               </motion.div>
             </div>
 
-            {/* Milestone markers */}
             {milestones.map((milestone, i) => (
               <motion.div
                 key={milestone}
@@ -156,8 +143,8 @@ export const GoalVisualization = ({
               >
                 <div className={`w-4 h-4 rounded-full border-2 transition-colors ${
                   progress >= milestone 
-                    ? 'bg-primary border-primary' 
-                    : 'bg-muted border-muted-foreground/30'
+                    ? "bg-primary border-primary" 
+                    : "bg-muted border-muted-foreground/30"
                 }`}>
                   {progress >= milestone && i > 0 && (
                     <motion.div
@@ -169,12 +156,11 @@ export const GoalVisualization = ({
                   )}
                 </div>
                 <span className="absolute -bottom-6 left-1/2 -translate-x-1/2 text-xs text-muted-foreground">
-                  {milestone === 0 ? 'Start' : milestone === 100 ? 'Goal!' : `${milestone}%`}
+                  {milestone === 0 ? "Start" : milestone === 100 ? "Goal!" : `${milestone}%`}
                 </span>
               </motion.div>
             ))}
 
-            {/* Moving icon (plane/car/etc) */}
             <motion.div
               initial={{ left: 0 }}
               animate={{ left: `${Math.min(progress, 95)}%` }}
@@ -195,7 +181,6 @@ export const GoalVisualization = ({
                   <Icon className="w-5 h-5 text-white" />
                 </div>
                 
-                {/* Trail effect for plane */}
                 {goal.icon === "trip" && (
                   <motion.div
                     animate={{ opacity: [0.5, 0, 0.5] }}
@@ -206,7 +191,6 @@ export const GoalVisualization = ({
               </motion.div>
             </motion.div>
 
-            {/* Destination marker */}
             <motion.div
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
@@ -217,18 +201,17 @@ export const GoalVisualization = ({
                 animate={{ scale: progress >= 100 ? [1, 1.2, 1] : 1 }}
                 transition={{ duration: 0.5, repeat: progress >= 100 ? Infinity : 0, repeatDelay: 1 }}
               >
-                <div className={`p-2 rounded-full ${progress >= 100 ? 'bg-success' : 'bg-muted'}`}>
+                <div className={`p-2 rounded-full ${progress >= 100 ? "bg-success" : "bg-muted"}`}>
                   {goal.icon === "trip" ? (
-                    <Palmtree className={`w-5 h-5 ${progress >= 100 ? 'text-white' : 'text-muted-foreground'}`} />
+                    <Palmtree className={`w-5 h-5 ${progress >= 100 ? "text-white" : "text-muted-foreground"}`} />
                   ) : (
-                    <MapPin className={`w-5 h-5 ${progress >= 100 ? 'text-white' : 'text-muted-foreground'}`} />
+                    <MapPin className={`w-5 h-5 ${progress >= 100 ? "text-white" : "text-muted-foreground"}`} />
                   )}
                 </div>
               </motion.div>
             </motion.div>
           </div>
 
-          {/* Stats */}
           <div className="flex items-center justify-between mt-6 pt-4 border-t border-border/50">
             <div>
               <p className="text-xs text-text-secondary">Saved so far</p>
@@ -244,7 +227,6 @@ export const GoalVisualization = ({
             </div>
           </div>
 
-          {/* Remaining */}
           <div className="mt-3 p-3 bg-muted/30 rounded-lg">
             <div className="flex items-center justify-between">
               <span className="text-sm text-text-secondary">
