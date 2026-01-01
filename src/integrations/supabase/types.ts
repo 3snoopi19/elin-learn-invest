@@ -47,6 +47,92 @@ export type Database = {
         }
         Relationships: []
       }
+      balance_predictions: {
+        Row: {
+          account_id: string | null
+          confidence_score: number | null
+          created_at: string
+          id: string
+          predicted_balance: number
+          prediction_date: string
+          user_id: string
+        }
+        Insert: {
+          account_id?: string | null
+          confidence_score?: number | null
+          created_at?: string
+          id?: string
+          predicted_balance: number
+          prediction_date: string
+          user_id: string
+        }
+        Update: {
+          account_id?: string | null
+          confidence_score?: number | null
+          created_at?: string
+          id?: string
+          predicted_balance?: number
+          prediction_date?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "balance_predictions_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "connected_accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      connected_accounts: {
+        Row: {
+          account_name: string
+          account_type: string
+          available_balance: number | null
+          created_at: string
+          currency: string
+          current_balance: number
+          id: string
+          institution_logo_url: string | null
+          institution_name: string
+          is_active: boolean
+          last_synced_at: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          account_name: string
+          account_type: string
+          available_balance?: number | null
+          created_at?: string
+          currency?: string
+          current_balance?: number
+          id?: string
+          institution_logo_url?: string | null
+          institution_name: string
+          is_active?: boolean
+          last_synced_at?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          account_name?: string
+          account_type?: string
+          available_balance?: number | null
+          created_at?: string
+          currency?: string
+          current_balance?: number
+          id?: string
+          institution_logo_url?: string | null
+          institution_name?: string
+          is_active?: boolean
+          last_synced_at?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       courses: {
         Row: {
           created_at: string
@@ -360,6 +446,48 @@ export type Database = {
         }
         Relationships: []
       }
+      spending_insights: {
+        Row: {
+          amount_involved: number | null
+          category: string | null
+          created_at: string
+          description: string
+          id: string
+          insight_type: string
+          is_dismissed: boolean | null
+          is_read: boolean | null
+          severity: string | null
+          title: string
+          user_id: string
+        }
+        Insert: {
+          amount_involved?: number | null
+          category?: string | null
+          created_at?: string
+          description: string
+          id?: string
+          insight_type: string
+          is_dismissed?: boolean | null
+          is_read?: boolean | null
+          severity?: string | null
+          title: string
+          user_id: string
+        }
+        Update: {
+          amount_involved?: number | null
+          category?: string | null
+          created_at?: string
+          description?: string
+          id?: string
+          insight_type?: string
+          is_dismissed?: boolean | null
+          is_read?: boolean | null
+          severity?: string | null
+          title?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       subscribers: {
         Row: {
           created_at: string
@@ -395,6 +523,115 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      subscriptions: {
+        Row: {
+          ai_savings_suggestion: string | null
+          billing_cycle: string | null
+          category: string | null
+          created_at: string
+          detected_from_transaction_id: string | null
+          id: string
+          monthly_cost: number
+          next_billing_date: string | null
+          service_logo_url: string | null
+          service_name: string
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          ai_savings_suggestion?: string | null
+          billing_cycle?: string | null
+          category?: string | null
+          created_at?: string
+          detected_from_transaction_id?: string | null
+          id?: string
+          monthly_cost: number
+          next_billing_date?: string | null
+          service_logo_url?: string | null
+          service_name: string
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          ai_savings_suggestion?: string | null
+          billing_cycle?: string | null
+          category?: string | null
+          created_at?: string
+          detected_from_transaction_id?: string | null
+          id?: string
+          monthly_cost?: number
+          next_billing_date?: string | null
+          service_logo_url?: string | null
+          service_name?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "subscriptions_detected_from_transaction_id_fkey"
+            columns: ["detected_from_transaction_id"]
+            isOneToOne: false
+            referencedRelation: "transactions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      transactions: {
+        Row: {
+          account_id: string | null
+          amount: number
+          category: string
+          created_at: string
+          description: string | null
+          id: string
+          is_recurring: boolean | null
+          is_subscription: boolean | null
+          merchant_logo_url: string | null
+          merchant_name: string
+          transaction_date: string
+          user_id: string
+        }
+        Insert: {
+          account_id?: string | null
+          amount: number
+          category: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_recurring?: boolean | null
+          is_subscription?: boolean | null
+          merchant_logo_url?: string | null
+          merchant_name: string
+          transaction_date: string
+          user_id: string
+        }
+        Update: {
+          account_id?: string | null
+          amount?: number
+          category?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_recurring?: boolean | null
+          is_subscription?: boolean | null
+          merchant_logo_url?: string | null
+          merchant_name?: string
+          transaction_date?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "transactions_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "connected_accounts"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_progress: {
         Row: {
