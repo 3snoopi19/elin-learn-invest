@@ -6,11 +6,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Switch } from "@/components/ui/switch";
 import { useNavigate } from "react-router-dom";
-import { Send, Bot, AlertCircle, BookOpen, Sparkles, Settings2, Volume2, VolumeX, Globe, Mic, MicOff, Loader2 } from "lucide-react";
+import { Send, Bot, AlertCircle, BookOpen, Sparkles, Settings2, Volume2, VolumeX, Globe, Mic, MicOff, Loader2, DollarSign, Rocket, FileText, Copy, Check } from "lucide-react";
 import { COMPLIANCE_DISCLAIMER } from "@/lib/compliance";
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { sanitizeChatInput } from "@/lib/validation";
 
 // Enhanced chat components
@@ -32,6 +33,8 @@ const CHAT_URL = `https://hyilgirnewnwtthbvbqn.supabase.co/functions/v1/chat-wit
 const TTS_URL = `https://hyilgirnewnwtthbvbqn.supabase.co/functions/v1/elin-tts`;
 const SEARCH_URL = `https://hyilgirnewnwtthbvbqn.supabase.co/functions/v1/elin-web-search`;
 
+type PersonaMode = 'financial' | 'mentor';
+
 const Chat = () => {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
@@ -49,6 +52,9 @@ const Chat = () => {
   const [voiceEnabled, setVoiceEnabled] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
+  const [personaMode, setPersonaMode] = useState<PersonaMode>('financial');
+  const [isGeneratingScript, setIsGeneratingScript] = useState(false);
+  const [copiedScript, setCopiedScript] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
@@ -59,25 +65,53 @@ const Chat = () => {
   }, [user, loading, navigate]);
 
   useEffect(() => {
-    // Initial greeting message
+    // Initial greeting message based on persona
     if (user && messages.length === 0) {
-      const greeting: Message = {
-        id: '1',
-        content: `Hi ${user.user_metadata?.first_name || 'there'}! 👋 I'm ELIN, your Enhanced Learning Investment Navigator - now in **🔥 GOD MODE**!\n\nI'm operating with advanced reasoning capabilities, deep market knowledge, and comprehensive investment education expertise.\n\n🧠 **My God Mode Capabilities:**\n• Deep expertise across stocks, bonds, ETFs, crypto, options, forex, and more\n• Technical & fundamental analysis explanations\n• Portfolio theory and risk management strategies\n• Economic analysis and market psychology insights\n• Tax-advantaged investing strategies\n\n🎯 **What I can help you with:**\n• Answer complex finance questions with step-by-step reasoning\n• Guide you through structured lessons at any level\n• Create interactive quizzes and real-world scenarios\n• Show visual charts and explain market concepts\n• Track your learning progress\n\n**Important:** I provide educational information only and cannot give personalized investment advice. For specific recommendations, please consult with a licensed financial advisor.\n\nLet's supercharge your investment knowledge! What would you like to learn about?`,
-        sender: 'elin',
-        timestamp: new Date(),
-        hasDisclaimer: true
-      };
+      const greeting = getGreetingMessage();
       setMessages([greeting]);
-      
-      // Update activity streak
       updateStreak();
     }
-  }, [user, messages.length, updateStreak]);
+  }, [user, messages.length, updateStreak, personaMode]);
+
+  const getGreetingMessage = (): Message => {
+    const firstName = user?.user_metadata?.first_name || 'there';
+    
+    if (personaMode === 'mentor') {
+      return {
+        id: '1',
+        content: `Hey ${firstName}! 🚀 I'm ELIN in **Success Mentor Mode**!\n\nI'm here to help you level up your career and life. Think of me as your personal coach for professional growth.\n\n🎯 **How I Can Help You:**\n• Craft the perfect ask for a raise or promotion\n• Negotiate salary, rent, or contracts\n• Overcome procrastination and build better habits\n• Prepare for difficult conversations\n• Create actionable step-by-step plans\n\n📝 **Pro Tip:** Click "Generate Script" to get copy/paste messages for negotiations!\n\nWhat challenge can I help you tackle today?`,
+        sender: 'elin',
+        timestamp: new Date(),
+        hasDisclaimer: false
+      };
+    }
+    
+    return {
+      id: '1',
+      content: `Hi ${firstName}! 👋 I'm ELIN, your Enhanced Learning Investment Navigator - now in **🔥 GOD MODE**!\n\nI'm operating with advanced reasoning capabilities, deep market knowledge, and comprehensive investment education expertise.\n\n🧠 **My God Mode Capabilities:**\n• Deep expertise across stocks, bonds, ETFs, crypto, options, forex, and more\n• Technical & fundamental analysis explanations\n• Portfolio theory and risk management strategies\n• Economic analysis and market psychology insights\n• Tax-advantaged investing strategies\n\n🎯 **What I can help you with:**\n• Answer complex finance questions with step-by-step reasoning\n• Guide you through structured lessons at any level\n• Create interactive quizzes and real-world scenarios\n• Show visual charts and explain market concepts\n• Track your learning progress\n\n**Important:** I provide educational information only and cannot give personalized investment advice. For specific recommendations, please consult with a licensed financial advisor.\n\nLet's supercharge your investment knowledge! What would you like to learn about?`,
+      sender: 'elin',
+      timestamp: new Date(),
+      hasDisclaimer: true
+    };
+  };
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
+
+  const handlePersonaSwitch = (isMentor: boolean) => {
+    const newMode = isMentor ? 'mentor' : 'financial';
+    setPersonaMode(newMode);
+    setMessages([]);
+    setShowQuickReplies(true);
+    
+    toast({
+      title: isMentor ? "🚀 Success Mentor Mode" : "💰 Financial Analyst Mode",
+      description: isMentor 
+        ? "Ready to help with career, habits, and life success!"
+        : "Ready to educate on investing and finance!",
+    });
+  };
 
   // Helper function to generate credit card payment responses
   const generateCreditCardResponse = (userMessage: string): { 
@@ -117,7 +151,6 @@ const Chat = () => {
       response += `• Pay more than minimum = Save on interest & improve credit score\n`;
       response += `• Set up autopay for statement balance = Never miss payments`;
     } else {
-      // General credit card guidance
       response = `💳 **Credit Card Payment Strategy:**\n\n`;
       response += `🎯 **Always aim to pay your statement balance** ($${mockCardData.statementBalance.toFixed(2)}) to avoid interest charges.\n\n`;
       response += `📈 **Payment Priority:**\n`;
@@ -159,7 +192,6 @@ const Chat = () => {
     try {
       setIsSpeaking(true);
       
-      // Clean text for TTS
       const cleanText = text
         .replace(/[*#`_~]/g, '')
         .replace(/\n+/g, '. ')
@@ -195,7 +227,6 @@ const Chat = () => {
     }
   };
 
-  // Stop speaking
   const stopSpeaking = () => {
     if (audioRef.current) {
       audioRef.current.pause();
@@ -223,7 +254,8 @@ const Chat = () => {
         message: userMessage,
         conversationHistory,
         stream: true,
-        searchContext
+        searchContext,
+        persona: personaMode
       }),
     });
 
@@ -259,7 +291,6 @@ const Chat = () => {
           const content = parsed.choices?.[0]?.delta?.content;
           if (content) {
             fullResponse += content;
-            // Update the last message with streaming content
             setMessages(prev => {
               const last = prev[prev.length - 1];
               if (last?.sender === 'elin') {
@@ -279,6 +310,55 @@ const Chat = () => {
     return fullResponse;
   };
 
+  // Generate Script function
+  const handleGenerateScript = async () => {
+    const lastUserMessage = [...messages].reverse().find(m => m.sender === 'user');
+    if (!lastUserMessage) {
+      toast({
+        title: "No Context",
+        description: "Ask me about a situation first, then I can generate a script for it.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setIsGeneratingScript(true);
+    
+    const scriptPrompt = `Based on the user's request: "${lastUserMessage.content}"
+
+Generate a ready-to-use script (text message, email, or conversation script) that they can copy and paste. Format it as:
+
+📝 **Your Script:**
+---
+[The actual script they can copy/paste - be specific, professional but friendly]
+---
+
+💡 **Pro Tips:**
+• [Tip 1 for delivering this effectively]
+• [Tip 2]
+
+Make the script natural, confident, and tailored to their specific situation.`;
+
+    await handleSendMessage(scriptPrompt, 'script');
+    setIsGeneratingScript(false);
+  };
+
+  // Copy script to clipboard
+  const handleCopyScript = (content: string) => {
+    const scriptMatch = content.match(/---\n([\s\S]*?)\n---/);
+    const scriptText = scriptMatch ? scriptMatch[1].trim() : content;
+    
+    navigator.clipboard.writeText(scriptText);
+    setCopiedScript(content);
+    
+    toast({
+      title: "📋 Copied!",
+      description: "Script copied to clipboard. Paste it anywhere!",
+    });
+    
+    setTimeout(() => setCopiedScript(null), 3000);
+  };
+
   const callELINAPI = async (userMessage: string, messageType?: string): Promise<{ 
     response: string; 
     hasDisclaimer: boolean;
@@ -287,19 +367,21 @@ const Chat = () => {
     quiz?: QuizQuestion;
   }> => {
     try {
-      // Check for credit card payment questions
-      const creditCardKeywords = ['credit card', 'payment', 'minimum payment', 'avoid interest', 'card balance', 'pay off card', 'statement balance'];
-      const isCreditCardQuery = creditCardKeywords.some(keyword => 
-        userMessage.toLowerCase().includes(keyword.toLowerCase())
-      );
+      // Only check credit card keywords in financial mode
+      if (personaMode === 'financial') {
+        const creditCardKeywords = ['credit card', 'payment', 'minimum payment', 'avoid interest', 'card balance', 'pay off card', 'statement balance'];
+        const isCreditCardQuery = creditCardKeywords.some(keyword => 
+          userMessage.toLowerCase().includes(keyword.toLowerCase())
+        );
 
-      if (isCreditCardQuery) {
-        return generateCreditCardResponse(userMessage);
+        if (isCreditCardQuery) {
+          return generateCreditCardResponse(userMessage);
+        }
       }
 
-      // Check if we need web search
+      // Check if we need web search (only for financial mode)
       const searchKeywords = ['current', 'today', 'latest', 'news', 'price', 'market now', 'what is happening', 'recent'];
-      const needsSearch = searchKeywords.some(keyword => 
+      const needsSearch = personaMode === 'financial' && searchKeywords.some(keyword => 
         userMessage.toLowerCase().includes(keyword.toLowerCase())
       );
 
@@ -316,15 +398,27 @@ const Chat = () => {
         Explanation Style: ${settings.explanationStyle}
         Learning Mode: ${currentMode}
         Message Type: ${messageType || 'question'}
+        Persona Mode: ${personaMode}
         Preferred Topics: ${settings.preferredTopics.join(', ')}
         
         User Message: ${userMessage}
         
+        ${personaMode === 'mentor' ? `
+        You are a Success Mentor. Focus on:
+        - Career advancement and salary negotiation
+        - Productivity and habit building
+        - Communication and negotiation skills
+        - Personal development and growth
+        - Provide actionable, bulleted checklists
+        - Be encouraging but practical
+        ` : `
         Please respond according to the user's preferences. 
         ${settings.explanationStyle === 'simple' ? 'Use simple, easy-to-understand language.' : ''}
         ${settings.explanationStyle === 'technical' ? 'Include technical details and precise terminology.' : ''}
+        `}
         ${messageType === 'quiz' ? 'Create an interactive quiz question about the topic.' : ''}
         ${messageType === 'visual' ? 'Explain how this could be visualized in a chart or graph.' : ''}
+        ${messageType === 'script' ? 'Generate a copy/paste ready script as requested.' : ''}
       `;
 
       // Build conversation history
@@ -335,7 +429,6 @@ const Chat = () => {
           content: msg.content
         }));
 
-      // Use streaming for real-time response
       setIsStreaming(true);
       
       // Add placeholder message for streaming
@@ -345,13 +438,13 @@ const Chat = () => {
         content: '',
         sender: 'elin',
         timestamp: new Date(),
-        hasDisclaimer: true
+        hasDisclaimer: personaMode === 'financial'
       }]);
 
       const fullResponse = await streamChat(enhancedPrompt, conversationHistory, searchContext);
       
-      // Add disclaimer to final response
-      const hasInvestmentContent = /invest|stock|bond|portfolio|market|trading|financial|money|fund|ETF|401k|IRA|retirement|crypto/i.test(fullResponse);
+      // Add disclaimer only for financial mode
+      const hasInvestmentContent = personaMode === 'financial' && /invest|stock|bond|portfolio|market|trading|financial|money|fund|ETF|401k|IRA|retirement|crypto/i.test(fullResponse);
       const finalResponse = hasInvestmentContent 
         ? `${fullResponse}\n\n---\n📋 **Educational Disclaimer**: This information is for educational purposes only. Always consult a financial advisor.`
         : fullResponse;
@@ -446,18 +539,15 @@ const Chat = () => {
     setIsTyping(true);
     setShowQuickReplies(false);
 
-    // Get AI response with streaming
     const aiResponse = await callELINAPI(sanitizedInput, messageType);
     
     setIsTyping(false);
     setShowQuickReplies(true);
     
-    // Speak the response if voice is enabled
     if (voiceEnabled && aiResponse.response) {
       await speakText(aiResponse.response);
     }
     
-    // Update learning progress
     if (messageType === 'lesson') incrementProgress('lessons');
     if (messageType === 'quiz') incrementProgress('quizzes');
     if (messageType === 'scenario') incrementProgress('scenarios');
@@ -480,7 +570,6 @@ const Chat = () => {
   };
 
   const handleQuizAnswer = (questionId: string, answer: string) => {
-    // Track quiz completion
     incrementProgress('quizzes');
     
     toast({
@@ -488,6 +577,14 @@ const Chat = () => {
       description: "Great job! Keep learning.",
     });
   };
+
+  // Quick prompts for mentor mode
+  const mentorQuickPrompts = [
+    { label: "How to ask for a raise", message: "How do I ask my boss for a raise? Give me a step-by-step plan." },
+    { label: "Stop procrastinating", message: "How do I stop procrastinating and get things done?" },
+    { label: "Negotiate rent", message: "I need to negotiate my rent with my landlord. Help me prepare." },
+    { label: "Salary negotiation", message: "I have a job offer. How do I negotiate a higher salary?" },
+  ];
 
   if (loading) {
     return <LoadingScreen message="Loading chat..." showLogo={true} />;
@@ -502,7 +599,7 @@ const Chat = () => {
       <Header />
       
       <main className="flex-1 mobile-container mobile-content pb-32 md:pb-8">
-        {/* Header - Mobile optimized */}
+        {/* Header with Persona Toggle */}
         <div className="mb-4 md:mb-6">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
@@ -513,15 +610,33 @@ const Chat = () => {
                 </div>
                 <div>
                   <h1 className="text-xl md:text-3xl font-bold bg-gradient-to-r from-education to-primary bg-clip-text text-transparent">
-                    ELIN Learning Assistant
+                    ELIN {personaMode === 'mentor' ? 'Success Mentor' : 'Learning Assistant'}
                   </h1>
                   <p className="text-xs md:text-sm text-muted-foreground">
-                    Enhanced Learning Investment Navigator • AI-Powered Education
+                    {personaMode === 'mentor' 
+                      ? 'Career & Life Success Coach • AI-Powered Guidance'
+                      : 'Enhanced Learning Investment Navigator • AI-Powered Education'
+                    }
                   </p>
                 </div>
               </div>
             </div>
-            <div className="flex gap-2">
+            <div className="flex flex-wrap gap-2 items-center">
+              {/* Persona Toggle */}
+              <div className="flex items-center gap-2 p-2 rounded-lg bg-muted/50 border border-border">
+                <span className={`text-sm font-medium transition-colors ${personaMode === 'financial' ? 'text-emerald-600' : 'text-muted-foreground'}`}>
+                  💰 Financial
+                </span>
+                <Switch
+                  checked={personaMode === 'mentor'}
+                  onCheckedChange={handlePersonaSwitch}
+                  className="data-[state=checked]:bg-purple-500"
+                />
+                <span className={`text-sm font-medium transition-colors ${personaMode === 'mentor' ? 'text-purple-600' : 'text-muted-foreground'}`}>
+                  🚀 Mentor
+                </span>
+              </div>
+              
               <Button 
                 variant="outline" 
                 size="sm"
@@ -545,16 +660,14 @@ const Chat = () => {
         </div>
 
         <div className="mobile-grid gap-4 md:gap-6">
-          {/* Sidebar - Collapsible on mobile */}
+          {/* Sidebar */}
           <div className="lg:col-span-1 space-y-4">
-            {/* Progress Tracker */}
             <ProgressTracker 
               progress={progress}
               isVisible={showProgress}
               onToggle={() => setShowProgress(!showProgress)}
             />
             
-            {/* Personalization Panel */}
             <PersonalizationPanel 
               settings={settings}
               onSettingsUpdate={updateSettings}
@@ -562,19 +675,47 @@ const Chat = () => {
               onToggle={() => setShowPersonalization(!showPersonalization)}
             />
 
-            {/* Compliance Notice - Compact on mobile */}
             <Alert className="border-warning/20 bg-warning/5">
               <AlertCircle className="h-4 w-4 text-warning" />
               <AlertDescription className="text-xs">
-                <strong>Educational Only:</strong> {COMPLIANCE_DISCLAIMER}
+                <strong>{personaMode === 'mentor' ? 'Guidance Only:' : 'Educational Only:'}</strong> {
+                  personaMode === 'mentor' 
+                    ? 'I provide general guidance. For legal, medical, or professional advice, consult appropriate experts.'
+                    : COMPLIANCE_DISCLAIMER
+                }
               </AlertDescription>
             </Alert>
+
+            {/* Mentor Mode Quick Prompts */}
+            {personaMode === 'mentor' && (
+              <Card className="bg-gradient-to-br from-purple-500/10 to-purple-500/5 border-purple-500/20">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm flex items-center gap-2">
+                    <Rocket className="w-4 h-4 text-purple-500" />
+                    Quick Topics
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-2">
+                  {mentorQuickPrompts.map((prompt, idx) => (
+                    <Button
+                      key={idx}
+                      variant="ghost"
+                      size="sm"
+                      className="w-full justify-start text-xs h-auto py-2 hover:bg-purple-500/10"
+                      onClick={() => handleSendMessage(prompt.message)}
+                    >
+                      {prompt.label}
+                    </Button>
+                  ))}
+                </CardContent>
+              </Card>
+            )}
           </div>
 
           {/* Main Chat Area */}
           <div className="lg:col-span-3">
-            {/* Learning Mode Selector */}
-            {messages.length <= 1 && (
+            {/* Learning Mode Selector - only in financial mode */}
+            {personaMode === 'financial' && messages.length <= 1 && (
               <div className="mb-4 md:mb-6">
                 <h3 className="text-base md:text-lg font-medium mb-4">Choose Your Learning Mode</h3>
                 <LearningModeSelector 
@@ -584,42 +725,97 @@ const Chat = () => {
               </div>
             )}
 
-            {/* Chat Container - Mobile optimized */}
+            {/* Chat Container */}
             <Card className="flex-1 mobile-card">
               <CardHeader className="pb-3 md:pb-4">
                 <CardTitle className="flex items-center justify-between">
                   <div className="flex items-center space-x-2">
-                    <BookOpen className="h-4 w-4 md:h-5 md:w-5 text-education" />
-                    <span className="text-sm md:text-base">Interactive Learning Chat</span>
+                    {personaMode === 'mentor' ? (
+                      <Rocket className="h-4 w-4 md:h-5 md:w-5 text-purple-500" />
+                    ) : (
+                      <BookOpen className="h-4 w-4 md:h-5 md:w-5 text-education" />
+                    )}
+                    <span className="text-sm md:text-base">
+                      {personaMode === 'mentor' ? 'Success Coaching Chat' : 'Interactive Learning Chat'}
+                    </span>
                   </div>
-                  <div className="text-xs text-muted-foreground">
-                    Mode: <span className="capitalize text-education font-medium">{currentMode.replace('-', ' ')}</span>
+                  <div className="flex items-center gap-2">
+                    {/* Generate Script Button - only in mentor mode */}
+                    {personaMode === 'mentor' && messages.length > 1 && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={handleGenerateScript}
+                        disabled={isGeneratingScript || isStreaming}
+                        className="gap-1 text-xs border-purple-500/30 hover:bg-purple-500/10"
+                      >
+                        {isGeneratingScript ? (
+                          <Loader2 className="w-3 h-3 animate-spin" />
+                        ) : (
+                          <FileText className="w-3 h-3" />
+                        )}
+                        Generate Script
+                      </Button>
+                    )}
+                    <div className="text-xs text-muted-foreground">
+                      Mode: <span className={`capitalize font-medium ${personaMode === 'mentor' ? 'text-purple-500' : 'text-education'}`}>
+                        {personaMode === 'mentor' ? 'Success Mentor' : currentMode.replace('-', ' ')}
+                      </span>
+                    </div>
                   </div>
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-3 md:space-y-4">
-                {/* Messages - Mobile optimized scrolling */}
+                {/* Messages */}
                 <div className="min-h-[400px] md:min-h-[500px] max-h-[500px] md:max-h-[600px] overflow-y-auto space-y-4 md:space-y-6 p-3 md:p-4 bg-gradient-to-b from-muted/10 to-muted/5 rounded-lg">
                   {messages.map((message) => (
-                    <ChatMessage 
-                      key={message.id} 
-                      message={message} 
-                      onQuizAnswer={handleQuizAnswer}
-                    />
+                    <div key={message.id} className="relative group">
+                      <ChatMessage 
+                        message={message} 
+                        onQuizAnswer={handleQuizAnswer}
+                      />
+                      {/* Copy Script Button for script responses */}
+                      {message.sender === 'elin' && message.content.includes('---') && personaMode === 'mentor' && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity gap-1"
+                          onClick={() => handleCopyScript(message.content)}
+                        >
+                          {copiedScript === message.content ? (
+                            <>
+                              <Check className="w-3 h-3 text-green-500" />
+                              Copied!
+                            </>
+                          ) : (
+                            <>
+                              <Copy className="w-3 h-3" />
+                              Copy Script
+                            </>
+                          )}
+                        </Button>
+                      )}
+                    </div>
                   ))}
                   
                   {isTyping && (
                     <div className="flex gap-2 md:gap-3 max-w-[85%]">
-                      <div className="w-6 h-6 md:w-8 md:h-8 rounded-full bg-gradient-to-br from-education to-education/80 flex items-center justify-center">
+                      <div className={`w-6 h-6 md:w-8 md:h-8 rounded-full flex items-center justify-center ${
+                        personaMode === 'mentor' 
+                          ? 'bg-gradient-to-br from-purple-500 to-purple-600' 
+                          : 'bg-gradient-to-br from-education to-education/80'
+                      }`}>
                         <Bot className="w-3 h-3 md:w-4 md:h-4 text-white" />
                       </div>
                       <div className="bg-card border border-border/50 rounded-2xl rounded-bl-sm p-3 md:p-4 shadow-sm">
                         <div className="flex space-x-1">
-                          <div className="w-2 h-2 bg-education rounded-full animate-bounce"></div>
-                          <div className="w-2 h-2 bg-education rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-                          <div className="w-2 h-2 bg-education rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                          <div className={`w-2 h-2 rounded-full animate-bounce ${personaMode === 'mentor' ? 'bg-purple-500' : 'bg-education'}`}></div>
+                          <div className={`w-2 h-2 rounded-full animate-bounce ${personaMode === 'mentor' ? 'bg-purple-500' : 'bg-education'}`} style={{ animationDelay: '0.1s' }}></div>
+                          <div className={`w-2 h-2 rounded-full animate-bounce ${personaMode === 'mentor' ? 'bg-purple-500' : 'bg-education'}`} style={{ animationDelay: '0.2s' }}></div>
                         </div>
-                        <div className="text-xs text-muted-foreground mt-2">ELIN is thinking...</div>
+                        <div className="text-xs text-muted-foreground mt-2">
+                          ELIN is {personaMode === 'mentor' ? 'crafting your advice' : 'thinking'}...
+                        </div>
                       </div>
                     </div>
                   )}
@@ -632,7 +828,7 @@ const Chat = () => {
                   isVisible={showQuickReplies && !isTyping && messages.length > 1}
                 />
 
-                {/* Voice Interface and Input - Mobile optimized with keyboard handling */}
+                {/* Voice Interface and Input */}
                 <div className="space-y-3 p-3 md:p-4 border-t border-border/30 sticky bottom-0 bg-card/95 backdrop-blur-md">
                   <VoiceInterface 
                     onVoiceInput={(text) => handleSendMessage(text)}
@@ -644,7 +840,10 @@ const Chat = () => {
                       value={inputValue}
                       onChange={(e) => setInputValue(e.target.value)}
                       onKeyPress={handleKeyPress}
-                      placeholder="Ask about investing or request a lesson..."
+                      placeholder={personaMode === 'mentor' 
+                        ? "Ask about career, habits, or negotiation..."
+                        : "Ask about investing or request a lesson..."
+                      }
                       className="flex-1 bg-background border-border/50 focus:border-education focus:ring-education text-base min-h-[44px]"
                       maxLength={2000}
                       aria-label="Type your message to ELIN"
@@ -655,7 +854,11 @@ const Chat = () => {
                       onClick={() => handleSendMessage()} 
                       disabled={!inputValue.trim() || isTyping}
                       aria-label="Send message"
-                      className="bg-education hover:bg-education/90 min-w-[44px] min-h-[44px] h-11 w-11"
+                      className={`min-w-[44px] min-h-[44px] h-11 w-11 ${
+                        personaMode === 'mentor' 
+                          ? 'bg-purple-500 hover:bg-purple-600' 
+                          : 'bg-education hover:bg-education/90'
+                      }`}
                     >
                       <Send className="h-5 w-5" />
                     </Button>
