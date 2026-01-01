@@ -86,6 +86,11 @@ export default {
 				'portfolio-cash': 'hsl(var(--portfolio-cash))',
 				'portfolio-crypto': 'hsl(var(--portfolio-crypto))',
 				'portfolio-alternatives': 'hsl(var(--portfolio-alternatives))',
+				'finance-income': 'hsl(var(--finance-income))',
+				'finance-spending': 'hsl(var(--finance-spending))',
+				'finance-savings': 'hsl(var(--finance-savings))',
+				'finance-bills': 'hsl(var(--finance-bills))',
+				'finance-subscriptions': 'hsl(var(--finance-subscriptions))',
 				'background-subtle': 'hsl(var(--background-subtle))',
 				sidebar: {
 					DEFAULT: 'hsl(var(--sidebar-background))',

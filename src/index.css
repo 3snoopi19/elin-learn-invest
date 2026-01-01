@@ -10,131 +10,138 @@ All colors MUST be HSL.
 @layer base {
   :root {
   /* Softer light mode - optimized for mobile readability */
-  --background: 210 20% 98%;
-  --background-gradient: linear-gradient(135deg, hsl(210 20% 98%) 0%, hsl(210 25% 96%) 50%, hsl(210 30% 95%) 100%);
-  --background-subtle: 210 20% 96%;
-    --foreground: 215 25% 15%;           /* Softer dark text with better contrast */
+  --background: 260 15% 98%;
+  --background-gradient: linear-gradient(135deg, hsl(260 15% 98%) 0%, hsl(260 20% 96%) 50%, hsl(260 20% 95%) 100%);
+  --background-subtle: 260 15% 96%;
+    --foreground: 260 25% 15%;           /* Softer dark text with better contrast */
     --card: 0 0% 100%;                   /* Pure white cards */
-    --card-foreground: 215 25% 15%;      /* Matching dark text */
+    --card-foreground: 260 25% 15%;      /* Matching dark text */
     --popover: 0 0% 100%;
-    --popover-foreground: 215 25% 15%;
+    --popover-foreground: 260 25% 15%;
     
-    /* Brand color palette - blue primary theme */
-    --primary: 217 91% 60%;             /* Primary blue #3b82f6 */
-    --primary-foreground: 0 0% 100%;    /* White text on blue */
-    --primary-hover: 217 91% 55%;       /* Darker blue on hover */
+    /* Brand color palette - Alert Purple primary theme */
+    --primary: 262 83% 58%;             /* Primary purple #8B5CF6 */
+    --primary-foreground: 0 0% 100%;    /* White text on purple */
+    --primary-hover: 262 83% 50%;       /* Darker purple on hover */
     
-    /* Secondary green for success states */
-    --secondary: 142 76% 36%;           /* Success green #16a34a */
+    /* Secondary savings green for success states */
+    --secondary: 160 84% 39%;           /* Savings green #10B981 */
     --secondary-foreground: 0 0% 100%;  /* White text on green */
     
-    /* Success/financial green variations */
-    --success: 142 76% 36%;
+    /* Success/savings green variations */
+    --success: 160 84% 39%;
     --success-foreground: 0 0% 100%;
     
-    /* Warning for risk indicators */
+    /* Warning for spending alerts */
     --warning: 38 92% 50%;
-    --warning-foreground: 220 13% 9%;
+    --warning-foreground: 260 13% 9%;
     
-    /* Educational blue accents */
-    --education: 217 91% 60%;
-    --education-foreground: 0 0% 100%;
+    /* Spending alert purple accents */
+    --spending-alert: 262 83% 58%;
+    --spending-alert-foreground: 0 0% 100%;
     
     /* Text hierarchy tokens - optimized for mobile readability */
-    --text-heading: 215 30% 12%;       /* Strong contrast for headings */
-    --text-body: 215 20% 25%;          /* Balanced dark gray for body */
-    --text-secondary: 215 15% 45%;     /* Medium gray with better contrast */
-    --text-muted: 215 10% 60%;         /* Softer muted text */
-    --text-emphasis: 215 30% 12%;      /* Strong emphasis */
+    --text-heading: 260 30% 12%;       /* Strong contrast for headings */
+    --text-body: 260 20% 25%;          /* Balanced dark gray for body */
+    --text-secondary: 260 15% 45%;     /* Medium gray with better contrast */
+    --text-muted: 260 10% 60%;         /* Softer muted text */
+    --text-emphasis: 260 30% 12%;      /* Strong emphasis */
     
-    /* Progress bar colors - blue themed */
-    --progress-completed: 217 91% 60%;
-    --progress-in-progress: 142 76% 36%;
-    --progress-remaining: 220 13% 20%;
+    /* Progress bar colors - purple/green themed */
+    --progress-completed: 262 83% 58%;
+    --progress-in-progress: 160 84% 39%;
+    --progress-remaining: 260 13% 20%;
     
-    /* Portfolio colors - blue primary palette */
-    --portfolio-stocks: 217 91% 60%;    /* Primary blue */
-    --portfolio-bonds: 142 76% 36%;     /* Success green */
-    --portfolio-cash: 38 92% 50%;       /* Warning orange */
-    --portfolio-crypto: 180 100% 50%;   /* Accent teal */
-    --portfolio-alternatives: 270 91% 65%; /* Purple */
+    /* Finance category colors */
+    --finance-income: 160 84% 39%;    /* Green for income */
+    --finance-spending: 0 84% 60%;    /* Red for spending */
+    --finance-savings: 262 83% 58%;   /* Purple for savings */
+    --finance-bills: 38 92% 50%;      /* Orange for bills */
+    --finance-subscriptions: 280 80% 60%; /* Magenta for subscriptions */
     
     /* Additional neon accents */
-    --accent: 180 100% 50%;             /* Neon teal #00ffff */
-    --accent-foreground: 220 13% 9%;
+    --accent: 262 83% 58%;             /* Purple accent */
+    --accent-foreground: 0 0% 100%;
     
-    --muted: 210 20% 93%;            /* Soft light gray for muted elements */
-    --muted-foreground: 215 15% 45%; /* Medium gray for muted text */
+    --muted: 260 20% 93%;            /* Soft light gray for muted elements */
+    --muted-foreground: 260 15% 45%; /* Medium gray for muted text */
     
     --destructive: 0 84% 60%;        /* Red */
     --destructive-foreground: 0 0% 100%;
     
-    --border: 210 15% 88%;           /* Soft border for light mode */
+    --border: 260 15% 88%;           /* Soft border for light mode */
     --input: 0 0% 100%;
-    --ring: 217 91% 60%;                /* Focus ring blue */
+    --ring: 262 83% 58%;                /* Focus ring purple */
     --radius: 0.75rem;
     
     /* Sidebar - dark themed */
-    --sidebar-background: 220 13% 9%;
-    --sidebar-foreground: 220 9% 97%;
-    --sidebar-primary: 217 91% 60%;
+    --sidebar-background: 260 13% 9%;
+    --sidebar-foreground: 260 9% 97%;
+    --sidebar-primary: 262 83% 58%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 220 13% 15%;
-    --sidebar-accent-foreground: 220 9% 97%;
-    --sidebar-border: 220 13% 18%;
-    --sidebar-ring: 217 91% 60%;
+    --sidebar-accent: 260 13% 15%;
+    --sidebar-accent-foreground: 260 9% 97%;
+    --sidebar-border: 260 13% 18%;
+    --sidebar-ring: 262 83% 58%;
     
     /* Custom neon glow variables */
-    --glow-green: 0 0 20px rgba(22, 163, 74, 0.4);
-    --glow-blue: 0 0 20px rgba(59, 130, 246, 0.4);
-    --glow-teal: 0 0 20px rgba(0, 255, 255, 0.4);
+    --glow-green: 0 0 20px rgba(16, 185, 129, 0.4);
     --glow-purple: 0 0 20px rgba(139, 92, 246, 0.4);
+    --glow-pink: 0 0 20px rgba(236, 72, 153, 0.4);
+    --glow-savings: 0 0 20px rgba(16, 185, 129, 0.4);
   }
 
   .dark {
-    /* Dark mode - soft dark grey to reduce ghosting on mobile */
-    --background: 220 10% 8%;              /* Soft dark grey (#121212 equivalent) */
-    --background-gradient: linear-gradient(135deg, hsl(220 10% 8%) 0%, hsl(220 12% 10%) 50%, hsl(220 10% 9%) 100%);
-    --background-subtle: 220 12% 12%;
-    --foreground: 220 9% 85%;              /* Softer white to reduce vibration */
-    --card: 220 12% 13%;                   /* Dark metallic card base */
-    --card-foreground: 220 9% 90%;
-    --popover: 220 12% 12%;
-    --popover-foreground: 220 9% 90%;
-    --primary: 217 85% 55%;                /* Slightly desaturated primary */
+    /* Dark mode - soft dark grey with purple tints */
+    --background: 260 10% 8%;              /* Soft dark grey with purple tint */
+    --background-gradient: linear-gradient(135deg, hsl(260 10% 8%) 0%, hsl(260 12% 10%) 50%, hsl(260 10% 9%) 100%);
+    --background-subtle: 260 12% 12%;
+    --foreground: 260 9% 85%;              /* Softer white to reduce vibration */
+    --card: 260 12% 13%;                   /* Dark metallic card base */
+    --card-foreground: 260 9% 90%;
+    --popover: 260 12% 12%;
+    --popover-foreground: 260 9% 90%;
+    --primary: 262 80% 65%;                /* Brighter purple for dark mode */
     --primary-foreground: 0 0% 100%;
-    --primary-hover: 217 85% 50%;
-    --secondary: 142 65% 38%;              /* Desaturated success green */
+    --primary-hover: 262 80% 55%;
+    --secondary: 160 70% 45%;              /* Savings green */
     --secondary-foreground: 0 0% 100%;
-    --success: 142 60% 40%;                /* Softer green for eye comfort */
+    --success: 160 65% 48%;                /* Softer green for eye comfort */
     --success-foreground: 0 0% 100%;
     --warning: 38 80% 50%;                 /* Desaturated warning */
-    --warning-foreground: 220 10% 8%;
-    --muted: 220 12% 18%;
-    --muted-foreground: 220 9% 65%;
-    --accent: 180 70% 45%;                 /* Desaturated teal accent */
-    --accent-foreground: 220 10% 8%;
+    --warning-foreground: 260 10% 8%;
+    --muted: 260 12% 18%;
+    --muted-foreground: 260 9% 65%;
+    --accent: 262 80% 65%;                 /* Purple accent */
+    --accent-foreground: 0 0% 100%;
     --destructive: 0 75% 55%;
     --destructive-foreground: 0 0% 100%;
-    --border: 220 12% 22%;
-    --input: 220 12% 16%;
-    --ring: 217 85% 55%;
+    --border: 260 12% 22%;
+    --input: 260 12% 16%;
+    --ring: 262 80% 65%;
     
-    /* Dark mode text hierarchy - use grey instead of pure white */
-    --text-heading: 220 9% 85%;            /* High-opacity grey instead of pure white */
-    --text-body: 220 9% 75%;               /* Softer body text */
-    --text-secondary: 220 8% 60%;          /* Muted secondary */
-    --text-muted: 220 8% 50%;              /* Subtle muted text */
-    --text-emphasis: 220 9% 90%;           /* Strong emphasis */
+    /* Dark mode text hierarchy */
+    --text-heading: 260 9% 85%;            /* High-opacity grey */
+    --text-body: 260 9% 75%;               /* Softer body text */
+    --text-secondary: 260 8% 60%;          /* Muted secondary */
+    --text-muted: 260 8% 50%;              /* Subtle muted text */
+    --text-emphasis: 260 9% 90%;           /* Strong emphasis */
     
-    --sidebar-background: 220 10% 8%;
-    --sidebar-foreground: 220 9% 85%;
-    --sidebar-primary: 217 85% 55%;
+    /* Finance category colors - dark mode */
+    --finance-income: 160 70% 50%;
+    --finance-spending: 0 75% 60%;
+    --finance-savings: 262 80% 65%;
+    --finance-bills: 38 80% 55%;
+    --finance-subscriptions: 280 75% 65%;
+    
+    --sidebar-background: 260 10% 8%;
+    --sidebar-foreground: 260 9% 85%;
+    --sidebar-primary: 262 80% 65%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 220 12% 18%;
-    --sidebar-accent-foreground: 220 9% 85%;
-    --sidebar-border: 220 12% 22%;
-    --sidebar-ring: 217 85% 55%;
+    --sidebar-accent: 260 12% 18%;
+    --sidebar-accent-foreground: 260 9% 85%;
+    --sidebar-border: 260 12% 22%;
+    --sidebar-ring: 262 80% 65%;
   }
 }
 
