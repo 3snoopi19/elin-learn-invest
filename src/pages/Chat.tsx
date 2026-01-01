@@ -20,6 +20,7 @@ import { LearningModeSelector } from "@/components/chat/LearningModeSelector";
 import { ProgressTracker } from "@/components/chat/ProgressTracker";
 import { PersonalizationPanel } from "@/components/chat/PersonalizationPanel";
 import { VoiceInterface } from "@/components/chat/VoiceInterface";
+import { RoastButton } from "@/components/gamification/RoastButton";
 
 // Types and hooks
 import { Message, ChartData, QuizQuestion } from "@/types/chat";

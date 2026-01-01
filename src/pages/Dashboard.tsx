@@ -5,7 +5,6 @@ import { Footer } from "@/components/layout/Footer";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import { LoadingScreen } from "@/components/ui/LoadingScreen";
 import { SkeletonLoader } from "@/components/ui/SkeletonLoader";
@@ -14,6 +13,8 @@ import { CashFlowCard } from "@/components/finance/CashFlowCard";
 import { TransactionsFeed } from "@/components/finance/TransactionsFeed";
 import { SpendingAnomaliesCard } from "@/components/finance/SpendingAnomaliesCard";
 import { PredictiveBalanceCard } from "@/components/finance/PredictiveBalanceCard";
+import { SpendDefenseBar } from "@/components/gamification/SpendDefenseBar";
+import { GoalVisualization } from "@/components/gamification/GoalVisualization";
 import { MessageSquare, Repeat, PiggyBank, Settings } from "lucide-react";
 
 const Dashboard = () => {
@@ -84,33 +85,43 @@ const Dashboard = () => {
           </div>
         </div>
 
+        {/* Spend Defense Health Bar - Gamification */}
+        <div className="mb-6">
+          {cardsLoading ? <SkeletonLoader variant="card" /> : <SpendDefenseBar dailyBudget={80} spentToday={0} streakDays={3} animationDelay={0} />}
+        </div>
+
         {/* Main Dashboard Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6 mb-6">
           {/* Net Worth - Takes 2 cols on large */}
           <div className="lg:col-span-2">
-            {cardsLoading ? <SkeletonLoader variant="card" /> : <NetWorthCard animationDelay={0} />}
+            {cardsLoading ? <SkeletonLoader variant="card" /> : <NetWorthCard animationDelay={0.1} />}
           </div>
           
           {/* Cash Flow */}
           <div className="lg:col-span-1">
-            {cardsLoading ? <SkeletonLoader variant="card" /> : <CashFlowCard animationDelay={0.1} />}
+            {cardsLoading ? <SkeletonLoader variant="card" /> : <CashFlowCard animationDelay={0.2} />}
           </div>
+        </div>
+
+        {/* Goal Visualization - Gamification */}
+        <div className="mb-6">
+          {cardsLoading ? <SkeletonLoader variant="chart" /> : <GoalVisualization animationDelay={0.3} />}
         </div>
 
         {/* Secondary Row */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6 mb-6">
           {/* Predictive Balance - Takes 2 cols */}
-          {cardsLoading ? <SkeletonLoader variant="chart" /> : <PredictiveBalanceCard animationDelay={0.2} />}
+          {cardsLoading ? <SkeletonLoader variant="chart" /> : <PredictiveBalanceCard animationDelay={0.4} />}
           
           {/* Spending Anomalies */}
           <div className="lg:col-span-1">
-            {cardsLoading ? <SkeletonLoader variant="card" /> : <SpendingAnomaliesCard animationDelay={0.3} />}
+            {cardsLoading ? <SkeletonLoader variant="card" /> : <SpendingAnomaliesCard animationDelay={0.5} />}
           </div>
         </div>
 
         {/* Transactions Feed */}
         <div className="mb-8">
-          {cardsLoading ? <SkeletonLoader variant="list" /> : <TransactionsFeed animationDelay={0.4} />}
+          {cardsLoading ? <SkeletonLoader variant="list" /> : <TransactionsFeed animationDelay={0.6} />}
         </div>
 
         {/* Quick Actions */}
