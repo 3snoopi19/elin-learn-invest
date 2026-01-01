@@ -2,40 +2,15 @@ import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Volume2, VolumeX, ChevronLeft, ChevronRight, CheckCircle2, AlertTriangle, Calendar, Lightbulb, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useDailyBriefingData } from "@/hooks/useDailyBriefingData";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface DailyBriefingModalProps {
   isOpen: boolean;
   onClose: () => void;
 }
-
-interface BriefingSlide {
-  id: number;
-  title: string;
-  icon: React.ReactNode;
-  content: React.ReactNode;
-  audioText: string;
-  bgGradient: string;
-}
-
-// Mock data - in production, this would come from real user data
-const mockBriefingData = {
-  yesterdaySpent: 42,
-  dailyBudget: 80,
-  upcomingBills: [
-    { name: "Netflix", amount: 15, daysUntil: 2 },
-    { name: "Electric Bill", amount: 90, daysUntil: 3 },
-  ],
-  opportunity: {
-    title: "Idle Cash Alert",
-    description: "You have $400 in your checking account doing nothing.",
-    action: "Move it to High Yield Savings to earn $1.50/mo",
-    savings: 1.50,
-  },
-  checkingBalance: 400,
-};
 
 export function DailyBriefingModal({ isOpen, onClose }: DailyBriefingModalProps) {
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -46,177 +21,242 @@ export function DailyBriefingModal({ isOpen, onClose }: DailyBriefingModalProps)
   const [currentAudio, setCurrentAudio] = useState<HTMLAudioElement | null>(null);
   const { toast } = useToast();
 
-  const isUnderBudget = mockBriefingData.yesterdaySpent <= mockBriefingData.dailyBudget;
-  const totalUpcomingBills = mockBriefingData.upcomingBills.reduce((sum, bill) => sum + bill.amount, 0);
+  const briefingData = useDailyBriefingData();
 
-  const slides: BriefingSlide[] = [
+  const isUnderBudget = briefingData.yesterdaySpent <= briefingData.dailyBudget;
+  const totalUpcomingBills = briefingData.upcomingBills.reduce((sum, bill) => sum + bill.amount, 0);
+
+  // Fallback data if no real data available
+  const displayData = {
+    yesterdaySpent: briefingData.yesterdaySpent || 42,
+    dailyBudget: briefingData.dailyBudget,
+    upcomingBills: briefingData.upcomingBills.length > 0 
+      ? briefingData.upcomingBills 
+      : [
+          { name: "Netflix", amount: 15.99, daysUntil: 2, logo: "🎬" },
+          { name: "Electric Bill", amount: 89.50, daysUntil: 3, logo: "⚡" },
+        ],
+    opportunity: briefingData.opportunity,
+    checkingBalance: briefingData.checkingBalance || 1200,
+  };
+
+  const slides = [
     {
       id: 1,
-      title: "Yesterday's Recap",
-      icon: isUnderBudget ? <CheckCircle2 className="w-8 h-8" /> : <AlertTriangle className="w-8 h-8" />,
+      title: "Yesterday's Spend",
       bgGradient: isUnderBudget 
         ? "from-emerald-500/20 via-emerald-600/10 to-background" 
         : "from-red-500/20 via-red-600/10 to-background",
-      audioText: `Yesterday's spending recap. You spent $${mockBriefingData.yesterdaySpent} yesterday. ${isUnderBudget ? `Great job! You stayed under your $${mockBriefingData.dailyBudget} daily budget.` : `Heads up, you went over your $${mockBriefingData.dailyBudget} daily budget.`}`,
+      audioText: `Yesterday's spending recap. You spent $${displayData.yesterdaySpent} yesterday. ${isUnderBudget ? `Great job! You stayed under your $${displayData.dailyBudget} daily budget.` : `Heads up, you went over your $${displayData.dailyBudget} daily budget.`}`,
       content: (
         <div className="flex flex-col items-center justify-center h-full space-y-6">
-          <motion.div
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            transition={{ type: "spring", delay: 0.2 }}
-            className={`p-4 rounded-full ${isUnderBudget ? "bg-emerald-500/20 text-emerald-400" : "bg-red-500/20 text-red-400"}`}
-          >
-            {isUnderBudget ? <CheckCircle2 className="w-12 h-12" /> : <AlertTriangle className="w-12 h-12" />}
-          </motion.div>
-          
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
-            className="text-center space-y-2"
-          >
-            <p className="text-lg text-muted-foreground">You spent</p>
-            <p className="text-5xl font-bold text-foreground">${mockBriefingData.yesterdaySpent}</p>
-            <p className="text-lg text-muted-foreground">yesterday</p>
-          </motion.div>
+          {briefingData.isLoading ? (
+            <div className="space-y-4 w-full flex flex-col items-center">
+              <Skeleton className="w-20 h-20 rounded-full" />
+              <Skeleton className="w-32 h-12" />
+              <Skeleton className="w-48 h-8" />
+            </div>
+          ) : (
+            <>
+              <motion.div
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ type: "spring", delay: 0.2 }}
+                className={`p-4 rounded-full ${isUnderBudget ? "bg-emerald-500/20 text-emerald-400" : "bg-red-500/20 text-red-400"}`}
+              >
+                {isUnderBudget ? <CheckCircle2 className="w-12 h-12" /> : <AlertTriangle className="w-12 h-12" />}
+              </motion.div>
+              
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 }}
+                className="text-center space-y-2"
+              >
+                <p className="text-lg text-muted-foreground">You spent</p>
+                <p className="text-5xl font-bold text-foreground">
+                  ${displayData.yesterdaySpent.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 2 })}
+                </p>
+                <p className="text-lg text-muted-foreground">yesterday</p>
+              </motion.div>
 
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.5 }}
-            className={`px-4 py-2 rounded-full text-sm font-medium ${
-              isUnderBudget 
-                ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30" 
-                : "bg-red-500/20 text-red-400 border border-red-500/30"
-            }`}
-          >
-            {isUnderBudget 
-              ? `✓ Under your $${mockBriefingData.dailyBudget} daily budget!` 
-              : `⚠ Over your $${mockBriefingData.dailyBudget} daily budget`}
-          </motion.div>
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.5 }}
+                className={`px-4 py-2 rounded-full text-sm font-medium ${
+                  isUnderBudget 
+                    ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30" 
+                    : "bg-red-500/20 text-red-400 border border-red-500/30"
+                }`}
+              >
+                {isUnderBudget 
+                  ? `✓ Great job! Under $${displayData.dailyBudget} budget` 
+                  : `⚠ High spend detected`}
+              </motion.div>
+            </>
+          )}
         </div>
       ),
     },
     {
       id: 2,
-      title: "The Forecast",
-      icon: <Calendar className="w-8 h-8" />,
+      title: "Coming Up",
       bgGradient: "from-amber-500/20 via-orange-600/10 to-background",
-      audioText: `The forecast for upcoming bills. Heads up: ${mockBriefingData.upcomingBills.map(bill => `${bill.name}, $${bill.amount}, due in ${bill.daysUntil} days`).join('. ')}. Total of $${totalUpcomingBills} coming up.`,
+      audioText: displayData.upcomingBills.length > 0 
+        ? `Coming up this week. ${displayData.upcomingBills.map(bill => `${bill.name}, $${bill.amount}, due in ${bill.daysUntil} days`).join('. ')}. Total of $${totalUpcomingBills.toFixed(2)} due soon.`
+        : "No bills due in the next 3 days. You're all clear!",
       content: (
         <div className="flex flex-col items-center justify-center h-full space-y-6">
-          <motion.div
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            transition={{ type: "spring", delay: 0.2 }}
-            className="p-4 rounded-full bg-amber-500/20 text-amber-400"
-          >
-            <Calendar className="w-12 h-12" />
-          </motion.div>
-          
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
-            className="text-center"
-          >
-            <p className="text-lg text-muted-foreground mb-4">Heads up! Bills coming soon:</p>
-          </motion.div>
-
-          <div className="space-y-3 w-full max-w-xs">
-            {mockBriefingData.upcomingBills.map((bill, index) => (
+          {briefingData.isLoading ? (
+            <div className="space-y-4 w-full max-w-xs">
+              <Skeleton className="w-20 h-20 rounded-full mx-auto" />
+              <Skeleton className="w-full h-16 rounded-xl" />
+              <Skeleton className="w-full h-16 rounded-xl" />
+            </div>
+          ) : (
+            <>
               <motion.div
-                key={bill.name}
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.4 + index * 0.15 }}
-                className="flex items-center justify-between p-3 rounded-xl bg-card/50 border border-border/50 backdrop-blur-sm"
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ type: "spring", delay: 0.2 }}
+                className="p-4 rounded-full bg-amber-500/20 text-amber-400"
               >
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-lg bg-amber-500/20 flex items-center justify-center">
-                    <span className="text-amber-400 font-semibold text-sm">{bill.daysUntil}d</span>
-                  </div>
-                  <span className="font-medium text-foreground">{bill.name}</span>
-                </div>
-                <span className="text-lg font-bold text-foreground">${bill.amount}</span>
+                <Calendar className="w-12 h-12" />
               </motion.div>
-            ))}
-          </div>
+              
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 }}
+                className="text-center"
+              >
+                <p className="text-lg text-muted-foreground mb-4">
+                  {displayData.upcomingBills.length > 0 
+                    ? "Bills due in the next 3 days:" 
+                    : "No bills due soon!"}
+                </p>
+              </motion.div>
 
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.7 }}
-            className="px-4 py-2 rounded-full bg-amber-500/20 text-amber-400 border border-amber-500/30 text-sm font-medium"
-          >
-            Total: ${totalUpcomingBills} due within 3 days
-          </motion.div>
+              <div className="space-y-3 w-full max-w-xs">
+                {displayData.upcomingBills.map((bill, index) => (
+                  <motion.div
+                    key={bill.name}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.4 + index * 0.15 }}
+                    className="flex items-center justify-between p-3 rounded-xl bg-card/50 border border-border/50 backdrop-blur-sm"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-lg bg-amber-500/20 flex items-center justify-center">
+                        <span className="text-lg">{bill.logo || "📋"}</span>
+                      </div>
+                      <div>
+                        <span className="font-medium text-foreground block">{bill.name}</span>
+                        <span className="text-xs text-muted-foreground">
+                          {bill.daysUntil === 0 ? "Due today" : bill.daysUntil === 1 ? "Due tomorrow" : `In ${bill.daysUntil} days`}
+                        </span>
+                      </div>
+                    </div>
+                    <span className="text-lg font-bold text-foreground">
+                      ${bill.amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    </span>
+                  </motion.div>
+                ))}
+              </div>
+
+              {displayData.upcomingBills.length > 0 && (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.7 }}
+                  className="px-4 py-2 rounded-full bg-amber-500/20 text-amber-400 border border-amber-500/30 text-sm font-medium"
+                >
+                  Total: ${totalUpcomingBills.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} due soon
+                </motion.div>
+              )}
+            </>
+          )}
         </div>
       ),
     },
     {
       id: 3,
       title: "AI Opportunity",
-      icon: <Lightbulb className="w-8 h-8" />,
       bgGradient: "from-primary/20 via-primary/10 to-background",
-      audioText: `Here's an AI opportunity for you. ${mockBriefingData.opportunity.description} ${mockBriefingData.opportunity.action}. That's an extra $${mockBriefingData.opportunity.savings} per month in passive income.`,
+      audioText: `Here's a tip for you. ${displayData.opportunity.description} ${displayData.opportunity.action}. ${displayData.opportunity.savings > 0 ? `That's an extra $${displayData.opportunity.savings.toFixed(2)} per month.` : ""}`,
       content: (
         <div className="flex flex-col items-center justify-center h-full space-y-6">
-          <motion.div
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            transition={{ type: "spring", delay: 0.2 }}
-            className="p-4 rounded-full bg-primary/20 text-primary"
-          >
-            <Lightbulb className="w-12 h-12" />
-          </motion.div>
-          
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
-            className="text-center space-y-2 px-4"
-          >
-            <p className="text-sm text-primary font-medium uppercase tracking-wide">
-              {mockBriefingData.opportunity.title}
-            </p>
-            <p className="text-lg text-muted-foreground">
-              {mockBriefingData.opportunity.description}
-            </p>
-          </motion.div>
+          {briefingData.isLoading ? (
+            <div className="space-y-4 w-full max-w-xs flex flex-col items-center">
+              <Skeleton className="w-20 h-20 rounded-full" />
+              <Skeleton className="w-48 h-6" />
+              <Skeleton className="w-64 h-24 rounded-2xl" />
+              <Skeleton className="w-32 h-10 rounded-lg" />
+            </div>
+          ) : (
+            <>
+              <motion.div
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ type: "spring", delay: 0.2 }}
+                className="p-4 rounded-full bg-primary/20 text-primary"
+              >
+                <Lightbulb className="w-12 h-12" />
+              </motion.div>
+              
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 }}
+                className="text-center space-y-2 px-4"
+              >
+                <p className="text-sm text-primary font-medium uppercase tracking-wide">
+                  {displayData.opportunity.title}
+                </p>
+                <p className="text-lg text-muted-foreground">
+                  {displayData.opportunity.description}
+                </p>
+              </motion.div>
 
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.5 }}
-            className="p-4 rounded-2xl bg-primary/10 border border-primary/30 max-w-xs text-center"
-          >
-            <p className="text-foreground font-medium mb-2">
-              {mockBriefingData.opportunity.action}
-            </p>
-            <p className="text-2xl font-bold text-primary">
-              +${mockBriefingData.opportunity.savings.toFixed(2)}/mo
-            </p>
-            <p className="text-xs text-muted-foreground mt-1">passive income</p>
-          </motion.div>
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.5 }}
+                className="p-4 rounded-2xl bg-primary/10 border border-primary/30 max-w-xs text-center"
+              >
+                <p className="text-foreground font-medium mb-2">
+                  {displayData.opportunity.action}
+                </p>
+                {displayData.opportunity.savings > 0 && (
+                  <>
+                    <p className="text-2xl font-bold text-primary">
+                      +${displayData.opportunity.savings.toFixed(2)}/mo
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-1">potential earnings</p>
+                  </>
+                )}
+              </motion.div>
 
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.7 }}
-          >
-            <Button 
-              className="bg-primary hover:bg-primary/90 text-primary-foreground px-6"
-              onClick={() => {
-                toast({
-                  title: "🎯 Goal Saved!",
-                  description: "We'll remind you to move your idle cash.",
-                });
-              }}
-            >
-              Set This Goal
-            </Button>
-          </motion.div>
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.7 }}
+              >
+                <Button 
+                  className="bg-primary hover:bg-primary/90 text-primary-foreground px-6"
+                  onClick={() => {
+                    toast({
+                      title: "🎯 Goal Saved!",
+                      description: "We'll remind you to take action on this opportunity.",
+                    });
+                  }}
+                >
+                  Set This Goal
+                </Button>
+              </motion.div>
+            </>
+          )}
         </div>
       ),
     },
@@ -226,7 +266,7 @@ export function DailyBriefingModal({ isOpen, onClose }: DailyBriefingModalProps)
 
   // Auto-advance slides
   useEffect(() => {
-    if (!isOpen || isPaused) return;
+    if (!isOpen || isPaused || briefingData.isLoading) return;
 
     const interval = setInterval(() => {
       setProgress((prev) => {
@@ -244,7 +284,7 @@ export function DailyBriefingModal({ isOpen, onClose }: DailyBriefingModalProps)
     }, 100);
 
     return () => clearInterval(interval);
-  }, [isOpen, isPaused, currentSlide, slides.length, onClose]);
+  }, [isOpen, isPaused, currentSlide, slides.length, onClose, briefingData.isLoading]);
 
   // Reset on open
   useEffect(() => {
@@ -403,8 +443,8 @@ export function DailyBriefingModal({ isOpen, onClose }: DailyBriefingModalProps)
           {/* Audio Button */}
           <button
             onClick={playAudio}
-            disabled={audioLoading}
-            className="absolute top-10 left-4 z-10 p-2 rounded-full bg-white/10 hover:bg-white/20 transition-colors flex items-center gap-2"
+            disabled={audioLoading || briefingData.isLoading}
+            className="absolute top-10 left-4 z-10 p-2 rounded-full bg-white/10 hover:bg-white/20 transition-colors flex items-center gap-2 disabled:opacity-50"
           >
             {audioLoading ? (
               <Loader2 className="w-5 h-5 text-white animate-spin" />
