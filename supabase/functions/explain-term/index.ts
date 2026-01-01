@@ -1,6 +1,8 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
+const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
+
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
@@ -12,39 +14,66 @@ serve(async (req) => {
   }
 
   try {
-    const { term, definition } = await req.json();
-
-    if (!term) {
-      return new Response(
-        JSON.stringify({ error: 'Term is required' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+    const { term, definition, mode = "eli5" } = await req.json();
+    
+    if (!term || typeof term !== 'string') {
+      return new Response(JSON.stringify({ error: 'Term is required' }), {
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
     }
 
-    const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
     if (!LOVABLE_API_KEY) {
       console.error('LOVABLE_API_KEY is not configured');
-      return new Response(
-        JSON.stringify({ error: 'AI service not configured' }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+      return new Response(JSON.stringify({ error: 'AI service not configured' }), {
+        status: 500,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
     }
 
-    console.log(`Explaining term: ${term}`);
+    let systemPrompt = "";
+    let userPrompt = "";
 
-    const systemPrompt = `You are a friendly financial educator explaining concepts to a 10-year-old child. 
-Your explanations should be:
-- Super simple and conversational (like talking to a kid)
-- Use everyday analogies they can relate to (piggy banks, allowance, candy store, toys)
-- Maximum 2-3 short sentences
-- No jargon or technical terms
-- Fun and engaging
+    switch (mode) {
+      case "mental-model":
+        systemPrompt = "You are a wise mentor who explains mental models in simple, practical terms. Always provide two short applications: one for money and one for life.";
+        userPrompt = `Explain the mental model "${term}" (${definition}) in exactly this format:
 
-If given a definition, use it as context but simplify it dramatically.`;
+**Money:** [One sentence explaining how this applies to personal finance and investing]
 
-    const userPrompt = definition 
-      ? `Explain "${term}" to a 10-year-old. The technical definition is: "${definition}". Make it super simple and fun!`
-      : `Explain "${term}" to a 10-year-old. Make it super simple and fun!`;
+**Life:** [One sentence explaining how this applies to life decisions and habits]
+
+Keep each sentence under 25 words. Be practical and actionable.`;
+        break;
+
+      case "book-summary":
+        systemPrompt = "You are a book summarizer who distills key insights into actionable takeaways.";
+        userPrompt = `Summarize the key message from "${term}" by ${definition} in exactly this format:
+
+Mindset: [One sentence about the core belief or perspective shift]
+Action: [One sentence about what to do differently]
+Result: [One sentence about the expected outcome]
+
+Keep each under 20 words. Be practical.`;
+        break;
+
+      case "career-roi":
+        systemPrompt = "You are a motivational career coach who helps people see the value in self-investment.";
+        userPrompt = `Based on this self-improvement investment: ${definition}
+
+Write 2-3 encouraging sentences about why investing in yourself is worthwhile. Reference the specific numbers if helpful. Compare to other investment returns if relevant. Be inspiring but realistic. Keep it under 50 words total.`;
+        break;
+
+      default: // eli5
+        systemPrompt = "You are a friendly teacher who explains complex financial concepts to a 10-year-old. Use simple words, fun analogies, and relatable examples.";
+        userPrompt = `Explain "${term}" in simple terms a 10-year-old would understand.
+
+The formal definition is: "${definition}"
+
+Give a fun, simple explanation using an analogy or example from everyday life. Keep it to 2-3 sentences max.`;
+    }
+
+    console.log(`Generating ${mode} explanation for: ${term}`);
 
     const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
@@ -58,49 +87,42 @@ If given a definition, use it as context but simplify it dramatically.`;
           { role: 'system', content: systemPrompt },
           { role: 'user', content: userPrompt }
         ],
-        max_tokens: 200,
       }),
     });
 
     if (!response.ok) {
+      const errorText = await response.text();
+      console.error('Lovable AI error:', response.status, errorText);
+      
       if (response.status === 429) {
-        return new Response(
-          JSON.stringify({ error: 'Rate limit exceeded. Please try again in a moment.' }),
-          { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        );
+        return new Response(JSON.stringify({ error: 'Rate limit exceeded' }), {
+          status: 429,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
       }
       if (response.status === 402) {
-        return new Response(
-          JSON.stringify({ error: 'AI credits exhausted. Please try again later.' }),
-          { status: 402, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        );
+        return new Response(JSON.stringify({ error: 'AI credits exhausted' }), {
+          status: 402,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
       }
-      const errorText = await response.text();
-      console.error('AI API error:', response.status, errorText);
-      return new Response(
-        JSON.stringify({ error: 'Failed to generate explanation' }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+      
+      throw new Error(`AI error: ${response.status}`);
     }
 
     const data = await response.json();
-    const explanation = data.choices?.[0]?.message?.content || 'Sorry, I could not explain that term.';
+    const explanation = data.choices?.[0]?.message?.content || 'Could not generate explanation.';
 
-    console.log('Explanation generated successfully');
-
-    return new Response(
-      JSON.stringify({ 
-        success: true,
-        explanation: explanation.trim()
-      }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
-
+    return new Response(JSON.stringify({ explanation }), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
   } catch (error) {
     console.error('Explain term error:', error);
-    return new Response(
-      JSON.stringify({ error: error instanceof Error ? error.message : 'Unknown error' }),
-      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
+    return new Response(JSON.stringify({ 
+      error: error instanceof Error ? error.message : 'An unknown error occurred' 
+    }), {
+      status: 500,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
   }
 });
