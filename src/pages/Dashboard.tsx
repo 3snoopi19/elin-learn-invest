@@ -15,6 +15,7 @@ import { SpendingAnomaliesCard } from "@/components/finance/SpendingAnomaliesCar
 import { PredictiveBalanceCard } from "@/components/finance/PredictiveBalanceCard";
 import { SpendDefenseBar } from "@/components/gamification/SpendDefenseBar";
 import { GoalVisualization } from "@/components/gamification/GoalVisualization";
+import { HabitStackCard } from "@/components/gamification/HabitStackCard";
 import { DailyBriefingModal } from "@/components/feed/DailyBriefingModal";
 import { DidYouKnowCard } from "@/components/feed/DidYouKnowCard";
 import { MessageSquare, Repeat, PiggyBank, Settings, Sparkles, BookOpen } from "lucide-react";
@@ -115,9 +116,17 @@ const Dashboard = () => {
           </div>
         </div>
 
-        {/* Spend Defense Health Bar - Gamification */}
-        <div className="mb-6">
-          {cardsLoading ? <SkeletonLoader variant="card" /> : <SpendDefenseBar dailyBudget={80} spentToday={0} streakDays={3} animationDelay={0} />}
+        {/* Spend Defense + Habit Stack Row */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6 mb-6">
+          {/* Spend Defense Health Bar - Gamification */}
+          <div>
+            {cardsLoading ? <SkeletonLoader variant="card" /> : <SpendDefenseBar dailyBudget={80} spentToday={0} streakDays={3} animationDelay={0} />}
+          </div>
+          
+          {/* Habit Stack - Daily Habits Tracker */}
+          <div>
+            {cardsLoading ? <SkeletonLoader variant="card" /> : <HabitStackCard animationDelay={0.05} />}
+          </div>
         </div>
 
         {/* Main Dashboard Grid */}
