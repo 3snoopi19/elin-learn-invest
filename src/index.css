@@ -469,7 +469,7 @@ All colors MUST be HSL.
   
   /* Mobile Content Wrapper - Full height with bottom dock clearance */
   .mobile-content {
-    padding-bottom: calc(100px + env(safe-area-inset-bottom, 16px)); /* Dock height + safe area */
+    padding-bottom: calc(120px + env(safe-area-inset-bottom, 20px)); /* 100px dock + extra breathing room */
     min-height: 100vh;
     min-height: 100dvh; /* Dynamic viewport height for mobile browsers */
   }
@@ -479,6 +479,11 @@ All colors MUST be HSL.
       padding-bottom: 2rem;
       min-height: auto;
     }
+  }
+  
+  /* Mobile card consistency */
+  .mobile-card-rounded {
+    @apply rounded-3xl;
   }
   
   /* Hide desktop-only elements on mobile */

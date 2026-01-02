@@ -66,12 +66,14 @@ export const MobileBottomDock = () => {
         paddingBottom: 'env(safe-area-inset-bottom, 0px)',
       }}
     >
-      {/* Background blur gradient */}
-      <div className="absolute inset-0 bg-gradient-to-t from-background via-background/95 to-transparent pointer-events-none" style={{ height: '120px', bottom: 0 }} />
+      {/* Gradient fade for content behind */}
+      <div 
+        className="absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-background via-background/90 to-transparent pointer-events-none" 
+      />
       
       {/* Dock container */}
-      <div className="relative flex justify-center pb-5 px-4">
-        <div className="flex items-center gap-3 px-5 py-3 bg-card/98 backdrop-blur-xl border border-border/60 rounded-full shadow-2xl shadow-black/20">
+      <div className="relative flex justify-center pb-4 px-4">
+        <div className="flex items-center gap-3 px-5 py-3 bg-card/95 backdrop-blur-2xl border border-white/10 rounded-full shadow-2xl shadow-black/30">
           {dockItems.map((item) => {
             const Icon = item.icon;
             const isActive = location.pathname === item.path;
@@ -82,20 +84,20 @@ export const MobileBottomDock = () => {
                 onClick={() => handleNavigation(item.path)}
                 className={`relative flex flex-col items-center justify-center rounded-full transition-all duration-300 ${
                   isActive 
-                    ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/30' 
-                    : 'text-text-muted hover:text-text-body hover:bg-muted/50'
+                    ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/40' 
+                    : 'text-text-muted hover:text-text-body active:bg-muted/60'
                 }`}
                 style={{
-                  width: 60,
-                  height: 60,
-                  minWidth: 60,
-                  minHeight: 60,
+                  width: 64,
+                  height: 64,
+                  minWidth: 64,
+                  minHeight: 64,
                 }}
-                whileTap={{ scale: 0.92 }}
+                whileTap={{ scale: 0.9 }}
                 aria-label={`Navigate to ${item.label}`}
               >
                 <Icon className={`w-6 h-6 ${isActive ? 'text-primary-foreground' : 'text-current'}`} />
-                <span className={`text-[10px] font-semibold mt-0.5 ${isActive ? 'text-primary-foreground' : 'text-current'}`}>
+                <span className={`text-[10px] font-semibold mt-1 ${isActive ? 'text-primary-foreground' : 'text-current'}`}>
                   {item.label}
                 </span>
                 
@@ -103,7 +105,7 @@ export const MobileBottomDock = () => {
                 {isActive && (
                   <motion.div
                     layoutId="dockActiveGlow"
-                    className="absolute inset-0 rounded-full bg-primary/40 -z-10 blur-lg"
+                    className="absolute inset-0 rounded-full bg-primary/50 -z-10 blur-xl"
                     transition={{ type: "spring", stiffness: 500, damping: 30 }}
                   />
                 )}
