@@ -18,7 +18,9 @@ import { GoalVisualization } from "@/components/gamification/GoalVisualization";
 import { HabitStackCard } from "@/components/gamification/HabitStackCard";
 import { DailyBriefingModal } from "@/components/feed/DailyBriefingModal";
 import { DidYouKnowCard } from "@/components/feed/DidYouKnowCard";
-import { MessageSquare, Repeat, PiggyBank, Settings, Sparkles, BookOpen } from "lucide-react";
+import { MobileDashboardHero } from "@/components/mobile/MobileDashboardHero";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { MessageSquare, Repeat, PiggyBank, Settings, Sparkles, BookOpen, CreditCard } from "lucide-react";
 
 const Dashboard = () => {
   const { user, loading } = useAuth();
@@ -28,6 +30,7 @@ const Dashboard = () => {
   const [cardsLoading, setCardsLoading] = useState(true);
   const [showBriefing, setShowBriefing] = useState(false);
   const { toast } = useToast();
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     if (searchParams.get('setup_completed') === 'true') {
@@ -116,8 +119,37 @@ const Dashboard = () => {
           </div>
         </div>
 
-        {/* Spend Defense + Habit Stack Row */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6 mb-6">
+        {/* Mobile Hero - Progress Rings and Big Numbers */}
+        {isMobile && !cardsLoading && (
+          <div className="mb-6">
+            <MobileDashboardHero animationDelay={0.05} />
+          </div>
+        )}
+
+        {/* Mobile Quick Swipe CTA */}
+        {isMobile && !cardsLoading && (
+          <motion.button
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            onClick={() => navigate('/swipe')}
+            className="w-full mb-6 p-4 bg-gradient-to-r from-primary to-primary/80 rounded-2xl flex items-center justify-between shadow-lg"
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center">
+                <CreditCard className="w-6 h-6 text-white" />
+              </div>
+              <div className="text-left">
+                <p className="font-bold text-white">Daily Swipe</p>
+                <p className="text-sm text-white/80">Review 5 transactions</p>
+              </div>
+            </div>
+            <div className="text-2xl">👉</div>
+          </motion.button>
+        )}
+
+        {/* Spend Defense + Habit Stack Row - Hidden on mobile (replaced by hero) */}
+        <div className="hidden md:grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6 mb-6">
           {/* Spend Defense Health Bar - Gamification */}
           <div>
             {cardsLoading ? <SkeletonLoader variant="card" /> : <SpendDefenseBar dailyBudget={80} spentToday={0} streakDays={3} animationDelay={0} />}
