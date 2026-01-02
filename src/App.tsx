@@ -5,7 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { ThemeProvider } from "next-themes";
-import { BottomNavigation } from "@/components/mobile/BottomNavigation";
+import { MobileBottomDock } from "@/components/mobile/MobileBottomDock";
 import { FloatingChatButton } from "@/components/ui/FloatingChatButton";
 import { AccessibilityWrapper } from "@/components/ui/AccessibilityWrapper";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -36,6 +36,7 @@ import ProMode from "./pages/ProMode";
 import MarketDashboard from "./pages/MarketDashboard";
 import SupplyChain from "./pages/SupplyChain";
 import Subscriptions from "./pages/Subscriptions";
+import Swipe from "./pages/Swipe";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -73,12 +74,13 @@ const AppContent = () => {
         <Route path="/market-dashboard" element={<MarketDashboard />} />
         <Route path="/supply-chain" element={<SupplyChain />} />
         <Route path="/subscriptions" element={<Subscriptions />} />
+        <Route path="/swipe" element={<Swipe />} />
         {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
         <Route path="*" element={<NotFound />} />
       </Routes>
       
-      {/* Mobile Bottom Navigation - only show on mobile */}
-      {isMobile && <BottomNavigation />}
+      {/* Mobile Bottom Dock - Floating pill navigation */}
+      {isMobile && <MobileBottomDock />}
       
       {/* Desktop Floating Chat Button - only show on desktop */}
       {!isMobile && <FloatingChatButton />}
