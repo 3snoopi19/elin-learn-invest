@@ -121,25 +121,25 @@ const Dashboard = () => {
         </div>
       )}
 
-      {/* Mobile Quick Swipe CTA */}
+      {/* Mobile Quick Swipe CTA - Compact */}
       {isMobile && !cardsLoading && (
         <motion.button
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
           onClick={() => navigate('/swipe')}
-          className="w-full mb-8 p-4 bg-gradient-to-r from-primary to-primary/80 rounded-3xl flex items-center justify-between shadow-lg"
+          className="w-full mb-5 p-3 bg-gradient-to-r from-primary to-primary/80 rounded-2xl flex items-center justify-between shadow-lg"
         >
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-2xl bg-white/20 flex items-center justify-center">
-              <CreditCard className="w-6 h-6 text-white" />
+          <div className="flex items-center gap-2.5">
+            <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center">
+              <CreditCard className="w-5 h-5 text-white" />
             </div>
             <div className="text-left">
-              <p className="font-bold text-white">Daily Swipe</p>
-              <p className="text-sm text-white/80">Review 5 transactions</p>
+              <p className="font-semibold text-white text-sm">Daily Swipe</p>
+              <p className="text-xs text-white/80">Review transactions</p>
             </div>
           </div>
-          <div className="text-2xl">👉</div>
+          <div className="text-xl">👉</div>
         </motion.button>
       )}
 

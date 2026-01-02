@@ -18,9 +18,9 @@ export const MainLayout = () => {
         <Header />
       </div>
 
-      {/* Main Content Area - Scrollable */}
-      <main className="flex-1 w-full overflow-y-auto">
-        <div className="pb-48 md:pb-8">
+      {/* Main Content Area - Scrollable with z-0 to stay behind dock */}
+      <main className="flex-1 w-full overflow-y-auto z-0 relative">
+        <div className="pb-40 md:pb-8">
           <Outlet />
         </div>
       </main>
