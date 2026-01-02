@@ -32,35 +32,33 @@ const SwipePage = () => {
   if (!user) return null;
 
   return (
-    <div className="min-h-screen bg-background pb-32">
+    <div className="px-4 pt-4">
       {/* Minimal Header */}
-      <header className="sticky top-0 z-40 bg-background/95 backdrop-blur-xl border-b border-border/30">
-        <div className="flex items-center justify-between px-4 h-14">
-          <button 
-            onClick={() => navigate('/dashboard')}
-            className="p-2 -ml-2 rounded-full hover:bg-muted transition-colors"
-          >
-            <ArrowLeft className="w-5 h-5 text-text-muted" />
-          </button>
-          
-          <motion.h1 
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-lg font-bold text-text-heading flex items-center gap-2"
-          >
-            <Sparkles className="w-5 h-5 text-primary" />
-            Daily Swipe
-          </motion.h1>
-          
-          <div className="w-9" /> {/* Spacer for centering */}
-        </div>
+      <header className="flex items-center justify-between mb-4">
+        <button 
+          onClick={() => navigate('/dashboard')}
+          className="p-2 -ml-2 rounded-full hover:bg-muted transition-colors"
+        >
+          <ArrowLeft className="w-5 h-5 text-text-muted" />
+        </button>
+        
+        <motion.h1 
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="text-lg font-bold text-text-heading flex items-center gap-2"
+        >
+          <Sparkles className="w-5 h-5 text-primary" />
+          Daily Swipe
+        </motion.h1>
+        
+        <div className="w-9" /> {/* Spacer for centering */}
       </header>
 
       {/* Hero Text */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="text-center px-6 pt-6 pb-4"
+        className="text-center px-2 pt-2 pb-4"
       >
         <h2 className="text-2xl font-black text-text-heading mb-1">
           Review Your Day
