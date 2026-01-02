@@ -121,7 +121,7 @@ const Dashboard = () => {
 
         {/* Mobile Hero - Progress Rings and Big Numbers */}
         {isMobile && !cardsLoading && (
-          <div className="mb-6">
+          <div className="mb-5">
             <MobileDashboardHero animationDelay={0.05} />
           </div>
         )}
@@ -133,10 +133,10 @@ const Dashboard = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
             onClick={() => navigate('/swipe')}
-            className="w-full mb-6 p-4 bg-gradient-to-r from-primary to-primary/80 rounded-2xl flex items-center justify-between shadow-lg"
+            className="w-full mb-8 p-4 bg-gradient-to-r from-primary to-primary/80 rounded-3xl flex items-center justify-between shadow-lg"
           >
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center">
+              <div className="w-12 h-12 rounded-2xl bg-white/20 flex items-center justify-center">
                 <CreditCard className="w-6 h-6 text-white" />
               </div>
               <div className="text-left">
@@ -191,12 +191,12 @@ const Dashboard = () => {
         </div>
 
         {/* Did You Know Card - Show on mobile as simple tip */}
-        <div className="mb-6">
+        <div className="mb-8">
           {cardsLoading ? <SkeletonLoader variant="card" /> : <DidYouKnowCard animationDelay={0.55} />}
         </div>
 
         {/* Transactions Feed - Simplified on mobile */}
-        <div className="mb-8">
+        <div className="mb-6 md:mb-8">
           {cardsLoading ? <SkeletonLoader variant="list" /> : <TransactionsFeed animationDelay={0.6} />}
         </div>
 

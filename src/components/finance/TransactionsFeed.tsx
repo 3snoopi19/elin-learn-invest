@@ -102,27 +102,30 @@ export const TransactionsFeed = ({ transactions = mockTransactions, animationDel
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, delay: animationDelay }}
     >
-      <Card className="professional-card">
-        <CardHeader className="pb-2">
+      <Card className="professional-card rounded-3xl md:rounded-xl overflow-hidden">
+        <CardHeader className="pb-3 px-5 pt-5 md:px-4 md:pt-4">
           <div className="flex items-center justify-between">
-            <CardTitle className="text-lg font-semibold text-text-heading flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-primary/20 flex items-center justify-center">
+            {/* Mobile: Minimal header */}
+            <div className="md:flex md:items-center md:gap-2">
+              <div className="hidden md:flex w-8 h-8 rounded-lg bg-primary/20 items-center justify-center">
                 <Receipt className="w-4 h-4 text-primary" />
               </div>
-              Recent Transactions
-            </CardTitle>
-            <Button variant="ghost" size="sm" className="text-text-muted hover:text-text-heading">
+              <span className="text-[11px] font-semibold uppercase tracking-widest text-text-muted md:text-lg md:font-semibold md:normal-case md:tracking-normal md:text-text-heading">
+                Recent Transactions
+              </span>
+            </div>
+            <Button variant="ghost" size="sm" className="text-text-muted hover:text-text-heading h-8 text-xs">
               View All
               <ChevronRight className="w-4 h-4 ml-1" />
             </Button>
           </div>
         </CardHeader>
         <CardContent className="p-0">
-          <ScrollArea className="h-[400px]">
-            <div className="p-4 space-y-4">
+          <ScrollArea className="h-[400px] md:h-[400px]">
+            <div className="px-3 pb-6 md:px-4 md:pb-4 space-y-5">
               {Object.entries(groupedTransactions).map(([dateKey, txns]) => (
                 <div key={dateKey} className="space-y-2">
-                  <div className="text-xs font-medium text-text-muted uppercase tracking-wider px-1">
+                  <div className="text-[10px] font-semibold text-text-muted uppercase tracking-widest px-2">
                     {formatDate(new Date(dateKey))}
                   </div>
                   <div className="space-y-1">
@@ -134,10 +137,10 @@ export const TransactionsFeed = ({ transactions = mockTransactions, animationDel
                       return (
                         <div
                           key={transaction.id}
-                          className="flex items-center justify-between p-3 rounded-lg hover:bg-muted/50 transition-colors cursor-pointer group"
+                          className="flex items-center justify-between py-3 px-3 rounded-2xl hover:bg-muted/50 transition-colors cursor-pointer group"
                         >
                           <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-xl bg-card border border-border/50 flex items-center justify-center text-lg shadow-sm">
+                            <div className="w-11 h-11 rounded-2xl bg-card border border-border/50 flex items-center justify-center text-xl shadow-sm">
                               {logo}
                             </div>
                             <div>
@@ -146,23 +149,18 @@ export const TransactionsFeed = ({ transactions = mockTransactions, animationDel
                                   {transaction.merchantName}
                                 </span>
                                 {transaction.isSubscription && (
-                                  <Badge variant="outline" className="text-[10px] px-1.5 py-0 bg-primary/10 text-primary border-primary/30">
-                                    Subscription
-                                  </Badge>
-                                )}
-                                {transaction.isRecurring && !transaction.isSubscription && (
-                                  <Badge variant="outline" className="text-[10px] px-1.5 py-0">
-                                    Recurring
+                                  <Badge variant="outline" className="text-[9px] px-1.5 py-0 bg-primary/10 text-primary border-primary/30 rounded-lg">
+                                    Sub
                                   </Badge>
                                 )}
                               </div>
-                              <div className={`flex items-center gap-1.5 text-xs ${colorClass} mt-0.5`}>
+                              <div className={`flex items-center gap-1 text-[11px] ${colorClass} mt-0.5`}>
                                 <Icon className="w-3 h-3" />
                                 {transaction.category}
                               </div>
                             </div>
                           </div>
-                          <div className={`text-sm font-semibold ${transaction.amount < 0 ? 'text-text-heading' : 'text-success'}`}>
+                          <div className={`text-base font-bold ${transaction.amount < 0 ? 'text-foreground' : 'text-success'}`}>
                             {transaction.amount < 0 ? '-' : '+'}${Math.abs(transaction.amount).toFixed(2)}
                           </div>
                         </div>

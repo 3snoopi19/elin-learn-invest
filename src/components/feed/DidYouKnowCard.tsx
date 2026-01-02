@@ -164,29 +164,30 @@ export function DidYouKnowCard({ animationDelay = 0, userContext }: DidYouKnowCa
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, delay: animationDelay }}
     >
-      <Card className="bg-gradient-to-br from-primary/10 via-primary/5 to-background border-primary/20 overflow-hidden relative">
-        <CardContent className="p-4 md:p-5">
+      {/* Mobile: Glass effect card */}
+      <Card className="bg-card/80 backdrop-blur-xl border-border/50 overflow-hidden relative rounded-3xl md:rounded-xl md:bg-gradient-to-br md:from-primary/10 md:via-primary/5 md:to-background md:border-primary/20">
+        <CardContent className="p-5 md:p-5">
           {/* Dismiss button */}
           <button
             onClick={() => setIsDismissed(true)}
-            className="absolute top-3 right-3 p-1 rounded-full hover:bg-muted/50 transition-colors text-muted-foreground hover:text-foreground"
+            className="absolute top-4 right-4 p-1.5 rounded-full hover:bg-muted/50 transition-colors text-muted-foreground hover:text-foreground"
           >
             <X className="w-4 h-4" />
           </button>
 
           <div className="flex items-start gap-4">
             {/* Icon */}
-            <div className="flex-shrink-0 w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
+            <div className="flex-shrink-0 w-11 h-11 rounded-2xl bg-primary/15 flex items-center justify-center">
               <Lightbulb className="w-5 h-5 text-primary" />
             </div>
 
             {/* Content */}
             <div className="flex-1 min-w-0 pr-6">
-              <div className="flex items-center gap-2 mb-1">
-                <span className="text-xs font-medium text-primary uppercase tracking-wide">
+              <div className="flex items-center gap-2 mb-1.5">
+                <span className="text-[10px] font-semibold text-primary uppercase tracking-widest">
                   Did You Know?
                 </span>
-                <span className="text-xs text-muted-foreground">
+                <span className="text-[10px] text-text-muted">
                   {currentTipIndex + 1}/{relevantTips.length}
                 </span>
               </div>
@@ -199,10 +200,10 @@ export function DidYouKnowCard({ animationDelay = 0, userContext }: DidYouKnowCa
                   exit={{ opacity: 0, x: -20 }}
                   transition={{ duration: 0.2 }}
                 >
-                  <h3 className="font-semibold text-foreground mb-1">
+                  <h3 className="font-semibold text-foreground mb-1.5 text-sm">
                     {currentTip.title}
                   </h3>
-                  <p className="text-sm text-muted-foreground leading-relaxed mb-3">
+                  <p className="text-sm text-text-secondary leading-relaxed mb-4">
                     {currentTip.content}
                   </p>
 
@@ -211,7 +212,7 @@ export function DidYouKnowCard({ animationDelay = 0, userContext }: DidYouKnowCa
                       <Button
                         size="sm"
                         variant="secondary"
-                        className="h-8 text-xs"
+                        className="h-9 text-xs rounded-xl"
                         onClick={() => navigate(currentTip.actionRoute!)}
                       >
                         {currentTip.actionLabel}
@@ -221,11 +222,11 @@ export function DidYouKnowCard({ animationDelay = 0, userContext }: DidYouKnowCa
                     <Button
                       size="sm"
                       variant="ghost"
-                      className="h-8 text-xs text-muted-foreground"
+                      className="h-9 text-xs text-text-muted rounded-xl"
                       onClick={nextTip}
                     >
                       <RefreshCw className="w-3 h-3 mr-1" />
-                      Next Tip
+                      Next
                     </Button>
                   </div>
                 </motion.div>
@@ -234,15 +235,15 @@ export function DidYouKnowCard({ animationDelay = 0, userContext }: DidYouKnowCa
           </div>
 
           {/* Progress dots */}
-          <div className="flex justify-center gap-1 mt-4">
+          <div className="flex justify-center gap-1.5 mt-5">
             {relevantTips.map((_, index) => (
               <button
                 key={index}
                 onClick={() => setCurrentTipIndex(index)}
-                className={`w-1.5 h-1.5 rounded-full transition-all ${
+                className={`h-1.5 rounded-full transition-all ${
                   index === currentTipIndex 
-                    ? "bg-primary w-4" 
-                    : "bg-primary/30 hover:bg-primary/50"
+                    ? "bg-primary w-5" 
+                    : "bg-border w-1.5 hover:bg-primary/40"
                 }`}
               />
             ))}
