@@ -61,7 +61,7 @@ export const MobileBottomDock = () => {
         stiffness: 300,
         damping: 30
       }}
-      className="fixed bottom-0 left-0 right-0 z-[100] md:hidden"
+      className="fixed bottom-0 left-0 right-0 z-50 md:hidden"
       style={{ 
         paddingBottom: 'env(safe-area-inset-bottom, 0px)',
       }}
