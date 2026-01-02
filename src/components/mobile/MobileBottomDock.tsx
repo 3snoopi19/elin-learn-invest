@@ -61,14 +61,14 @@ export const MobileBottomDock = () => {
         stiffness: 300,
         damping: 30
       }}
-      // The "Anchor" - fixed positioning with safe area support
-      className="fixed bottom-4 left-4 right-4 z-50 md:hidden"
+      // The "Anchor" - fixed positioning ~20px from bottom, centered with side margins
+      className="fixed bottom-5 left-4 right-4 z-50 md:hidden"
       style={{ 
         paddingBottom: 'env(safe-area-inset-bottom, 0px)',
       }}
     >
-      {/* Dock container - floating pill design */}
-      <div className="flex items-center justify-center gap-2 h-16 px-4 rounded-full backdrop-blur-xl bg-black/40 border border-white/10 shadow-2xl">
+      {/* Dock container - Floating Glass Pill */}
+      <div className="flex items-center justify-center gap-3 h-[72px] px-6 mx-auto max-w-sm rounded-full bg-black/60 backdrop-blur-xl border border-white/10 shadow-2xl">
         {dockItems.map((item) => {
           const Icon = item.icon;
           const isActive = location.pathname === item.path;
@@ -77,16 +77,16 @@ export const MobileBottomDock = () => {
             <motion.button
               key={item.id}
               onClick={() => handleNavigation(item.path)}
-              className={`relative flex flex-col items-center justify-center w-16 h-14 rounded-2xl transition-all duration-300 ${
+              className={`relative flex flex-col items-center justify-center w-18 h-16 px-4 rounded-2xl transition-all duration-300 ${
                 isActive 
                   ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/40' 
-                  : 'text-white/70 hover:text-white active:bg-white/10'
+                  : 'text-white/60 hover:text-white active:bg-white/10'
               }`}
               whileTap={{ scale: 0.9 }}
               aria-label={`Navigate to ${item.label}`}
             >
-              <Icon className="w-5 h-5" />
-              <span className="text-[9px] font-semibold mt-0.5">
+              <Icon className="w-6 h-6" />
+              <span className="text-[10px] font-semibold mt-1 tracking-wide">
                 {item.label}
               </span>
               

@@ -31,39 +31,39 @@ export const MobileDashboardHero = ({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, delay: animationDelay }}
-      className="bg-card/80 backdrop-blur-xl rounded-3xl border border-border/50 shadow-xl md:hidden
-        p-3 min-[700px]:p-5"
+      className="bg-gradient-to-br from-primary/15 via-card to-background backdrop-blur-xl rounded-3xl border border-white/10 shadow-2xl md:hidden
+        py-6 px-4 min-[700px]:py-8 min-[700px]:px-6"
     >
-      {/* Net Worth - Responsive sizing */}
-      <div className="text-center mb-2 min-[700px]:mb-4">
-        <p className="text-[9px] min-[700px]:text-[10px] font-semibold uppercase tracking-widest text-text-muted mb-0.5 min-[700px]:mb-1 flex items-center justify-center gap-1">
-          <Wallet className="w-2.5 h-2.5 min-[700px]:w-3 min-[700px]:h-3" />
+      {/* Net Worth - Premium typography hierarchy */}
+      <div className="text-center mb-4 min-[700px]:mb-6">
+        <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-1 min-[700px]:mb-2 flex items-center justify-center gap-1.5">
+          <Wallet className="w-3 h-3 min-[700px]:w-3.5 min-[700px]:h-3.5" />
           Net Worth
         </p>
         <motion.h1
           initial={{ scale: 0.8, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           transition={{ delay: animationDelay + 0.2, type: "spring" }}
-          className="text-2xl min-[700px]:text-4xl font-black text-foreground tracking-tight leading-none"
+          className="text-3xl min-[700px]:text-5xl font-black text-white tracking-tight leading-none"
         >
           ${netWorth.toLocaleString('en-US', { minimumFractionDigits: 2 })}
         </motion.h1>
-        <div className="flex items-center justify-center gap-1 mt-0.5 min-[700px]:mt-1">
-          <TrendingUp className="w-3 h-3 min-[700px]:w-3.5 min-[700px]:h-3.5 text-success" />
-          <span className="text-[10px] min-[700px]:text-xs font-bold text-success">+2.4%</span>
-          <span className="text-[9px] min-[700px]:text-[10px] text-text-muted">this month</span>
+        <div className="flex items-center justify-center gap-1.5 mt-1.5 min-[700px]:mt-2">
+          <TrendingUp className="w-3.5 h-3.5 min-[700px]:w-4 min-[700px]:h-4 text-success" />
+          <span className="text-xs min-[700px]:text-sm font-bold text-success">+2.4%</span>
+          <span className="text-[10px] min-[700px]:text-xs text-muted-foreground">this month</span>
         </div>
       </div>
 
-      {/* Progress Rings Row - Responsive sizing */}
+      {/* Progress Rings Row - Responsive sizing with clear labels */}
       <div className="flex justify-around items-start">
         {/* Daily Spend Ring */}
         <div className="flex flex-col items-center">
           <div className="min-[700px]:hidden">
             <ProgressRing
               progress={spendPercent}
-              size={56}
-              strokeWidth={5}
+              size={64}
+              strokeWidth={6}
               color={isUnderBudget ? "hsl(var(--success))" : "hsl(var(--destructive))"}
               value={`$${dailySpend.toFixed(0)}`}
               label="spent"
@@ -72,14 +72,17 @@ export const MobileDashboardHero = ({
           <div className="hidden min-[700px]:block">
             <ProgressRing
               progress={spendPercent}
-              size={80}
-              strokeWidth={7}
+              size={88}
+              strokeWidth={8}
               color={isUnderBudget ? "hsl(var(--success))" : "hsl(var(--destructive))"}
               value={`$${dailySpend.toFixed(0)}`}
               label="spent"
             />
           </div>
-          <p className="text-[9px] min-[700px]:text-[10px] text-text-muted mt-0.5 min-[700px]:mt-1 font-medium">
+          <p className="text-[10px] min-[700px]:text-xs text-muted-foreground mt-2 font-semibold uppercase tracking-wide">
+            Spent Today
+          </p>
+          <p className="text-[9px] min-[700px]:text-[10px] text-muted-foreground/70 font-medium">
             ${remaining.toFixed(0)} left
           </p>
         </div>
@@ -89,8 +92,8 @@ export const MobileDashboardHero = ({
           <div className="min-[700px]:hidden">
             <ProgressRing
               progress={savingsProgress}
-              size={56}
-              strokeWidth={5}
+              size={64}
+              strokeWidth={6}
               color="hsl(var(--primary))"
               value={`${savingsProgress}%`}
               label="saved"
@@ -99,14 +102,17 @@ export const MobileDashboardHero = ({
           <div className="hidden min-[700px]:block">
             <ProgressRing
               progress={savingsProgress}
-              size={80}
-              strokeWidth={7}
+              size={88}
+              strokeWidth={8}
               color="hsl(var(--primary))"
               value={`${savingsProgress}%`}
               label="saved"
             />
           </div>
-          <p className="text-[9px] min-[700px]:text-[10px] text-text-muted mt-0.5 min-[700px]:mt-1 font-medium">
+          <p className="text-[10px] min-[700px]:text-xs text-muted-foreground mt-2 font-semibold uppercase tracking-wide">
+            Saved
+          </p>
+          <p className="text-[9px] min-[700px]:text-[10px] text-muted-foreground/70 font-medium">
             Emergency fund
           </p>
         </div>
