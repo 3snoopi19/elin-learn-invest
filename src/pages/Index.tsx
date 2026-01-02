@@ -6,7 +6,22 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
-import { BookOpen, Shield, TrendingUp, Users, CheckCircle, Star, Brain, PieChart, Settings, MessageSquare, Play, Award } from "lucide-react";
+import { motion } from "framer-motion";
+import { PhoneMockup } from "@/components/landing/PhoneMockup";
+import { 
+  Shield, 
+  TrendingUp, 
+  CheckCircle, 
+  Star, 
+  Brain, 
+  MessageSquare, 
+  Play, 
+  Award,
+  Zap,
+  CreditCard,
+  Target,
+  Sparkles
+} from "lucide-react";
 
 const Index = () => {
   const { user } = useAuth();
@@ -21,122 +36,254 @@ const Index = () => {
 
   const visualFeatures = [
     {
+      icon: CreditCard,
+      title: "The Daily Swipe",
+      description: "Clear your transaction stack every morning. Train your AI to spot bad habits instantly.",
+      highlight: true,
+    },
+    {
       icon: Brain,
-      title: "AI-Powered Learning Paths",
-      description: "Lessons adapt as you progress",
+      title: "AI-Powered Insights",
+      description: "ELIN learns your patterns and coaches you to smarter spending.",
     },
     {
-      icon: PieChart,
-      title: "Portfolio Snapshot",
-      description: "Instant diversification & risk health check",
-    },
-    {
-      icon: Settings,
-      title: "Scenario Builder",
-      description: "Test \"what-if\" investment scenarios",
+      icon: Target,
+      title: "Gamified Goals",
+      description: "Turn saving into a game with streaks, badges, and progress rings.",
     },
     {
       icon: MessageSquare,
-      title: "Daily Journal + AI Feedback",
-      description: "Reflect daily with ELIN's coaching",
+      title: "Chat with ELIN",
+      description: "Ask anything about money—get instant, personalized answers.",
     },
   ];
 
   const testimonials = [
     {
       name: "Sarah M.",
-      role: "New Investor",
-      content: "ELIN's portfolio check gave me instant clarity about my risk exposure. I finally understand diversification!",
+      role: "Saved $400/month",
+      content: "The swipe feature made me realize how much I was wasting on coffee runs. Now I actually think before I spend!",
       rating: 5,
       avatar: "👩‍💼"
     },
     {
       name: "Mike R.",
-      role: "Career Changer", 
-      content: "The scenario builder helped me test different investment strategies before committing real money.",
+      role: "Debt-free in 8 months", 
+      content: "30 seconds every morning. That's all it takes. I've never stuck with a finance app this long.",
       rating: 5,
       avatar: "👨‍💻"
     },
     {
       name: "Jennifer L.",
-      role: "College Graduate",
-      content: "The daily journal feature with AI feedback keeps me accountable and learning every day.",
+      role: "First-time investor",
+      content: "Finally, an app that doesn't feel like homework. Swiping through my spending is actually... fun?",
       rating: 5,
       avatar: "👩‍🎓"
     }
   ];
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background overflow-hidden">
       <Header />
       
-      {/* Hero Section - Mobile optimized */}
-      <section className="py-12 md:py-20 px-4 bg-gradient-to-br from-background via-primary/5 to-education/5">
-        <div className="container mx-auto text-center mobile-container">
-          <Badge variant="secondary" className="mb-4 animate-fade-in text-xs md:text-sm">
-            🎉 Now with SEC Filing Integration
-          </Badge>
-          
-          <h1 className="text-2xl sm:text-3xl md:text-5xl lg:text-6xl font-bold mb-4 md:mb-6 bg-gradient-to-r from-primary to-education bg-clip-text text-transparent animate-fade-in leading-tight px-2">
-            Meet ELIN — Your Personal AI Investing Coach
-          </h1>
-          
-          <p className="text-base md:text-xl text-muted-foreground mb-6 md:mb-8 max-w-2xl mx-auto animate-fade-in px-4">
-            Learn smarter, invest confidently, and grow your wealth with AI.
-          </p>
-          
-          <div className="flex flex-col sm:flex-row gap-3 md:gap-4 justify-center animate-fade-in px-4">
-            <Button size="lg" onClick={() => navigate('/auth?mode=signup')} className="text-base md:text-lg px-6 md:px-8 bg-primary hover:bg-primary-hover text-primary-foreground mobile-button w-full sm:w-auto">
-              Start Learning Free
-            </Button>
-            <Button size="lg" variant="outline" className="text-base md:text-lg px-6 md:px-8 gap-2 border-primary text-primary hover:bg-primary/10 mobile-button w-full sm:w-auto" onClick={() => navigate('/risk-quiz')}>
-              <Play className="h-4 w-4 md:h-5 md:w-5" />
-              Take Risk Quiz
-            </Button>
-          </div>
-          
-          <div className="mt-6 md:mt-8 flex flex-wrap items-center justify-center gap-3 md:gap-4 text-xs md:text-sm text-muted-foreground animate-fade-in">
-            <div className="flex items-center">
-              <CheckCircle className="h-3 w-3 md:h-4 md:w-4 mr-1 text-success" />
-              7-day free trial
-            </div>
-            <div className="flex items-center">
-              <CheckCircle className="h-3 w-3 md:h-4 md:w-4 mr-1 text-success" />
-              Educational only
-            </div>
-            <div className="flex items-center">
-              <CheckCircle className="h-3 w-3 md:h-4 md:w-4 mr-1 text-success" />
-              No investment advice
+      {/* Hero Section - Mobile-First Swipe Concept */}
+      <section className="relative py-12 md:py-20 px-4 overflow-hidden">
+        {/* Background gradient */}
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-background to-success/5 -z-10" />
+        
+        {/* Floating shapes */}
+        <motion.div
+          animate={{ 
+            y: [0, -20, 0],
+            rotate: [0, 5, 0]
+          }}
+          transition={{ duration: 6, repeat: Infinity }}
+          className="absolute top-20 left-10 w-20 h-20 bg-primary/10 rounded-full blur-2xl"
+        />
+        <motion.div
+          animate={{ 
+            y: [0, 20, 0],
+            rotate: [0, -5, 0]
+          }}
+          transition={{ duration: 8, repeat: Infinity }}
+          className="absolute bottom-20 right-10 w-32 h-32 bg-success/10 rounded-full blur-3xl"
+        />
+
+        <div className="container mx-auto mobile-container">
+          <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
+            {/* Left - Copy */}
+            <motion.div
+              initial={{ opacity: 0, x: -40 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.6 }}
+              className="text-center lg:text-left order-2 lg:order-1"
+            >
+              <Badge variant="secondary" className="mb-4 animate-fade-in text-xs md:text-sm bg-primary/10 text-primary border-primary/20">
+                <Zap className="w-3 h-3 mr-1" />
+                30 seconds a day
+              </Badge>
+              
+              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black mb-4 md:mb-6 leading-tight">
+                <span className="text-text-heading">Don't Budget.</span>
+                <br />
+                <span className="bg-gradient-to-r from-primary via-primary to-success bg-clip-text text-transparent">
+                  Just Swipe.
+                </span>
+              </h1>
+              
+              <p className="text-base md:text-xl text-text-secondary mb-6 md:mb-8 max-w-lg mx-auto lg:mx-0">
+                The world's first <span className="font-semibold text-primary">"Tinder-for-Finance"</span> interface. 
+                Swipe left on waste, swipe right on wealth. Master your money in 30 seconds a day.
+              </p>
+              
+              <div className="flex flex-col sm:flex-row gap-3 md:gap-4 justify-center lg:justify-start">
+                <Button 
+                  size="lg" 
+                  onClick={() => navigate('/auth?mode=signup')} 
+                  className="text-base md:text-lg px-6 md:px-8 bg-primary hover:bg-primary-hover text-primary-foreground shadow-lg shadow-primary/25 w-full sm:w-auto group"
+                >
+                  <Sparkles className="w-5 h-5 mr-2 group-hover:animate-pulse" />
+                  Start Swiping — Free Trial
+                </Button>
+                <Button 
+                  size="lg" 
+                  variant="outline" 
+                  className="text-base md:text-lg px-6 md:px-8 gap-2 border-border text-text-body hover:bg-muted/50 w-full sm:w-auto" 
+                  onClick={() => navigate('/risk-quiz')}
+                >
+                  <Play className="h-4 w-4 md:h-5 md:w-5" />
+                  See How It Works
+                </Button>
+              </div>
+              
+              {/* Trust indicators */}
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.5 }}
+                className="mt-6 md:mt-8 flex flex-wrap items-center justify-center lg:justify-start gap-4 md:gap-6 text-xs md:text-sm text-text-muted"
+              >
+                <div className="flex items-center gap-1.5">
+                  <CheckCircle className="h-4 w-4 text-success" />
+                  <span>Free forever plan</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <CheckCircle className="h-4 w-4 text-success" />
+                  <span>No credit card</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <CheckCircle className="h-4 w-4 text-success" />
+                  <span>Works offline</span>
+                </div>
+              </motion.div>
+            </motion.div>
+
+            {/* Right - Phone Mockup */}
+            <div className="flex justify-center lg:justify-end order-1 lg:order-2">
+              <PhoneMockup />
             </div>
           </div>
         </div>
       </section>
 
       {/* Visual Features Section */}
-      <section className="py-12 md:py-20 px-4">
+      <section className="py-12 md:py-20 px-4 bg-muted/30">
         <div className="container mx-auto mobile-container">
-          <div className="text-center mb-8 md:mb-16">
-            <h2 className="text-2xl md:text-3xl font-bold mb-3 md:mb-4">Powerful Tools for Smart Investing</h2>
-            <p className="text-base md:text-xl text-muted-foreground max-w-2xl mx-auto px-2">
-              AI-powered features that adapt to your learning style and help you make informed decisions.
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-center mb-8 md:mb-16"
+          >
+            <Badge variant="secondary" className="mb-4 text-xs">HOW IT WORKS</Badge>
+            <h2 className="text-2xl md:text-4xl font-bold mb-3 md:mb-4">
+              Finance That Feels Like <span className="text-primary">Social Media</span>
+            </h2>
+            <p className="text-base md:text-xl text-text-secondary max-w-2xl mx-auto px-2">
+              Fast, addictive, and actually good for you. No spreadsheets. No guilt trips.
             </p>
-          </div>
+          </motion.div>
           
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
             {visualFeatures.map((feature, index) => (
-              <Card key={index} className="text-center hover:shadow-lg transition-all duration-300 hover-scale group mobile-card">
-                <CardHeader className="pb-2 md:pb-4">
-                  <div className="bg-primary/10 w-12 h-12 md:w-16 md:h-16 rounded-full flex items-center justify-center mx-auto mb-3 md:mb-4 group-hover:bg-primary/20 transition-colors">
-                    <feature.icon className="h-6 w-6 md:h-8 md:w-8 text-primary" />
-                  </div>
-                  <CardTitle className="text-base md:text-xl">{feature.title}</CardTitle>
-                </CardHeader>
-                <CardContent className="pt-0">
-                  <CardDescription className="text-sm md:text-base">
-                    {feature.description}
-                  </CardDescription>
-                </CardContent>
-              </Card>
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: index * 0.1 }}
+              >
+                <Card className={`text-center hover:shadow-lg transition-all duration-300 hover-scale group h-full ${
+                  feature.highlight ? 'ring-2 ring-primary/50 bg-primary/5' : ''
+                }`}>
+                  <CardHeader className="pb-2 md:pb-4">
+                    <div className={`w-12 h-12 md:w-16 md:h-16 rounded-2xl flex items-center justify-center mx-auto mb-3 md:mb-4 transition-colors ${
+                      feature.highlight 
+                        ? 'bg-primary text-primary-foreground' 
+                        : 'bg-primary/10 group-hover:bg-primary/20'
+                    }`}>
+                      <feature.icon className={`h-6 w-6 md:h-8 md:w-8 ${feature.highlight ? '' : 'text-primary'}`} />
+                    </div>
+                    <CardTitle className="text-base md:text-xl">{feature.title}</CardTitle>
+                    {feature.highlight && (
+                      <Badge className="mx-auto mt-2 bg-primary/20 text-primary border-0 text-xs">
+                        ⭐ Core Feature
+                      </Badge>
+                    )}
+                  </CardHeader>
+                  <CardContent className="pt-0">
+                    <CardDescription className="text-sm md:text-base">
+                      {feature.description}
+                    </CardDescription>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Social Proof & Metrics */}
+      <section className="py-12 md:py-20 px-4">
+        <div className="container mx-auto text-center mobile-container">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+          >
+            <h2 className="text-xl md:text-3xl font-bold mb-3 md:mb-4 px-2">
+              Join <span className="text-primary">10,000+</span> people who swipe smarter
+            </h2>
+            <p className="text-sm md:text-lg text-text-secondary mb-8 md:mb-12">Real results from real swipers</p>
+          </motion.div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-8">
+            {testimonials.map((testimonial, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: index * 0.1 }}
+              >
+                <Card className="hover:shadow-lg transition-shadow h-full">
+                  <CardContent className="pt-4 md:pt-6">
+                    <div className="flex items-center mb-3 md:mb-4 gap-3">
+                      <div className="text-2xl md:text-3xl">{testimonial.avatar}</div>
+                      <div className="text-left">
+                        <p className="font-semibold text-sm md:text-base">{testimonial.name}</p>
+                        <p className="text-xs md:text-sm text-success font-medium">{testimonial.role}</p>
+                      </div>
+                    </div>
+                    <div className="flex mb-3 md:mb-4">
+                      {[...Array(testimonial.rating)].map((_, i) => (
+                        <Star key={i} className="h-3 w-3 md:h-4 md:w-4 fill-warning text-warning" />
+                      ))}
+                    </div>
+                    <p className="text-left italic text-sm md:text-base text-text-secondary">"{testimonial.content}"</p>
+                  </CardContent>
+                </Card>
+              </motion.div>
             ))}
           </div>
         </div>
@@ -146,49 +293,16 @@ const Index = () => {
       <section className="py-10 md:py-16 px-4 bg-muted/30">
         <div className="container mx-auto text-center mobile-container">
           <div className="max-w-4xl mx-auto">
-            <h2 className="text-xl md:text-3xl font-bold mb-4 md:mb-6">Educational Only — Not Financial Advice</h2>
-            <div className="bg-card border border-warning/20 rounded-lg p-4 md:p-6 text-left">
-              <p className="text-sm md:text-lg mb-3 md:mb-4">
-                <strong>Important Disclaimer:</strong> ELIN provides educational information about investing 
-                concepts, market fundamentals, and SEC filing analysis. We do not provide personalized 
-                investment advice, recommendations, or guarantees about future performance.
+            <h2 className="text-xl md:text-2xl font-bold mb-4 md:mb-6">Educational Only — Not Financial Advice</h2>
+            <div className="bg-card border border-border rounded-xl p-4 md:p-6 text-left">
+              <p className="text-sm md:text-base mb-3 text-text-secondary">
+                <strong className="text-text-heading">Important:</strong> ELIN helps you understand your spending habits 
+                and build better financial awareness. We provide educational tools, not personalized investment advice.
               </p>
-              <p className="text-xs md:text-base text-muted-foreground">
-                All content is for educational purposes only. For personalized investment advice 
-                tailored to your specific financial situation, please consult with a licensed 
-                financial advisor or investment professional.
+              <p className="text-xs md:text-sm text-text-muted">
+                For investment decisions, please consult with a licensed financial advisor.
               </p>
             </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Social Proof & Metrics */}
-      <section className="py-10 md:py-16 px-4 bg-muted/30">
-        <div className="container mx-auto text-center mobile-container">
-          <h2 className="text-xl md:text-3xl font-bold mb-3 md:mb-4 px-2">Trusted by 1,000+ new investors building confidence in the markets</h2>
-          <p className="text-sm md:text-lg text-muted-foreground mb-8 md:mb-12">Real feedback from real learners</p>
-          
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-8">
-            {testimonials.map((testimonial, index) => (
-              <Card key={index} className="hover:shadow-lg transition-shadow mobile-card">
-                <CardContent className="pt-4 md:pt-6">
-                  <div className="flex items-center mb-3 md:mb-4 gap-3">
-                    <div className="text-xl md:text-2xl">{testimonial.avatar}</div>
-                    <div className="text-left">
-                      <p className="font-semibold text-sm md:text-base">{testimonial.name}</p>
-                      <p className="text-xs md:text-sm text-muted-foreground">{testimonial.role}</p>
-                    </div>
-                  </div>
-                  <div className="flex mb-3 md:mb-4">
-                    {[...Array(testimonial.rating)].map((_, i) => (
-                      <Star key={i} className="h-3 w-3 md:h-4 md:w-4 fill-warning text-warning" />
-                    ))}
-                  </div>
-                  <p className="text-left italic text-sm md:text-base">"{testimonial.content}"</p>
-                </CardContent>
-              </Card>
-            ))}
           </div>
         </div>
       </section>
@@ -196,33 +310,52 @@ const Index = () => {
       {/* Trust Boosters */}
       <section className="py-8 md:py-12 px-4">
         <div className="container mx-auto mobile-container">
-          <div className="flex flex-wrap items-center justify-center gap-4 md:gap-8 text-xs md:text-sm text-muted-foreground">
+          <div className="flex flex-wrap items-center justify-center gap-6 md:gap-10 text-xs md:text-sm text-text-muted">
             <div className="flex items-center gap-2">
-              <Shield className="h-4 w-4 md:h-5 md:w-5 text-success" />
-              <span>SSL Encrypted</span>
+              <Shield className="h-5 w-5 text-success" />
+              <span>Bank-level encryption</span>
             </div>
             <div className="flex items-center gap-2">
-              <Award className="h-4 w-4 md:h-5 md:w-5 text-success" />
-              <span>SEC-EDGAR data</span>
+              <Award className="h-5 w-5 text-success" />
+              <span>Read-only access</span>
             </div>
             <div className="flex items-center gap-2">
-              <CheckCircle className="h-4 w-4 md:h-5 md:w-5 text-success" />
-              <span>Cancel anytime</span>
+              <CheckCircle className="h-5 w-5 text-success" />
+              <span>No data selling</span>
             </div>
           </div>
         </div>
       </section>
 
       {/* CTA Section */}
-      <section className="py-12 md:py-20 px-4 bg-primary text-primary-foreground">
-        <div className="container mx-auto text-center mobile-container">
-          <h2 className="text-2xl md:text-3xl font-bold mb-3 md:mb-4">Ready to Start Learning?</h2>
-          <p className="text-base md:text-xl mb-6 md:mb-8 opacity-90 px-4">
-            Join thousands of beginners who are building their investment knowledge with ELIN
-          </p>
-          <Button size="lg" variant="secondary" onClick={() => navigate('/auth?mode=signup')} className="text-base md:text-lg px-6 md:px-8 bg-white hover:bg-white/90 text-primary mobile-button w-full sm:w-auto">
-            Start Your Free Trial
-          </Button>
+      <section className="py-12 md:py-20 px-4 bg-gradient-to-br from-primary via-primary to-primary/90 text-primary-foreground relative overflow-hidden">
+        {/* Background pattern */}
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute top-10 left-10 w-40 h-40 border-2 border-white rounded-full" />
+          <div className="absolute bottom-10 right-10 w-60 h-60 border-2 border-white rounded-full" />
+        </div>
+        
+        <div className="container mx-auto text-center mobile-container relative z-10">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+          >
+            <h2 className="text-2xl md:text-4xl font-black mb-3 md:mb-4">
+              Ready to swipe your way to wealth?
+            </h2>
+            <p className="text-base md:text-xl mb-6 md:mb-8 opacity-90 px-4 max-w-xl mx-auto">
+              Join thousands who spend 30 seconds a day building better money habits
+            </p>
+            <Button 
+              size="lg" 
+              variant="secondary" 
+              onClick={() => navigate('/auth?mode=signup')} 
+              className="text-base md:text-lg px-8 md:px-10 bg-white hover:bg-white/90 text-primary font-bold shadow-xl w-full sm:w-auto"
+            >
+              Start Swiping — It's Free
+            </Button>
+          </motion.div>
         </div>
       </section>
 
