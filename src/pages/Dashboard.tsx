@@ -161,8 +161,8 @@ const Dashboard = () => {
           </div>
         </div>
 
-        {/* Main Dashboard Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6 mb-6">
+        {/* Main Dashboard Grid - Hide complex cards on mobile */}
+        <div className="hidden md:grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6 mb-6">
           {/* Net Worth - Takes 2 cols on large */}
           <div className="lg:col-span-2">
             {cardsLoading ? <SkeletonLoader variant="card" /> : <NetWorthCard animationDelay={0.1} />}
@@ -174,13 +174,13 @@ const Dashboard = () => {
           </div>
         </div>
 
-        {/* Goal Visualization - Gamification */}
-        <div className="mb-6">
+        {/* Goal Visualization - Hidden on mobile */}
+        <div className="hidden md:block mb-6">
           {cardsLoading ? <SkeletonLoader variant="chart" /> : <GoalVisualization animationDelay={0.3} />}
         </div>
 
-        {/* Secondary Row */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6 mb-6">
+        {/* Secondary Row - Hidden on mobile */}
+        <div className="hidden md:grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6 mb-6">
           {/* Predictive Balance - Takes 2 cols */}
           {cardsLoading ? <SkeletonLoader variant="chart" /> : <PredictiveBalanceCard animationDelay={0.4} />}
           
@@ -190,18 +190,18 @@ const Dashboard = () => {
           </div>
         </div>
 
-        {/* Did You Know Card - Contextual Tips */}
+        {/* Did You Know Card - Show on mobile as simple tip */}
         <div className="mb-6">
           {cardsLoading ? <SkeletonLoader variant="card" /> : <DidYouKnowCard animationDelay={0.55} />}
         </div>
 
-        {/* Transactions Feed */}
+        {/* Transactions Feed - Simplified on mobile */}
         <div className="mb-8">
           {cardsLoading ? <SkeletonLoader variant="list" /> : <TransactionsFeed animationDelay={0.6} />}
         </div>
 
-        {/* Quick Actions */}
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-3 pb-8">
+        {/* Quick Actions - Hide on mobile (bottom dock replaces this) */}
+        <div className="hidden md:grid grid-cols-2 md:grid-cols-5 gap-3 pb-8">
           {[
             { title: "Chat with ELIN", icon: MessageSquare, route: "/chat", color: "from-primary/20 to-primary/5" },
             { title: "Subscriptions", icon: Repeat, route: "/subscriptions", color: "from-secondary/20 to-secondary/5" },
