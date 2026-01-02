@@ -1,38 +1,42 @@
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { CheckCircle, Star, Crown, Trophy } from "lucide-react";
+import { CheckCircle, Heart, Rocket, Sparkles, Shield, Zap, MessageSquare, PiggyBank, Search } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useState } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { useNavigate } from "react-router-dom";
+import { Slider } from "@/components/ui/slider";
 
 const Pricing = () => {
   const { user } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
   const [isProcessing, setIsProcessing] = useState(false);
+  const [price, setPrice] = useState([9]); // Default $9/mo
 
   const handlePurchase = async () => {
     if (!user) {
       toast({
         title: "Sign in required",
-        description: "Please sign in to purchase premium access.",
+        description: "Please sign in to start your membership.",
         variant: "destructive",
       });
+      navigate('/auth?mode=signup');
       return;
     }
 
     setIsProcessing(true);
     try {
-      const { data, error } = await supabase.functions.invoke('create-payment');
+      const { data, error } = await supabase.functions.invoke('create-payment', {
+        body: { price: price[0] }
+      });
       
       if (error) throw error;
       
       if (data?.url) {
-        // Open Stripe checkout in a new tab
         window.open(data.url, '_blank');
       }
     } catch (error) {
@@ -46,190 +50,168 @@ const Pricing = () => {
       setIsProcessing(false);
     }
   };
+
+  const getFeedbackMessage = (value: number) => {
+    if (value <= 5) {
+      return {
+        text: "Covers our server costs. Thank you!",
+        icon: Heart,
+        color: "text-success"
+      };
+    } else if (value <= 12) {
+      return {
+        text: "Helps us build new AI features faster!",
+        icon: Zap,
+        color: "text-primary"
+      };
+    } else {
+      return {
+        text: "You are a Super Supporter! 🚀",
+        icon: Rocket,
+        color: "text-alert-purple"
+      };
+    }
+  };
+
+  const feedback = getFeedbackMessage(price[0]);
+  const FeedbackIcon = feedback.icon;
+
+  const benefits = [
+    { icon: MessageSquare, text: "Unlimited AI Chat with ELIN" },
+    { icon: PiggyBank, text: "Full Net Worth Tracking" },
+    { icon: Search, text: "Subscription Waste Scanner" },
+    { icon: Sparkles, text: "Personalized Learning Paths" },
+    { icon: Shield, text: "Portfolio Risk Analysis" },
+    { icon: Zap, text: "All Future Features Included" },
+  ];
+
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      <main className="container mx-auto px-4 py-8">
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold mb-4">Choose Your Investment Learning Journey</h1>
-          <p className="text-xl text-muted-foreground">Start free and upgrade when you're ready to accelerate your growth</p>
+      <main className="container mx-auto px-4 py-12 md:py-20">
+        {/* Hero Section */}
+        <div className="text-center mb-12 max-w-3xl mx-auto">
+          <h1 className="text-3xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-foreground via-primary to-alert-purple bg-clip-text text-transparent">
+            Commit to Your Financial Future.
+            <br />
+            You Choose the Price.
+          </h1>
+          <p className="text-lg md:text-xl text-muted-foreground">
+            We believe financial freedom shouldn't have a barrier. Pay what you think ELIN is worth to you.
+          </p>
         </div>
         
-        <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
-          {/* Starter Investor */}
-          <Card className="relative">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                Starter Investor
-              </CardTitle>
-              <CardDescription>Learn basics, access free courses, basic quizzes</CardDescription>
-              <div className="text-3xl font-bold">$0<span className="text-sm font-normal">/month</span></div>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-3">
-                <div className="flex items-center space-x-2">
-                  <CheckCircle className="h-4 w-4 text-success" />
-                  <span className="text-sm">Basic ELIN chat (10 messages/day)</span>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <CheckCircle className="h-4 w-4 text-success" />
-                  <span className="text-sm">View 3 SEC filings/month</span>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <CheckCircle className="h-4 w-4 text-success" />
-                  <span className="text-sm">Basic learning modules</span>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <CheckCircle className="h-4 w-4 text-success" />
-                  <span className="text-sm">Investment fundamentals quiz</span>
-                </div>
+        {/* Main Pricing Card */}
+        <Card className="max-w-2xl mx-auto border-2 border-primary/20 shadow-2xl shadow-primary/5">
+          <CardContent className="p-6 md:p-10">
+            {/* Price Display */}
+            <div className="text-center mb-8">
+              <div className="inline-flex items-baseline gap-1">
+                <span className="text-2xl text-muted-foreground">$</span>
+                <span className="text-6xl md:text-7xl font-bold text-foreground tabular-nums">
+                  {price[0]}
+                </span>
+                <span className="text-xl text-muted-foreground">/month</span>
               </div>
-              
-              <div className="pt-4 border-t">
-                <p className="text-xs italic text-muted-foreground mb-2">💬 What users say:</p>
-                <p className="text-sm italic">"Perfect starting point for absolute beginners."</p>
-              </div>
-              
-              <Button className="w-full" variant="outline" onClick={() => navigate('/auth?mode=signup')}>
-                Get Started Free
-              </Button>
-            </CardContent>
-          </Card>
-          
-          {/* Smart Investor */}
-          <Card className="border-2 border-primary relative scale-105">
-            <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-              <div className="bg-primary text-primary-foreground px-4 py-1 rounded-full text-sm font-medium flex items-center gap-1">
-                <Crown className="h-4 w-4" />
-                Most Popular
+              {price[0] === 9 && (
+                <div className="mt-2">
+                  <span className="inline-flex items-center gap-1 bg-primary/10 text-primary px-3 py-1 rounded-full text-sm font-medium">
+                    <Sparkles className="h-3 w-3" />
+                    Most Popular
+                  </span>
+                </div>
+              )}
+            </div>
+
+            {/* Slider */}
+            <div className="mb-8 px-2">
+              <Slider
+                value={price}
+                onValueChange={setPrice}
+                min={3}
+                max={25}
+                step={1}
+                className="w-full"
+              />
+              <div className="flex justify-between mt-2 text-sm text-muted-foreground">
+                <span>$3</span>
+                <span>$25</span>
               </div>
             </div>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                Smart Investor
-              </CardTitle>
-              <CardDescription>Portfolio analysis, advanced courses, weekly AI report</CardDescription>
-              <div className="text-3xl font-bold">$19.99<span className="text-sm font-normal">/month</span></div>
-              <p className="text-sm text-success font-medium">Free 7-day trial</p>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-3">
-                <div className="flex items-center space-x-2">
-                  <CheckCircle className="h-4 w-4 text-success" />
-                  <span className="text-sm">Unlimited ELIN conversations</span>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <CheckCircle className="h-4 w-4 text-success" />
-                  <span className="text-sm">Portfolio analysis & tracking</span>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <CheckCircle className="h-4 w-4 text-success" />
-                  <span className="text-sm">Advanced learning courses</span>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <CheckCircle className="h-4 w-4 text-success" />
-                  <span className="text-sm">Weekly AI performance report</span>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <CheckCircle className="h-4 w-4 text-success" />
-                  <span className="text-sm">Unlimited SEC filing access</span>
-                </div>
-              </div>
-              
-              <div className="pt-4 border-t">
-                <p className="text-xs italic text-muted-foreground mb-2">💬 What users say:</p>
-                <p className="text-sm italic">"ELIN's portfolio check gave me instant clarity."</p>
-              </div>
-              
-              <Button 
-                className="w-full" 
-                onClick={handlePurchase}
-                disabled={isProcessing}
-              >
-                {isProcessing ? "Processing..." : "Start Free Trial"}
-              </Button>
-            </CardContent>
-          </Card>
 
-          {/* Confident Investor */}
-          <Card className="relative">
-            <div className="absolute -top-3 right-4">
-              <div className="bg-education text-white px-3 py-1 rounded-full text-xs font-medium flex items-center gap-1">
-                <Trophy className="h-3 w-3" />
-                Best Value
+            {/* Dynamic Feedback */}
+            <div className={`text-center mb-8 p-4 rounded-xl bg-muted/50 ${feedback.color}`}>
+              <div className="flex items-center justify-center gap-2 font-medium">
+                <FeedbackIcon className="h-5 w-5" />
+                <span>{feedback.text}</span>
               </div>
             </div>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                Confident Investor
-              </CardTitle>
-              <CardDescription>All features + AI mentor, scenario simulator, premium webinars</CardDescription>
-              <div className="text-3xl font-bold">$49.99<span className="text-sm font-normal">/month</span></div>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-3">
-                <div className="flex items-center space-x-2">
-                  <CheckCircle className="h-4 w-4 text-success" />
-                  <span className="text-sm">Everything in Smart Investor</span>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <CheckCircle className="h-4 w-4 text-success" />
-                  <span className="text-sm">Personal AI mentor sessions</span>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <CheckCircle className="h-4 w-4 text-success" />
-                  <span className="text-sm">Advanced scenario simulator</span>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <CheckCircle className="h-4 w-4 text-success" />
-                  <span className="text-sm">Premium webinars & workshops</span>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <CheckCircle className="h-4 w-4 text-success" />
-                  <span className="text-sm">Exclusive community access</span>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <CheckCircle className="h-4 w-4 text-success" />
-                  <span className="text-sm">Priority support</span>
-                </div>
-              </div>
-              
-              <div className="pt-4 border-t">
-                <p className="text-xs italic text-muted-foreground mb-2">💬 What users say:</p>
-                <p className="text-sm italic">"The scenario builder changed my entire approach."</p>
-              </div>
-              
-              <Button 
-                className="w-full" 
-                onClick={handlePurchase}
-                disabled={isProcessing}
-                variant="outline"
-              >
-                {isProcessing ? "Processing..." : "Upgrade to Pro"}
-              </Button>
-            </CardContent>
-          </Card>
-        </div>
 
-        {/* Additional testimonials section */}
-        <div className="mt-16 text-center">
-          <h3 className="text-2xl font-bold mb-8">Join thousands of confident investors</h3>
-          <div className="grid md:grid-cols-3 gap-6 max-w-4xl mx-auto">
-            <div className="flex items-center gap-3 p-4 bg-muted/30 rounded-lg">
-              <div className="flex">
-                {[...Array(5)].map((_, i) => (
-                  <Star key={i} className="h-4 w-4 fill-warning text-warning" />
+            {/* Benefits List */}
+            <div className="mb-8">
+              <h3 className="text-center text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-4">
+                Full Access to Everything
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                {benefits.map((benefit, index) => (
+                  <div key={index} className="flex items-center gap-3 p-3 rounded-lg bg-muted/30">
+                    <div className="flex-shrink-0 h-8 w-8 rounded-full bg-success/10 flex items-center justify-center">
+                      <CheckCircle className="h-4 w-4 text-success" />
+                    </div>
+                    <span className="text-sm font-medium">{benefit.text}</span>
+                  </div>
                 ))}
               </div>
-              <span className="text-sm font-medium">4.9/5 average rating</span>
             </div>
-            <div className="flex items-center gap-3 p-4 bg-muted/30 rounded-lg">
-              <CheckCircle className="h-5 w-5 text-success" />
-              <span className="text-sm font-medium">1,000+ active learners</span>
+
+            {/* CTA Button */}
+            <Button 
+              className="w-full h-14 text-lg font-semibold bg-gradient-to-r from-primary to-alert-purple hover:opacity-90 transition-opacity"
+              onClick={handlePurchase}
+              disabled={isProcessing}
+            >
+              {isProcessing ? "Processing..." : `Start Membership at $${price[0]}/mo`}
+            </Button>
+
+            {/* Trust Badge */}
+            <p className="text-center text-sm text-muted-foreground mt-4">
+              Cancel anytime. No questions asked.
+            </p>
+          </CardContent>
+        </Card>
+
+        {/* Trust Section */}
+        <div className="mt-16 text-center max-w-2xl mx-auto">
+          <h3 className="text-xl font-semibold mb-6 text-muted-foreground">
+            Why "Pay What You Want"?
+          </h3>
+          <div className="grid gap-4 text-left">
+            <div className="flex gap-4 p-4 rounded-xl bg-muted/30">
+              <Heart className="h-6 w-6 text-success flex-shrink-0 mt-0.5" />
+              <div>
+                <p className="font-medium mb-1">We trust you.</p>
+                <p className="text-sm text-muted-foreground">
+                  Everyone's financial situation is different. We want ELIN to be accessible to everyone, whether you're a college student or a seasoned professional.
+                </p>
+              </div>
             </div>
-            <div className="flex items-center gap-3 p-4 bg-muted/30 rounded-lg">
-              <Trophy className="h-5 w-5 text-education" />
-              <span className="text-sm font-medium">95% completion rate</span>
+            <div className="flex gap-4 p-4 rounded-xl bg-muted/30">
+              <Shield className="h-6 w-6 text-primary flex-shrink-0 mt-0.5" />
+              <div>
+                <p className="font-medium mb-1">Same features, no tiers.</p>
+                <p className="text-sm text-muted-foreground">
+                  No artificial limits. No "premium" gatekeeping. Whatever you pay, you get the full ELIN experience.
+                </p>
+              </div>
+            </div>
+            <div className="flex gap-4 p-4 rounded-xl bg-muted/30">
+              <Rocket className="h-6 w-6 text-alert-purple flex-shrink-0 mt-0.5" />
+              <div>
+                <p className="font-medium mb-1">Your support fuels innovation.</p>
+                <p className="text-sm text-muted-foreground">
+                  Higher contributions help us hire more engineers and ship features faster. You're investing in the product.
+                </p>
+              </div>
             </div>
           </div>
         </div>
