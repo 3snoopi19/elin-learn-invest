@@ -22,8 +22,8 @@ export const MainLayout = () => {
 
       {/* Content Zone - The "Scrollable Area" */}
       <main className="flex-1 w-full overflow-y-auto overflow-x-hidden scroll-smooth z-0 relative">
-        {/* Safety Pad: 140px clearance for floating dock on mobile, 32px on desktop */}
-        <div className="pb-[140px] md:pb-8">
+        {/* Safety Pad: pb-48 (192px) clearance for floating dock on mobile, 32px on desktop */}
+        <div className="pb-48 md:pb-8">
           <Outlet />
         </div>
       </main>
