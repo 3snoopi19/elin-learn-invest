@@ -87,7 +87,7 @@ const Index = () => {
       <Header />
       
       {/* Hero Section - Mobile-First Swipe Concept */}
-      <section className="relative py-12 md:py-20 px-4 overflow-hidden">
+      <section className="relative pt-6 pb-12 md:py-20 px-4 overflow-hidden">
         {/* Background gradient */}
         <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-background to-success/5 -z-10" />
         
@@ -110,13 +110,13 @@ const Index = () => {
         />
 
         <div className="container mx-auto mobile-container">
-          <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
-            {/* Left - Copy */}
+          <div className="grid lg:grid-cols-2 gap-6 lg:gap-12 items-center">
+            {/* Left - Copy (Text First on Mobile) */}
             <motion.div
               initial={{ opacity: 0, x: -40 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.6 }}
-              className="text-center lg:text-left order-2 lg:order-1"
+              className="text-center lg:text-left"
             >
               <Badge variant="secondary" className="mb-4 animate-fade-in text-xs md:text-sm bg-primary/10 text-primary border-primary/20">
                 <Zap className="w-3 h-3 mr-1" />
@@ -178,9 +178,9 @@ const Index = () => {
               </motion.div>
             </motion.div>
 
-            {/* Right - Phone Mockup */}
-            <div className="flex justify-center lg:justify-end order-1 lg:order-2">
-              <PhoneMockup />
+            {/* Right - Phone Mockup (Below text on mobile, side-by-side on desktop) */}
+            <div className="flex justify-center lg:justify-end">
+              <PhoneMockup className="scale-[0.85] md:scale-100 origin-top" />
             </div>
           </div>
         </div>
