@@ -77,12 +77,12 @@ export const MobileBottomDock = () => {
             <motion.button
               key={item.id}
               onClick={() => handleNavigation(item.path)}
-              className={`relative flex flex-col items-center justify-center w-18 h-16 px-4 rounded-2xl transition-all duration-300 ${
+              className={`relative flex flex-col items-center justify-center w-18 h-16 px-4 rounded-2xl transition-all duration-300 active:scale-95 ${
                 isActive 
                   ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/40' 
-                  : 'text-white/60 hover:text-white active:bg-white/10'
+                  : 'text-white/60 hover:text-white hover:bg-white/5 active:bg-white/10'
               }`}
-              whileTap={{ scale: 0.9 }}
+              whileTap={{ scale: 0.95 }}
               aria-label={`Navigate to ${item.label}`}
             >
               <Icon className="w-6 h-6" />
