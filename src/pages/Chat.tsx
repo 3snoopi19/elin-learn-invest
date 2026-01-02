@@ -1,7 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { useAuth } from "@/contexts/AuthContext";
-import { Header } from "@/components/layout/Header";
-import { Footer } from "@/components/layout/Footer";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -595,10 +593,8 @@ Make the script natural, confident, and tailored to their specific situation.`;
   }
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
-      <Header />
-      
-      <main className="flex-1 mobile-container mobile-content pb-32 md:pb-8">
+    <div className="px-4 md:px-8 py-4 md:py-8">
+      <div className="max-w-7xl mx-auto">
         {/* Header with Persona Toggle */}
         <div className="mb-4 md:mb-6">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -868,9 +864,7 @@ Make the script natural, confident, and tailored to their specific situation.`;
             </Card>
           </div>
         </div>
-      </main>
-      
-      <Footer />
+      </div>
     </div>
   );
 };

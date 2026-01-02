@@ -1,5 +1,3 @@
-import { Header } from "@/components/layout/Header";
-import { Footer } from "@/components/layout/Footer";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -89,41 +87,35 @@ const Learn = () => {
   // If viewing a lesson, show the lesson view
   if (viewingLesson) {
     return (
-      <div className="min-h-screen bg-background">
-        <Header />
-        <main className="mobile-container mobile-content py-4 md:py-8">
-          <div className="mb-6">
-            <Button 
-              variant="ghost" 
-              onClick={() => setViewingLesson(null)}
-              className="mb-4 text-text-body hover:text-text-heading mobile-button"
-            >
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Back to Learning
-            </Button>
-            <div className="mobile-caption text-text-muted mb-2">
-              {viewingLesson.courseTitle} • {viewingLesson.moduleTitle}
-            </div>
+      <div className="px-4 md:px-8 py-4 md:py-8">
+        <div className="mb-6">
+          <Button 
+            variant="ghost" 
+            onClick={() => setViewingLesson(null)}
+            className="mb-4 text-text-body hover:text-text-heading mobile-button"
+          >
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Back to Learning
+          </Button>
+          <div className="mobile-caption text-text-muted mb-2">
+            {viewingLesson.courseTitle} • {viewingLesson.moduleTitle}
           </div>
-          <DynamicLessonView
-            lessonId={viewingLesson.lessonId}
-            courseTitle={viewingLesson.courseTitle}
-            moduleTitle={viewingLesson.moduleTitle}
-            onBack={() => setViewingLesson(null)}
-            onComplete={handleCompleteLesson}
-            getLessonContent={getLessonContent}
-            isComplete={isLessonComplete(viewingLesson.lessonId)}
-          />
-        </main>
-        <Footer />
+        </div>
+        <DynamicLessonView
+          lessonId={viewingLesson.lessonId}
+          courseTitle={viewingLesson.courseTitle}
+          moduleTitle={viewingLesson.moduleTitle}
+          onBack={() => setViewingLesson(null)}
+          onComplete={handleCompleteLesson}
+          getLessonContent={getLessonContent}
+          isComplete={isLessonComplete(viewingLesson.lessonId)}
+        />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <Header />
-      <main className="mobile-container mobile-content py-4 md:py-8">
+    <div className="px-4 md:px-8 py-4 md:py-8">
         {/* Hero Section */}
         <div className="text-center mb-8 md:mb-12">
           <div className="flex items-center justify-center gap-2 mb-4">
@@ -454,9 +446,7 @@ const Learn = () => {
             </CardContent>
           </Card>
         )}
-      </main>
-      <Footer />
-    </div>
+      </div>
   );
 };
 
