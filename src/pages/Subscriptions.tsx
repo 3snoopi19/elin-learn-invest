@@ -10,11 +10,32 @@ import { Progress } from '@/components/ui/progress';
 import { 
   Scan, DollarSign, AlertTriangle, Sparkles, 
   Phone, X, TrendingDown, Check, Crown, Zap,
-  Bot, Shield, Clock, ArrowRight, Loader2, Wifi, Dumbbell, Film
+  Bot, Shield, Clock, ArrowRight, Loader2, Wifi, Dumbbell, Film, Gavel
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
 import { ScenarioPlanner } from '@/components/finance/ScenarioPlanner';
+import { NegotiationModal } from '@/components/subscriptions/NegotiationModal';
+import { supabase } from '@/integrations/supabase/client';
+
+interface NegotiationData {
+  subscription_name: string;
+  provider_name: string;
+  current_cost: number;
+  cancellation_email?: {
+    subject: string;
+    body: string;
+  };
+  negotiation_script?: {
+    opening: string;
+    key_points: string[];
+    competitor_mentions: string[];
+    escalation_phrases: string[];
+    closing_ultimatum: string;
+    full_script: string;
+  };
+  legal_references?: string[];
+}
 
 interface DetectedIssue {
   id: string;
@@ -90,6 +111,12 @@ const Subscriptions = () => {
   const [premiumSheetOpen, setPremiumSheetOpen] = useState(false);
   const [isNegotiating, setIsNegotiating] = useState(false);
   const [negotiationStep, setNegotiationStep] = useState(0);
+  
+  // Subscription Assassin state
+  const [assassinModalOpen, setAssassinModalOpen] = useState(false);
+  const [assassinLoading, setAssassinLoading] = useState(false);
+  const [assassinError, setAssassinError] = useState<string | null>(null);
+  const [negotiationData, setNegotiationData] = useState<NegotiationData | null>(null);
 
   // Start scanning animation on mount
   useEffect(() => {
@@ -154,6 +181,43 @@ const Subscriptions = () => {
     } else {
       // Show premium sheet for cancel/refund actions
       setPremiumSheetOpen(true);
+    }
+  };
+
+  const handleGenerateNegotiation = async (issue: DetectedIssue) => {
+    setSelectedIssue(issue);
+    setAssassinModalOpen(true);
+    setAssassinLoading(true);
+    setAssassinError(null);
+    setNegotiationData(null);
+
+    try {
+      const { data, error } = await supabase.functions.invoke('generate-negotiation-script', {
+        body: {
+          subscription_name: issue.serviceName,
+          current_cost: issue.monthlyCost,
+          provider_name: issue.serviceName, // Using service name as provider
+          contract_type: 'monthly'
+        }
+      });
+
+      if (error) {
+        console.error('Error generating negotiation script:', error);
+        setAssassinError(error.message || 'Failed to generate negotiation script');
+        return;
+      }
+
+      if (data?.error) {
+        setAssassinError(data.error);
+        return;
+      }
+
+      setNegotiationData(data);
+    } catch (err) {
+      console.error('Unexpected error:', err);
+      setAssassinError(err instanceof Error ? err.message : 'An unexpected error occurred');
+    } finally {
+      setAssassinLoading(false);
     }
   };
 
@@ -338,7 +402,7 @@ const Subscriptions = () => {
                           </div>
 
                           {/* Right Section - Action */}
-                          <div className="flex flex-col justify-center items-stretch p-6 bg-card/50 border-t md:border-t-0 md:border-l border-border/50 min-w-[200px]">
+                          <div className="flex flex-col justify-center items-stretch p-6 bg-card/50 border-t md:border-t-0 md:border-l border-border/50 min-w-[220px]">
                             {issue.successRate && (
                               <div className="text-center mb-3">
                                 <div className="text-2xl font-bold text-primary">{issue.successRate}%</div>
@@ -361,6 +425,18 @@ const Subscriptions = () => {
                               {issue.action === 'refund' && <DollarSign className="w-4 h-4 mr-2" />}
                               {actionLabels[issue.action]}
                             </Button>
+                            
+                            {/* Subscription Assassin Button */}
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => handleGenerateNegotiation(issue)}
+                              className="w-full mt-2 border-slate-600 text-slate-700 hover:bg-slate-100 hover:text-slate-900"
+                            >
+                              <Gavel className="w-4 h-4 mr-2" />
+                              Generate Cancellation
+                            </Button>
+                            
                             <p className="text-xs text-text-muted text-center mt-2">
                               {issue.action === 'negotiate' ? 'ELIN calls for you' : 'We handle everything'}
                             </p>
@@ -569,6 +645,15 @@ const Subscriptions = () => {
           </div>
         </SheetContent>
       </Sheet>
+
+      {/* Subscription Assassin Modal */}
+      <NegotiationModal
+        open={assassinModalOpen}
+        onOpenChange={setAssassinModalOpen}
+        data={negotiationData}
+        isLoading={assassinLoading}
+        error={assassinError}
+      />
 
       <Footer />
     </div>
