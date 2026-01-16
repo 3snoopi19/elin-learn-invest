@@ -1,10 +1,48 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
+
+// ============================================
+// Rate Limiting
+// ============================================
+interface RateLimitEntry { count: number; resetTime: number; }
+const ipRateLimits = new Map<string, RateLimitEntry>();
+const userRateLimits = new Map<string, RateLimitEntry>();
+const IP_LIMIT = { windowMs: 60000, maxRequests: 20 }; // 20 req/min - expensive AI call
+const USER_LIMIT = { windowMs: 60000, maxRequests: 30 };
+
+function checkRateLimit(key: string, store: Map<string, RateLimitEntry>, config: typeof IP_LIMIT): { allowed: boolean; remaining: number; resetIn: number } {
+  const now = Date.now();
+  const entry = store.get(key);
+  if (store.size > 10000) {
+    for (const [k, v] of store.entries()) { if (now > v.resetTime) store.delete(k); }
+  }
+  if (!entry || now > entry.resetTime) {
+    store.set(key, { count: 1, resetTime: now + config.windowMs });
+    return { allowed: true, remaining: config.maxRequests - 1, resetIn: config.windowMs };
+  }
+  if (entry.count >= config.maxRequests) {
+    return { allowed: false, remaining: 0, resetIn: entry.resetTime - now };
+  }
+  entry.count++;
+  return { allowed: true, remaining: config.maxRequests - entry.count, resetIn: entry.resetTime - now };
+}
+
+// ============================================
+// Input Validation Schema
+// ============================================
+const supplyChainSchema = z.object({
+  company: z.string()
+    .min(1, 'Company name is required')
+    .max(100, 'Company name too long')
+    .transform(s => s.trim())
+    .refine(s => /^[a-zA-Z0-9\s.&,'-]+$/.test(s), 'Invalid characters in company name')
+});
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -12,44 +50,72 @@ serve(async (req) => {
   }
 
   try {
-    const { company } = await req.json();
-    
-    // Server-side input validation
-    if (!company || typeof company !== 'string') {
-      return new Response(
-        JSON.stringify({ error: 'Company name or ticker is required' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
-    
-    const sanitizedCompany = company.trim().slice(0, 100);
-    if (!sanitizedCompany) {
-      return new Response(
-        JSON.stringify({ error: 'Company name cannot be empty' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
-    
-    // Validate characters - allow alphanumeric, spaces, and common company name chars
-    if (!/^[a-zA-Z0-9\s.&,'-]+$/.test(sanitizedCompany)) {
-      return new Response(
-        JSON.stringify({ error: 'Invalid characters in company name' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
-    
-    console.log('Received request for company (sanitized):', sanitizedCompany);
+    // ============================================
+    // Rate Limiting
+    // ============================================
+    const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 
+               req.headers.get('x-real-ip') || 'unknown';
+    const authHeader = req.headers.get('Authorization');
+    const userId = authHeader ? `token:${authHeader.slice(-20)}` : null;
 
+    const ipResult = checkRateLimit(`ip:${ip}`, ipRateLimits, IP_LIMIT);
+    const userResult = userId ? checkRateLimit(`user:${userId}`, userRateLimits, USER_LIMIT) : { allowed: true, remaining: 30, resetIn: 60000 };
+
+    const rateLimitHeaders = {
+      'X-RateLimit-Limit': String(IP_LIMIT.maxRequests),
+      'X-RateLimit-Remaining': String(Math.min(ipResult.remaining, userResult.remaining)),
+      'X-RateLimit-Reset': String(Math.ceil(Math.min(ipResult.resetIn, userResult.resetIn) / 1000)),
+    };
+
+    if (!ipResult.allowed || !userResult.allowed) {
+      const retryAfter = Math.ceil(Math.max(ipResult.resetIn, userResult.resetIn) / 1000);
+      return new Response(
+        JSON.stringify({ error: 'Too many requests. Please try again later.', retryAfter }),
+        { 
+          status: 429, 
+          headers: { ...corsHeaders, ...rateLimitHeaders, 'Content-Type': 'application/json', 'Retry-After': String(retryAfter) }
+        }
+      );
+    }
+
+    // ============================================
+    // Input Validation
+    // ============================================
+    let body: unknown;
+    try {
+      body = await req.json();
+    } catch {
+      return new Response(
+        JSON.stringify({ error: 'Invalid JSON body' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const parseResult = supplyChainSchema.safeParse(body);
+    if (!parseResult.success) {
+      const errors = parseResult.error.errors.map(e => `${e.path.join('.')}: ${e.message}`).join('; ');
+      return new Response(
+        JSON.stringify({ error: `Validation failed: ${errors}` }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const { company } = parseResult.data;
+    console.log('Received request for company (validated):', company);
+
+    // ============================================
+    // API Key Check
+    // ============================================
     const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
     if (!LOVABLE_API_KEY) {
       console.error('LOVABLE_API_KEY is not configured');
       return new Response(
-        JSON.stringify({ error: 'AI API key not configured' }),
+        JSON.stringify({ error: 'AI service not configured' }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    const prompt = `Analyze the supply chain for "${sanitizedCompany}". Provide a detailed but concise JSON response with this exact structure:
+    const prompt = `Analyze the supply chain for "${company}". Provide a detailed but concise JSON response with this exact structure:
 {
   "companyName": "Full company name",
   "ticker": "Stock ticker if applicable",
@@ -75,7 +141,7 @@ serve(async (req) => {
 
 Provide 4-6 key suppliers and 4-6 major customers/markets. Focus on the most significant relationships. Return ONLY valid JSON, no markdown or additional text.`;
 
-    console.log('Calling Lovable AI Gateway for supply chain analysis:', sanitizedCompany);
+    console.log('Calling Lovable AI Gateway for supply chain analysis:', company);
 
     const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
@@ -101,7 +167,7 @@ Provide 4-6 key suppliers and 4-6 major customers/markets. Focus on the most sig
       if (response.status === 429) {
         return new Response(
           JSON.stringify({ error: 'Rate limit exceeded. Please try again in a moment.' }),
-          { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          { status: 429, headers: { ...corsHeaders, ...rateLimitHeaders, 'Content-Type': 'application/json' } }
         );
       }
       if (response.status === 402) {
@@ -164,13 +230,13 @@ Provide 4-6 key suppliers and 4-6 major customers/markets. Focus on the most sig
 
     return new Response(
       JSON.stringify(supplyChainData),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      { headers: { ...corsHeaders, ...rateLimitHeaders, 'Content-Type': 'application/json' } }
     );
 
   } catch (error) {
     console.error('Unexpected error:', error);
     return new Response(
-      JSON.stringify({ error: error.message || 'An unexpected error occurred' }),
+      JSON.stringify({ error: 'An error occurred processing your request' }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   }

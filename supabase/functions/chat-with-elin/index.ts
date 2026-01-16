@@ -1,13 +1,69 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.55.0";
+import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 
 const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
-console.log('ELIN God Mode - Lovable AI Key available:', !!LOVABLE_API_KEY);
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
+
+// ============================================
+// Rate Limiting
+// ============================================
+interface RateLimitEntry { count: number; resetTime: number; }
+const ipRateLimits = new Map<string, RateLimitEntry>();
+const userRateLimits = new Map<string, RateLimitEntry>();
+const IP_LIMIT = { windowMs: 60000, maxRequests: 30 };  // 30 req/min for AI endpoints
+const USER_LIMIT = { windowMs: 60000, maxRequests: 50 }; // 50 req/min per user
+
+function checkRateLimit(key: string, store: Map<string, RateLimitEntry>, config: typeof IP_LIMIT): { allowed: boolean; remaining: number; resetIn: number } {
+  const now = Date.now();
+  const entry = store.get(key);
+  if (store.size > 10000) {
+    for (const [k, v] of store.entries()) { if (now > v.resetTime) store.delete(k); }
+  }
+  if (!entry || now > entry.resetTime) {
+    store.set(key, { count: 1, resetTime: now + config.windowMs });
+    return { allowed: true, remaining: config.maxRequests - 1, resetIn: config.windowMs };
+  }
+  if (entry.count >= config.maxRequests) {
+    return { allowed: false, remaining: 0, resetIn: entry.resetTime - now };
+  }
+  entry.count++;
+  return { allowed: true, remaining: config.maxRequests - entry.count, resetIn: entry.resetTime - now };
+}
+
+// ============================================
+// Input Validation Schema
+// ============================================
+const chatMessageSchema = z.object({
+  message: z.string().min(1, 'Message is required').max(10000, 'Message too long'),
+  conversationHistory: z.array(z.object({
+    role: z.enum(['user', 'assistant', 'system']),
+    content: z.string().max(10000)
+  })).max(50).optional().default([]),
+  stream: z.boolean().optional().default(false),
+  searchContext: z.string().max(20000).nullable().optional(),
+  persona: z.enum(['financial', 'mentor']).optional().default('financial')
+});
+
+// ============================================
+// Input Sanitization
+// ============================================
+function sanitizeMessage(input: string): string {
+  return input
+    .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '')
+    .replace(/<[^>]+>/g, '')
+    .replace(/javascript:/gi, '')
+    .replace(/on\w+\s*=/gi, '')
+    .replace(/data:/gi, '')
+    .replace(/vbscript:/gi, '')
+    .trim()
+    .slice(0, 10000);
+}
 
 // Enhanced system prompt for ELIN "God Mode" - Financial Analyst
 const ELIN_FINANCIAL_PROMPT = `You are ELIN (Enhanced Learning Investment Navigator) - an advanced AI investment educator operating in GOD MODE.
@@ -96,45 +152,82 @@ When asked to generate scripts, use this format:
 Remember: Your job is to give people the confidence and tools to take action. Be their coach in their corner.`;
 
 serve(async (req) => {
+  // Handle CORS
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    const { message, conversationHistory = [], stream = false, searchContext = null, persona = 'financial' } = await req.json();
-    
-    // Server-side input validation
-    if (!message || typeof message !== 'string') {
-      return new Response(JSON.stringify({ error: 'Message is required' }), {
-        status: 400,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
+    // ============================================
+    // Rate Limiting
+    // ============================================
+    const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 
+               req.headers.get('x-real-ip') || 'unknown';
+    const authHeader = req.headers.get('Authorization');
+    const userId = authHeader ? `token:${authHeader.slice(-20)}` : null;
+
+    const ipResult = checkRateLimit(`ip:${ip}`, ipRateLimits, IP_LIMIT);
+    const userResult = userId ? checkRateLimit(`user:${userId}`, userRateLimits, USER_LIMIT) : { allowed: true, remaining: 50, resetIn: 60000 };
+
+    const rateLimitHeaders = {
+      'X-RateLimit-Limit': String(IP_LIMIT.maxRequests),
+      'X-RateLimit-Remaining': String(Math.min(ipResult.remaining, userResult.remaining)),
+      'X-RateLimit-Reset': String(Math.ceil(Math.min(ipResult.resetIn, userResult.resetIn) / 1000)),
+    };
+
+    if (!ipResult.allowed || !userResult.allowed) {
+      const retryAfter = Math.ceil(Math.max(ipResult.resetIn, userResult.resetIn) / 1000);
+      return new Response(
+        JSON.stringify({ error: 'Too many requests. Please try again later.', retryAfter }),
+        { 
+          status: 429, 
+          headers: { ...corsHeaders, ...rateLimitHeaders, 'Content-Type': 'application/json', 'Retry-After': String(retryAfter) }
+        }
+      );
     }
+
+    // ============================================
+    // Input Validation
+    // ============================================
+    let body: unknown;
+    try {
+      body = await req.json();
+    } catch {
+      return new Response(
+        JSON.stringify({ error: 'Invalid JSON body' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const parseResult = chatMessageSchema.safeParse(body);
+    if (!parseResult.success) {
+      const errors = parseResult.error.errors.map(e => `${e.path.join('.')}: ${e.message}`).join('; ');
+      return new Response(
+        JSON.stringify({ error: `Validation failed: ${errors}` }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const { message, conversationHistory, stream, searchContext, persona } = parseResult.data;
     
-    // Comprehensive server-side sanitization (mirrors client-side sanitizeChatInput)
-    const sanitizedMessage = message
-      .replace(/<script[^>]*>.*?<\/script>/gi, '') // Remove script tags
-      .replace(/<[^>]+>/g, '') // Remove HTML tags
-      .replace(/javascript:/gi, '') // Remove javascript: protocol
-      .replace(/on\w+\s*=/gi, '') // Remove event handlers
-      .replace(/data:/gi, '') // Remove data: protocol
-      .replace(/vbscript:/gi, '') // Remove vbscript: protocol
-      .trim()
-      .slice(0, 4000);
-    
+    // Sanitize the message
+    const sanitizedMessage = sanitizeMessage(message);
     if (!sanitizedMessage) {
-      return new Response(JSON.stringify({ error: 'Message cannot be empty' }), {
-        status: 400,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
+      return new Response(
+        JSON.stringify({ error: 'Message cannot be empty after sanitization' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
-    
+
+    // ============================================
+    // API Key Check
+    // ============================================
     if (!LOVABLE_API_KEY) {
       console.error('LOVABLE_API_KEY is not configured');
-      return new Response(JSON.stringify({ error: 'AI service not configured' }), {
-        status: 500,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
+      return new Response(
+        JSON.stringify({ error: 'AI service not configured' }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
     
     // Select system prompt based on persona
@@ -150,9 +243,9 @@ serve(async (req) => {
 
     const messages = [
       { role: 'system', content: systemPrompt },
-      ...conversationHistory.slice(-10).map((msg: { role: string; content: string }) => ({
+      ...conversationHistory.slice(-10).map((msg) => ({
         role: msg.role,
-        content: msg.content.slice(0, 2000)
+        content: sanitizeMessage(msg.content).slice(0, 2000)
       })),
       { role: 'user', content: enhancedMessage }
     ];
@@ -179,7 +272,7 @@ serve(async (req) => {
         if (response.status === 429) {
           return new Response(JSON.stringify({ error: 'Rate limit exceeded. Please try again.' }), {
             status: 429,
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            headers: { ...corsHeaders, ...rateLimitHeaders, 'Content-Type': 'application/json' },
           });
         }
         if (response.status === 402) {
@@ -196,6 +289,7 @@ serve(async (req) => {
       return new Response(response.body, {
         headers: { 
           ...corsHeaders, 
+          ...rateLimitHeaders,
           'Content-Type': 'text/event-stream',
           'Cache-Control': 'no-cache',
           'Connection': 'keep-alive'
@@ -223,7 +317,7 @@ serve(async (req) => {
       if (response.status === 429) {
         return new Response(JSON.stringify({ error: 'Rate limit exceeded.' }), {
           status: 429,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          headers: { ...corsHeaders, ...rateLimitHeaders, 'Content-Type': 'application/json' },
         });
       }
       if (response.status === 402) {
@@ -260,7 +354,7 @@ serve(async (req) => {
         model: 'gemini-2.5-flash',
         mode: 'god'
       }), {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        headers: { ...corsHeaders, ...rateLimitHeaders, 'Content-Type': 'application/json' },
       });
     }
 
@@ -273,12 +367,12 @@ serve(async (req) => {
       model: 'gemini-2.5-pro',
       mode: 'god'
     }), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      headers: { ...corsHeaders, ...rateLimitHeaders, 'Content-Type': 'application/json' },
     });
   } catch (error) {
     console.error('ELIN error:', error);
     return new Response(JSON.stringify({ 
-      error: error instanceof Error ? error.message : 'An unknown error occurred' 
+      error: 'An error occurred processing your request'
     }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
