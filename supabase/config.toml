@@ -48,3 +48,6 @@ verify_jwt = false
 
 [functions.generate-negotiation-script]
 verify_jwt = false
+
+[functions.analyze-portfolio]
+verify_jwt = false
