@@ -11,6 +11,8 @@ import { CashFlowCard } from "@/components/finance/CashFlowCard";
 import { TransactionsFeed } from "@/components/finance/TransactionsFeed";
 import { SpendingAnomaliesCard } from "@/components/finance/SpendingAnomaliesCard";
 import { PredictiveBalanceCard } from "@/components/finance/PredictiveBalanceCard";
+import { CashFlowForecastChart } from "@/components/finance/CashFlowForecastChart";
+import { CashCrunchAlert } from "@/components/finance/CashCrunchAlert";
 import { SpendDefenseBar } from "@/components/gamification/SpendDefenseBar";
 import { GoalVisualization } from "@/components/gamification/GoalVisualization";
 import { HabitStackCard } from "@/components/gamification/HabitStackCard";
@@ -145,13 +147,20 @@ const Dashboard = () => {
         </motion.button>
       )}
 
+      {/* Cash Crunch Alert - Shows if negative balance predicted */}
+      {!cardsLoading && (
+        <div className="mb-6">
+          <CashCrunchAlert animationDelay={0.05} />
+        </div>
+      )}
+
       {/* Spend Defense + Habit Stack Row - Hidden on mobile */}
       <div className="hidden md:grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6 mb-6">
         <div>
-          {cardsLoading ? <SkeletonLoader variant="card" /> : <SpendDefenseBar dailyBudget={80} spentToday={0} streakDays={3} animationDelay={0} />}
+          {cardsLoading ? <SkeletonLoader variant="card" /> : <SpendDefenseBar dailyBudget={80} spentToday={0} streakDays={3} animationDelay={0.1} />}
         </div>
         <div>
-          {cardsLoading ? <SkeletonLoader variant="card" /> : <HabitStackCard animationDelay={0.05} />}
+          {cardsLoading ? <SkeletonLoader variant="card" /> : <HabitStackCard animationDelay={0.15} />}
         </div>
       </div>
 
@@ -165,9 +174,14 @@ const Dashboard = () => {
         </div>
       </div>
 
+      {/* 30-Day Cash Flow Forecast - The Crystal Ball */}
+      <div className="mb-6">
+        {cardsLoading ? <SkeletonLoader variant="chart" /> : <CashFlowForecastChart animationDelay={0.3} />}
+      </div>
+
       {/* Goal Visualization - Hidden on mobile */}
       <div className="hidden md:block mb-6">
-        {cardsLoading ? <SkeletonLoader variant="chart" /> : <GoalVisualization animationDelay={0.3} />}
+        {cardsLoading ? <SkeletonLoader variant="chart" /> : <GoalVisualization animationDelay={0.35} />}
       </div>
 
       {/* Impulse Interceptor Section */}

@@ -51,3 +51,6 @@ verify_jwt = false
 
 [functions.analyze-portfolio]
 verify_jwt = false
+
+[functions.generate-cashflow-forecast]
+verify_jwt = true
