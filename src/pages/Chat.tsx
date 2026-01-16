@@ -18,7 +18,7 @@ import { QuickReplyButtons } from "@/components/chat/QuickReplyButtons";
 import { LearningModeSelector } from "@/components/chat/LearningModeSelector";
 import { ProgressTracker } from "@/components/chat/ProgressTracker";
 import { PersonalizationPanel } from "@/components/chat/PersonalizationPanel";
-import { VoiceInterface } from "@/components/chat/VoiceInterface";
+import { VoiceInterface, VoiceInterfaceHandle } from "@/components/chat/VoiceInterface";
 import { RoastButton } from "@/components/gamification/RoastButton";
 
 // Types and hooks
@@ -48,6 +48,8 @@ const Chat = () => {
   const [showProgress, setShowProgress] = useState(false);
   const [showPersonalization, setShowPersonalization] = useState(false);
   const [voiceEnabled, setVoiceEnabled] = useState(false);
+  const [voiceMuted, setVoiceMuted] = useState(false);
+  const [isVoiceMessage, setIsVoiceMessage] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [personaMode, setPersonaMode] = useState<PersonaMode>('financial');
@@ -55,6 +57,7 @@ const Chat = () => {
   const [copiedScript, setCopiedScript] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const voiceInterfaceRef = useRef<VoiceInterfaceHandle>(null);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -510,7 +513,7 @@ Make the script natural, confident, and tailored to their specific situation.`;
     }
   };
 
-  const handleSendMessage = async (messageText?: string, messageType?: string) => {
+  const handleSendMessage = async (messageText?: string, messageType?: string, fromVoice?: boolean) => {
     const textToSend = messageText || inputValue.trim();
     if (!textToSend || isStreaming) return;
 
@@ -524,6 +527,10 @@ Make the script natural, confident, and tailored to their specific situation.`;
       });
       return;
     }
+
+    // Track if this is a voice message for auto-speak response
+    const wasVoiceMessage = fromVoice || isVoiceMessage;
+    setIsVoiceMessage(false);
 
     const userMessage: Message = {
       id: Date.now().toString(),
@@ -542,13 +549,19 @@ Make the script natural, confident, and tailored to their specific situation.`;
     setIsTyping(false);
     setShowQuickReplies(true);
     
-    if (voiceEnabled && aiResponse.response) {
-      await speakText(aiResponse.response);
+    // Auto-speak response if it was a voice message and not muted
+    if (wasVoiceMessage && !voiceMuted && aiResponse.response && voiceInterfaceRef.current) {
+      await voiceInterfaceRef.current.speakText(aiResponse.response);
     }
     
     if (messageType === 'lesson') incrementProgress('lessons');
     if (messageType === 'quiz') incrementProgress('quizzes');
     if (messageType === 'scenario') incrementProgress('scenarios');
+  };
+
+  const handleVoiceInput = (text: string) => {
+    setIsVoiceMessage(true);
+    handleSendMessage(text, undefined, true);
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -736,6 +749,18 @@ Make the script natural, confident, and tailored to their specific situation.`;
                     </span>
                   </div>
                   <div className="flex items-center gap-2">
+                    {/* Voice Mute Toggle */}
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setVoiceMuted(!voiceMuted)}
+                      className={`gap-1 text-xs ${voiceMuted ? 'text-muted-foreground' : 'text-primary'}`}
+                      title={voiceMuted ? "Unmute ELIN's voice" : "Mute ELIN's voice"}
+                    >
+                      {voiceMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
+                      <span className="hidden sm:inline">{voiceMuted ? 'Unmuted' : 'Voice On'}</span>
+                    </Button>
+
                     {/* Generate Script Button - only in mentor mode */}
                     {personaMode === 'mentor' && messages.length > 1 && (
                       <Button
@@ -827,8 +852,11 @@ Make the script natural, confident, and tailored to their specific situation.`;
                 {/* Voice Interface and Input */}
                 <div className="space-y-3 p-3 md:p-4 border-t border-border/30 sticky bottom-0 bg-card/95 backdrop-blur-md">
                   <VoiceInterface 
-                    onVoiceInput={(text) => handleSendMessage(text)}
-                    isListening={isTyping}
+                    ref={voiceInterfaceRef}
+                    onVoiceInput={handleVoiceInput}
+                    isListening={isTyping || isStreaming}
+                    voiceMuted={voiceMuted}
+                    onMuteChange={setVoiceMuted}
                   />
                   
                   <div className="flex items-center gap-2">
