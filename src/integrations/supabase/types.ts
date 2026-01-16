@@ -208,6 +208,36 @@ export type Database = {
         }
         Relationships: []
       }
+      impulse_prevention_logs: {
+        Row: {
+          created_at: string
+          hours_of_work: number
+          id: string
+          item_name: string
+          potential_future_value: number
+          price: number
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          hours_of_work: number
+          id?: string
+          item_name: string
+          potential_future_value: number
+          price: number
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          hours_of_work?: number
+          id?: string
+          item_name?: string
+          potential_future_value?: number
+          price?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
       lessons: {
         Row: {
           content_markdown: string | null
@@ -300,6 +330,7 @@ export type Database = {
           email: string
           experience_level: string | null
           first_name: string | null
+          hourly_wage: number | null
           id: string
           investment_goals: string[] | null
           last_name: string | null
@@ -317,6 +348,7 @@ export type Database = {
           email: string
           experience_level?: string | null
           first_name?: string | null
+          hourly_wage?: number | null
           id?: string
           investment_goals?: string[] | null
           last_name?: string | null
@@ -334,6 +366,7 @@ export type Database = {
           email?: string
           experience_level?: string | null
           first_name?: string | null
+          hourly_wage?: number | null
           id?: string
           investment_goals?: string[] | null
           last_name?: string | null

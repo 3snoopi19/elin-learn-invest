@@ -14,6 +14,8 @@ import { PredictiveBalanceCard } from "@/components/finance/PredictiveBalanceCar
 import { SpendDefenseBar } from "@/components/gamification/SpendDefenseBar";
 import { GoalVisualization } from "@/components/gamification/GoalVisualization";
 import { HabitStackCard } from "@/components/gamification/HabitStackCard";
+import { ImpulseInterceptor } from "@/components/gamification/ImpulseInterceptor";
+import { ImpulseSavingsWidget } from "@/components/gamification/ImpulseSavingsWidget";
 import { DailyBriefingModal } from "@/components/feed/DailyBriefingModal";
 import { DidYouKnowCard } from "@/components/feed/DidYouKnowCard";
 import { MobileDashboardHero } from "@/components/mobile/MobileDashboardHero";
@@ -168,9 +170,31 @@ const Dashboard = () => {
         {cardsLoading ? <SkeletonLoader variant="chart" /> : <GoalVisualization animationDelay={0.3} />}
       </div>
 
+      {/* Impulse Interceptor Section */}
+      <div className="mb-6">
+        {cardsLoading ? (
+          <SkeletonLoader variant="card" />
+        ) : (
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
+            <div className="lg:col-span-2">
+              <ImpulseInterceptor 
+                animationDelay={0.35} 
+                onBoughtIt={(itemName, price) => {
+                  // Navigate to transactions or open modal - for now just navigate
+                  navigate('/subscriptions');
+                }}
+              />
+            </div>
+            <div className="lg:col-span-1">
+              <ImpulseSavingsWidget animationDelay={0.4} />
+            </div>
+          </div>
+        )}
+      </div>
+
       {/* Secondary Row - Hidden on mobile */}
       <div className="hidden md:grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6 mb-6">
-        {cardsLoading ? <SkeletonLoader variant="chart" /> : <PredictiveBalanceCard animationDelay={0.4} />}
+        {cardsLoading ? <SkeletonLoader variant="chart" /> : <PredictiveBalanceCard animationDelay={0.45} />}
         <div className="lg:col-span-1">
           {cardsLoading ? <SkeletonLoader variant="card" /> : <SpendingAnomaliesCard animationDelay={0.5} />}
         </div>
