@@ -11,11 +11,12 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useNavigate } from "react-router-dom";
-import { Plus, TrendingUp, PieChart, AlertCircle, DollarSign, Percent } from "lucide-react";
+import { Plus, TrendingUp, PieChart, AlertCircle, DollarSign, Percent, Flame, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { marketDataProvider } from "@/services/marketDataProvider";
 import { validateTicker, validateShares, validateCostBasis, validatePurchaseDate } from "@/lib/validation";
 import { useToast } from "@/hooks/use-toast";
+import { PortfolioRoastCard } from "@/components/portfolio/PortfolioRoastCard";
 
 interface Holding {
   id: string;
@@ -27,6 +28,14 @@ interface Holding {
   current_value?: number;
   gain_loss?: number;
   gain_loss_percent?: number;
+  sector?: string;
+}
+
+interface RoastResult {
+  roast_score: number;
+  headline_roast: string;
+  key_risks: string[];
+  actionable_fix: string;
 }
 
 const Portfolio = () => {
@@ -35,6 +44,10 @@ const Portfolio = () => {
   const [holdings, setHoldings] = useState<Holding[]>([]);
   const [addDialogOpen, setAddDialogOpen] = useState(false);
   const [loadingData, setLoadingData] = useState(true);
+  
+  // Roast state
+  const [isRoasting, setIsRoasting] = useState(false);
+  const [roastResult, setRoastResult] = useState<RoastResult | null>(null);
 
   // Form state for adding holdings
   const [newHolding, setNewHolding] = useState({
@@ -221,6 +234,63 @@ const Portfolio = () => {
       value,
       percentage: totalValue > 0 ? (value / totalValue) * 100 : 0
     }));
+  };
+
+  const handleRoastPortfolio = async () => {
+    if (holdings.length === 0) {
+      toast({
+        title: "No Holdings",
+        description: "Add some holdings first before getting roasted!",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setIsRoasting(true);
+    setRoastResult(null);
+
+    try {
+      // Prepare holdings data with sector info
+      const holdingsData = holdings.map(h => {
+        const sector = h.ticker.startsWith('SPY') ? 'ETF' : 
+                      h.ticker.startsWith('AAPL') ? 'Technology' :
+                      h.ticker.startsWith('TSLA') ? 'Automotive' : 'Other';
+        return {
+          ticker: h.ticker,
+          shares: h.shares,
+          current_value: h.current_value || 0,
+          sector,
+          asset_class: sector === 'ETF' ? 'ETF' : 'Stock'
+        };
+      });
+
+      const totalValue = holdings.reduce((sum, h) => sum + (h.current_value || 0), 0);
+
+      const { data, error } = await supabase.functions.invoke('analyze-portfolio', {
+        body: {
+          holdings: holdingsData,
+          total_value: totalValue
+        }
+      });
+
+      if (error) throw error;
+
+      setRoastResult(data);
+      
+      toast({
+        title: "🔥 Roast Complete!",
+        description: `Your portfolio scored ${data.roast_score}/100`,
+      });
+    } catch (error) {
+      console.error('Error roasting portfolio:', error);
+      toast({
+        title: "Roast Failed",
+        description: "Our Wall Street veteran is taking a coffee break. Try again later.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsRoasting(false);
+    }
   };
 
   if (loading || loadingData) {
@@ -431,6 +501,35 @@ const Portfolio = () => {
                 </CardContent>
               </Card>
             </div>
+
+            {/* Roast My Portfolio Button */}
+            <div className="flex justify-center">
+              <Button
+                onClick={handleRoastPortfolio}
+                disabled={isRoasting || holdings.length === 0}
+                className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white font-semibold px-6 py-3 h-auto shadow-lg hover:shadow-orange-500/25 transition-all duration-300"
+              >
+                {isRoasting ? (
+                  <>
+                    <Loader2 className="h-5 w-5 mr-2 animate-spin" />
+                    Analyzing...
+                  </>
+                ) : (
+                  <>
+                    <Flame className="h-5 w-5 mr-2" />
+                    🔥 Roast My Portfolio
+                  </>
+                )}
+              </Button>
+            </div>
+
+            {/* Roast Result */}
+            {roastResult && (
+              <PortfolioRoastCard
+                result={roastResult}
+                onClose={() => setRoastResult(null)}
+              />
+            )}
 
             <Tabs defaultValue="holdings">
               <TabsList>
