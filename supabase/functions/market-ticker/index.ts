@@ -6,6 +6,30 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+// ============================================
+// Rate Limiting
+// ============================================
+interface RateLimitEntry { count: number; resetTime: number; }
+const ipRateLimits = new Map<string, RateLimitEntry>();
+const IP_LIMIT = { windowMs: 60000, maxRequests: 120 }; // 120 req/min for ticker (real-time updates)
+
+function checkRateLimit(key: string, store: Map<string, RateLimitEntry>, config: typeof IP_LIMIT): { allowed: boolean; remaining: number; resetIn: number } {
+  const now = Date.now();
+  const entry = store.get(key);
+  if (store.size > 10000) {
+    for (const [k, v] of store.entries()) { if (now > v.resetTime) store.delete(k); }
+  }
+  if (!entry || now > entry.resetTime) {
+    store.set(key, { count: 1, resetTime: now + config.windowMs });
+    return { allowed: true, remaining: config.maxRequests - 1, resetIn: config.windowMs };
+  }
+  if (entry.count >= config.maxRequests) {
+    return { allowed: false, remaining: 0, resetIn: entry.resetTime - now };
+  }
+  entry.count++;
+  return { allowed: true, remaining: config.maxRequests - entry.count, resetIn: entry.resetTime - now };
+}
+
 interface TickerQuote {
   symbol: string;
   price: number;
@@ -14,17 +38,17 @@ interface TickerQuote {
 }
 
 interface FinnhubQuote {
-  c: number; // current price
-  d: number; // change
-  dp: number; // percent change
-  h: number; // high
-  l: number; // low
-  o: number; // open
-  pc: number; // previous close
-  t: number; // timestamp
+  c: number;
+  d: number;
+  dp: number;
+  h: number;
+  l: number;
+  o: number;
+  pc: number;
+  t: number;
 }
 
-// Default symbols for ticker
+// Default symbols for ticker - validated at compile time
 const DEFAULT_SYMBOLS = ['AAPL', 'MSFT', 'TSLA', 'SPY', 'NVDA', 'GOOGL'];
 
 // In-memory cache
@@ -55,7 +79,7 @@ async function fetchTickerQuoteFromFinnhub(symbol: string, apiKey: string): Prom
   }
 
   const response = await fetch(
-    `https://finnhub.io/api/v1/quote?symbol=${symbol}&token=${apiKey}`
+    `https://finnhub.io/api/v1/quote?symbol=${encodeURIComponent(symbol)}&token=${apiKey}`
   );
 
   if (!response.ok) {
@@ -65,7 +89,6 @@ async function fetchTickerQuoteFromFinnhub(symbol: string, apiKey: string): Prom
   const data: FinnhubQuote = await response.json();
   const normalized = normalizeTickerQuote(symbol, data);
   
-  // Cache the result
   cache.set(cacheKey, {
     data: normalized,
     expires: Date.now() + CACHE_TTL
@@ -75,24 +98,47 @@ async function fetchTickerQuoteFromFinnhub(symbol: string, apiKey: string): Prom
 }
 
 serve(async (req) => {
-  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    const finnhubApiKey = Deno.env.get('FINNHUB_API_KEY');
-    if (!finnhubApiKey) {
+    // ============================================
+    // Rate Limiting
+    // ============================================
+    const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 
+               req.headers.get('x-real-ip') || 'unknown';
+    const ipResult = checkRateLimit(`ip:${ip}`, ipRateLimits, IP_LIMIT);
+
+    const rateLimitHeaders = {
+      'X-RateLimit-Limit': String(IP_LIMIT.maxRequests),
+      'X-RateLimit-Remaining': String(ipResult.remaining),
+      'X-RateLimit-Reset': String(Math.ceil(ipResult.resetIn / 1000)),
+    };
+
+    if (!ipResult.allowed) {
+      const retryAfter = Math.ceil(ipResult.resetIn / 1000);
       return new Response(
-        JSON.stringify({ error: 'API key not configured' }), 
+        JSON.stringify({ error: 'Too many requests. Please try again later.', retryAfter }),
         { 
-          status: 500,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+          status: 429, 
+          headers: { ...corsHeaders, ...rateLimitHeaders, 'Content-Type': 'application/json', 'Retry-After': String(retryAfter) }
         }
       );
     }
 
-    // Use default symbols for ticker tape
+    // ============================================
+    // API Key Check
+    // ============================================
+    const finnhubApiKey = Deno.env.get('FINNHUB_API_KEY');
+    if (!finnhubApiKey) {
+      return new Response(
+        JSON.stringify({ error: 'Market data service not configured' }), 
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Use default symbols for ticker tape (no user input needed)
     const symbols = DEFAULT_SYMBOLS;
 
     // Fetch quotes in parallel
@@ -107,20 +153,16 @@ serve(async (req) => {
     );
 
     const results = await Promise.all(quotePromises);
-    
-    // Filter out any errors and keep only successful quotes
     const quotes = results.filter(result => !('error' in result)) as TickerQuote[];
     
     console.log(`Fetched ${quotes.length} ticker quotes`);
 
     return new Response(
-      JSON.stringify({ 
-        quotes,
-        timestamp: Date.now()
-      }), 
+      JSON.stringify({ quotes, timestamp: Date.now() }), 
       {
         headers: { 
-          ...corsHeaders, 
+          ...corsHeaders,
+          ...rateLimitHeaders,
           'Content-Type': 'application/json',
           'Cache-Control': 'public, max-age=60'
         }
@@ -130,14 +172,8 @@ serve(async (req) => {
   } catch (error) {
     console.error('Error in market-ticker function:', error);
     return new Response(
-      JSON.stringify({ 
-        error: 'Internal server error',
-        message: error instanceof Error ? error.message : 'Unknown error'
-      }), 
-      {
-        status: 500,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-      }
+      JSON.stringify({ error: 'Internal server error' }), 
+      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   }
 });
