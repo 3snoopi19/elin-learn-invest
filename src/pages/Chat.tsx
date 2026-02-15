@@ -668,6 +668,14 @@ Make the script natural, confident, and tailored to their specific situation.`;
           </div>
         </div>
 
+        {/* Persistent AI disclosure – always visible, non-dismissible */}
+        <div className="flex items-center gap-2 rounded-md border border-border/40 bg-muted/30 px-3 py-1.5 mb-4">
+          <Bot className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+          <p className="text-xs text-muted-foreground">
+            ELIN is an artificial intelligence. For education only — not financial advice.
+          </p>
+        </div>
+
         <div className="mobile-grid gap-4 md:gap-6">
           {/* Sidebar */}
           <div className="lg:col-span-1 space-y-4">
