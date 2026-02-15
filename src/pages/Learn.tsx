@@ -13,6 +13,8 @@ import {
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
+import { PageLoadingState } from "@/components/ui/PageLoadingState";
+import { EmptyState } from "@/components/ui/EmptyState";
 import { useCourses } from "@/hooks/useCourses";
 import { CourseVideoHeader } from "@/components/learn/CourseVideoHeader";
 import { DynamicLessonView } from "@/components/learn/DynamicLessonView";
@@ -256,28 +258,18 @@ const Learn = () => {
 
         {/* Loading State */}
         {isLoading && (
-          <div className="flex items-center justify-center py-12">
-            <Loader2 className="w-8 h-8 animate-spin text-violet-500" />
-            <span className="ml-3 text-muted-foreground">Loading your courses...</span>
-          </div>
+          <PageLoadingState message="Loading your courses…" />
         )}
 
         {/* Empty State */}
         {!isLoading && courses.length === 0 && (
-          <Card className="text-center py-12 border-dashed border-2">
-            <CardContent>
-              <div className="p-4 rounded-full bg-violet-500/10 w-fit mx-auto mb-4">
-                <Brain className="w-12 h-12 text-violet-500" />
-              </div>
-              <h3 className="text-lg font-medium mb-2">Start Your Learning Journey</h3>
-              <p className="text-muted-foreground mb-4 max-w-md mx-auto">
-                Generate your first AI-powered course above. ELIN will create personalized content with audio, video, and quizzes tailored to your learning style.
-              </p>
-              <div className="flex flex-wrap justify-center gap-2">
-                <Badge variant="outline" className="text-xs">Stock Market Basics</Badge>
-                <Badge variant="outline" className="text-xs">Cryptocurrency 101</Badge>
-                <Badge variant="outline" className="text-xs">Portfolio Management</Badge>
-              </div>
+          <Card className="border-dashed border-2">
+            <CardContent className="py-0">
+              <EmptyState
+                icon={BookOpen}
+                title="No courses yet"
+                description="Generate your first AI-powered course above. ELIN will create personalized content with audio, video, and quizzes."
+              />
             </CardContent>
           </Card>
         )}
