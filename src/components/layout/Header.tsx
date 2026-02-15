@@ -79,7 +79,10 @@ export const Header = () => {
       </div>
       
       {/* Header - Hidden on mobile to maximize content space */}
-      <header className="hidden md:block sticky top-0 z-40 border-b border-border/50 bg-background/95 backdrop-blur-xl supports-[backdrop-filter]:bg-background/80">
+      <header
+        className="hidden md:block sticky top-0 z-40 border-b border-border/50 bg-background/95 backdrop-blur-xl supports-[backdrop-filter]:bg-background/80"
+        style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}
+      >
       
         <div className="container mx-auto px-4 h-14 md:h-16 flex items-center justify-between max-w-7xl">
           {/* Logo - Responsive sizing */}
