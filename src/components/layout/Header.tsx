@@ -62,14 +62,6 @@ export const Header = () => {
       </Button>
       <Button 
         variant="ghost" 
-        onClick={() => navigate('/router')}
-        className="text-muted-foreground hover:text-foreground hover:bg-primary/10 transition-colors"
-        aria-label="Money Flow Router"
-      >
-        Router
-      </Button>
-      <Button 
-        variant="ghost" 
         onClick={() => navigate('/resources')}
         className="text-muted-foreground hover:text-foreground hover:bg-primary/10 transition-colors"
         aria-label="Financial Resources"
