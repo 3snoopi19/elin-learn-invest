@@ -14,7 +14,10 @@ export const MainLayout = () => {
 
   return (
     // Root Container - The "Frame" - locked, no scrolling
-    <div className="h-[100dvh] w-full flex flex-col overflow-hidden bg-background">
+    <div
+      className="h-[100dvh] w-full flex flex-col overflow-hidden bg-background"
+      style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}
+    >
       {/* Desktop Header - Hidden on mobile */}
       <div className="hidden md:block shrink-0">
         <Header />
