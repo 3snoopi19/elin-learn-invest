@@ -12,6 +12,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useNavigate } from "react-router-dom";
 import { Plus, TrendingUp, PieChart, AlertCircle, DollarSign, Percent, Flame, Loader2 } from "lucide-react";
+import { PageLoadingState } from "@/components/ui/PageLoadingState";
+import { EmptyState } from "@/components/ui/EmptyState";
 import { supabase } from "@/integrations/supabase/client";
 import { marketDataProvider } from "@/services/marketDataProvider";
 import { validateTicker, validateShares, validateCostBasis, validatePurchaseDate } from "@/lib/validation";
@@ -294,7 +296,7 @@ const Portfolio = () => {
   };
 
   if (loading || loadingData) {
-    return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
+    return <PageLoadingState message="Loading your portfolio…" />;
   }
 
   if (!user) {
@@ -435,16 +437,14 @@ const Portfolio = () => {
 
         {holdings.length === 0 ? (
           <Card className="mobile-card">
-            <CardContent className="text-center py-8 md:py-12 mobile-padding">
-              <TrendingUp className="h-10 w-10 md:h-12 md:w-12 mx-auto text-muted-foreground mb-4" />
-              <h3 className="text-base md:text-lg font-semibold mb-2 text-text-heading">Your portfolio is empty</h3>
-              <p className="text-text-secondary mb-4 text-sm md:text-base">
-                Add your first holding to begin learning about portfolio management and diversification.
-              </p>
-              <Button onClick={() => setAddDialogOpen(true)} className="bg-primary hover:bg-primary-hover text-primary-foreground mobile-button w-full md:w-auto">
-                <Plus className="h-4 w-4 mr-2" />
-                Add Your First Holding
-              </Button>
+            <CardContent className="py-0">
+              <EmptyState
+                icon={TrendingUp}
+                title="No holdings yet"
+                description="Add your first holding to begin learning about portfolio management and diversification."
+                actionLabel="Add Your First Holding"
+                onAction={() => setAddDialogOpen(true)}
+              />
             </CardContent>
           </Card>
         ) : (
