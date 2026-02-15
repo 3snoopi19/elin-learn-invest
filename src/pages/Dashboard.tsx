@@ -125,27 +125,6 @@ const Dashboard = () => {
         </div>
       )}
 
-      {/* Mobile Quick Swipe CTA - Compact */}
-      {isMobile && !cardsLoading && (
-        <motion.button
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          onClick={() => navigate('/swipe')}
-          className="w-full mb-5 p-3 bg-gradient-to-r from-primary to-primary/80 rounded-2xl flex items-center justify-between shadow-lg"
-        >
-          <div className="flex items-center gap-2.5">
-            <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center">
-              <CreditCard className="w-5 h-5 text-white" />
-            </div>
-            <div className="text-left">
-              <p className="font-semibold text-white text-sm">Daily Swipe</p>
-              <p className="text-xs text-white/80">Review transactions</p>
-            </div>
-          </div>
-          <div className="text-xl">👉</div>
-        </motion.button>
-      )}
 
       {/* Cash Crunch Alert - Shows if negative balance predicted */}
       {!cardsLoading && (
@@ -229,7 +208,7 @@ const Dashboard = () => {
         {[
           { title: "Chat with ELIN", icon: MessageSquare, route: "/chat", color: "from-primary/20 to-primary/5" },
           { title: "Subscriptions", icon: Repeat, route: "/subscriptions", color: "from-secondary/20 to-secondary/5" },
-          { title: "Savings Goals", icon: PiggyBank, route: "/money-flow", color: "from-success/20 to-success/5" },
+          { title: "Portfolio", icon: PiggyBank, route: "/portfolio", color: "from-success/20 to-success/5" },
           { title: "Resources", icon: BookOpen, route: "/resources", color: "from-amber-500/20 to-amber-600/5" },
           { title: "Settings", icon: Settings, route: "/settings", color: "from-muted to-muted/50" },
         ].map((action, index) => (
