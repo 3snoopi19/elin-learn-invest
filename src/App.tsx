@@ -32,13 +32,8 @@ import RiskQuiz from "./pages/RiskQuiz";
 import InvestorProfile from "./pages/InvestorProfile";
 import PaymentSuccess from "./pages/PaymentSuccess";
 import CreditCoachV2 from "./pages/CreditCoachV2";
-import MoneyFlowPage from "./pages/MoneyFlow";
-import Router from "./pages/Router";
-import ProMode from "./pages/ProMode";
 import MarketDashboard from "./pages/MarketDashboard";
-import SupplyChain from "./pages/SupplyChain";
 import Subscriptions from "./pages/Subscriptions";
-import Swipe from "./pages/Swipe";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -73,14 +68,9 @@ const AppContent = () => {
           <Route path="/risk-quiz" element={<RiskQuiz />} />
           <Route path="/investor-profile" element={<InvestorProfile />} />
           <Route path="/payment-success" element={<PaymentSuccess />} />
-          <Route path="/pro-mode" element={<ProMode />} />
           <Route path="/credit-coach" element={<CreditCoachV2 />} />
-          <Route path="/money-flow" element={<MoneyFlowPage />} />
-          <Route path="/router" element={<Router />} />
           <Route path="/market-dashboard" element={<MarketDashboard />} />
-          <Route path="/supply-chain" element={<SupplyChain />} />
           <Route path="/subscriptions" element={<Subscriptions />} />
-          <Route path="/swipe" element={<Swipe />} />
         </Route>
         
         {/* Catch-all route */}
