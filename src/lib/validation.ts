@@ -163,11 +163,17 @@ export const validateEmail = (email: string): { isValid: boolean; error?: string
 export const sanitizeChatInput = (input: string): string => {
   if (!input) return '';
   
-  // Remove potential script tags and other dangerous content
   const cleaned = input
-    .replace(/<script[^>]*>.*?<\/script>/gi, '')
+    // Strip dangerous protocols first
+    .replace(/data:/gi, '')
+    .replace(/vbscript:/gi, '')
+    // Remove full <script ...>...</script> blocks (including attributes)
+    .replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, '')
+    // Remove any remaining HTML tags
     .replace(/<[^>]+>/g, '')
+    // Remove javascript: protocol
     .replace(/javascript:/gi, '')
+    // Remove inline event handlers
     .replace(/on\w+\s*=/gi, '')
     .trim();
   
