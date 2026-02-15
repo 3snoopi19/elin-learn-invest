@@ -1,6 +1,6 @@
 import { useNavigate, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { LayoutDashboard, CreditCard, MessageSquare } from "lucide-react";
+import { LayoutDashboard, BookOpen, MessageSquare, PieChart, User } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Haptics, ImpactStyle } from "@capacitor/haptics";
 
@@ -12,24 +12,11 @@ interface DockItem {
 }
 
 const dockItems: DockItem[] = [
-  {
-    id: 'focus',
-    icon: LayoutDashboard,
-    label: 'Focus',
-    path: '/dashboard'
-  },
-  {
-    id: 'swipe',
-    icon: CreditCard,
-    label: 'Swipe',
-    path: '/swipe'
-  },
-  {
-    id: 'chat',
-    icon: MessageSquare,
-    label: 'Ask ELIN',
-    path: '/chat'
-  }
+  { id: 'home', icon: LayoutDashboard, label: 'Home', path: '/dashboard' },
+  { id: 'learn', icon: BookOpen, label: 'Learn', path: '/learn' },
+  { id: 'chat', icon: MessageSquare, label: 'Ask ELIN', path: '/chat' },
+  { id: 'portfolio', icon: PieChart, label: 'Portfolio', path: '/portfolio' },
+  { id: 'profile', icon: User, label: 'Profile', path: '/settings' },
 ];
 
 export const MobileBottomDock = () => {
@@ -68,7 +55,7 @@ export const MobileBottomDock = () => {
       }}
     >
       {/* Dock container - Floating Glass Pill */}
-      <div className="flex items-center justify-center gap-3 h-[72px] px-6 mx-auto max-w-sm rounded-full bg-black/60 backdrop-blur-xl border border-white/10 shadow-2xl">
+      <div className="flex items-center justify-around h-[72px] px-3 mx-auto max-w-md rounded-full bg-black/60 backdrop-blur-xl border border-white/10 shadow-2xl">
         {dockItems.map((item) => {
           const Icon = item.icon;
           const isActive = location.pathname === item.path;
@@ -77,7 +64,7 @@ export const MobileBottomDock = () => {
             <motion.button
               key={item.id}
               onClick={() => handleNavigation(item.path)}
-              className={`relative flex flex-col items-center justify-center w-18 h-16 px-4 rounded-2xl transition-all duration-300 active:scale-95 ${
+              className={`relative flex flex-col items-center justify-center min-h-[44px] h-14 px-2 rounded-2xl transition-all duration-300 active:scale-95 ${
                 isActive 
                   ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/40' 
                   : 'text-white/60 hover:text-white hover:bg-white/5 active:bg-white/10'
