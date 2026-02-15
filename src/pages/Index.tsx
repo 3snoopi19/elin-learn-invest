@@ -119,21 +119,24 @@ const Index = () => {
               className="text-center lg:text-left"
             >
               <Badge variant="secondary" className="mb-4 animate-fade-in text-xs md:text-sm bg-primary/10 text-primary border-primary/20">
-                <Zap className="w-3 h-3 mr-1" />
-                30 seconds a day
+                <Brain className="w-3 h-3 mr-1" />
+                Learn · Invest · Ask ELIN
               </Badge>
               
               <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black mb-4 md:mb-6 leading-tight">
-                <span className="text-text-heading">Don't Budget.</span>
+                <span className="text-text-heading">Learn to Invest.</span>
                 <br />
                 <span className="bg-gradient-to-r from-primary via-primary to-success bg-clip-text text-transparent">
-                  Just Swipe.
+                  Track It. All in One App.
                 </span>
               </h1>
               
-              <p className="text-base md:text-xl text-text-secondary mb-6 md:mb-8 max-w-lg mx-auto lg:mx-0">
-                The world's first <span className="font-semibold text-primary">"Tinder-for-Finance"</span> interface. 
-                Swipe left on waste, swipe right on wealth. Master your money in 30 seconds a day.
+              <p className="text-base md:text-xl text-text-secondary mb-3 md:mb-4 max-w-lg mx-auto lg:mx-0">
+                ELIN is your <span className="font-semibold text-primary">AI finance mentor</span> — ask anything about money, 
+                learn at your pace, and track your portfolio in one place.
+              </p>
+              <p className="text-sm md:text-base text-text-muted mb-6 md:mb-8 max-w-lg mx-auto lg:mx-0">
+                Get answers and lessons from ELIN, then put what you learn into action — no switching apps.
               </p>
               
               <div className="flex flex-col sm:flex-row gap-3 md:gap-4 justify-center lg:justify-start">
@@ -143,7 +146,7 @@ const Index = () => {
                   className="text-base md:text-lg px-6 md:px-8 bg-primary hover:bg-primary-hover text-primary-foreground shadow-lg shadow-primary/25 w-full sm:w-auto group"
                 >
                   <Sparkles className="w-5 h-5 mr-2 group-hover:animate-pulse" />
-                  Start Swiping — Free Trial
+                  Get Started — It's Free
                 </Button>
                 <Button 
                   size="lg" 
