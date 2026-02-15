@@ -118,7 +118,12 @@ const Auth = () => {
         });
       }
     } catch (err) {
-      setError("An unexpected error occurred. Please try again.");
+      setError("Something went wrong. Check your connection and try again.");
+      toast({
+        title: "Sign-in failed",
+        description: "Check your email and password, or try again later.",
+        variant: "destructive"
+      });
     } finally {
       setLoading(false);
     }
