@@ -49,9 +49,9 @@ export const MobileBottomDock = () => {
         damping: 30
       }}
       // The "Anchor" - fixed positioning ~20px from bottom, centered with side margins
-      className="fixed bottom-5 left-4 right-4 z-50 md:hidden"
+      className="fixed left-4 right-4 z-50 md:hidden"
       style={{ 
-        paddingBottom: 'env(safe-area-inset-bottom, 0px)',
+        bottom: 'calc(12px + env(safe-area-inset-bottom, 0px))',
       }}
     >
       {/* Dock container - Floating Glass Pill */}
