@@ -501,8 +501,8 @@ Make the script natural, confident, and tailored to their specific situation.`;
       console.error('ELIN API error:', error);
       setIsStreaming(false);
       toast({
-        title: "Connection Error",
-        description: "ELIN is temporarily unavailable. Please try again.",
+        title: "Message didn't send",
+        description: "Please try again in a moment.",
         variant: "destructive"
       });
       

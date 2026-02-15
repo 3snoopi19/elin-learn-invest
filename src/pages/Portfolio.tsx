@@ -199,8 +199,8 @@ const Portfolio = () => {
     } catch (error) {
       console.error('Error adding holding:', error);
       toast({
-        title: "Error",
-        description: "Failed to add holding. Please try again.",
+        title: "Couldn't add holding",
+        description: "Check your connection and try again.",
         variant: "destructive"
       });
     }
@@ -286,8 +286,8 @@ const Portfolio = () => {
     } catch (error) {
       console.error('Error roasting portfolio:', error);
       toast({
-        title: "Roast Failed",
-        description: "Our Wall Street veteran is taking a coffee break. Try again later.",
+        title: "Couldn't roast your portfolio",
+        description: "Check your connection and try again.",
         variant: "destructive"
       });
     } finally {
