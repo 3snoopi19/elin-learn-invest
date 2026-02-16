@@ -1,6 +1,4 @@
 import { useState } from "react";
-import { Header } from "@/components/layout/Header";
-import { Footer } from "@/components/layout/Footer";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
@@ -27,9 +25,7 @@ const Settings = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      <Header />
-      <main className="mobile-container mobile-content py-4 md:py-8 max-w-4xl mx-auto pb-32 md:pb-8">
+    <div className="px-4 md:px-8 py-4 md:py-8 max-w-4xl mx-auto">
         {/* Header */}
         <div className="mb-6 md:mb-8">
           <h1 className="text-2xl md:text-3xl font-bold mb-2 flex items-center gap-2">
@@ -254,8 +250,6 @@ const Settings = () => {
             </Card>
           </TabsContent>
         </Tabs>
-      </main>
-      <Footer />
     </div>
   );
 };
