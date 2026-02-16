@@ -15,8 +15,7 @@ export const MainLayout = () => {
   return (
     // Root Container - The "Frame" - locked, no scrolling
     <div
-      className="h-[100dvh] w-full flex flex-col overflow-hidden bg-background"
-      style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}
+      className={`h-[100dvh] w-full flex flex-col overflow-hidden bg-background ${isMobile ? 'pt-[env(safe-area-inset-top,0px)]' : ''}`}
     >
       {/* Desktop Header - Hidden on mobile */}
       <div className="hidden md:block shrink-0">
@@ -26,7 +25,7 @@ export const MainLayout = () => {
       {/* Content Zone - The "Scrollable Area" */}
       <main className="flex-1 w-full overflow-y-auto overflow-x-hidden scroll-smooth z-0 relative">
         {/* Safety Pad: pb-48 (192px) clearance for floating dock on mobile, 32px on desktop */}
-        <div className="pb-[calc(12rem+env(safe-area-inset-bottom,1.25rem))] md:pb-8">
+        <div className={`${isMobile ? 'pb-[calc(12rem+env(safe-area-inset-bottom,1.25rem))]' : 'pb-8'}`}>
           <Outlet />
         </div>
       </main>
