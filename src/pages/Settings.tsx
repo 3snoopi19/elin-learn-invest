@@ -25,9 +25,9 @@ const Settings = () => {
   };
 
   return (
-    <div className="px-4 md:px-8 py-4 md:py-8 max-w-4xl mx-auto">
+    <div className="px-4 pt-4 md:px-8 md:pt-8 max-w-5xl mx-auto space-y-6">
         {/* Header */}
-        <div className="mb-6 md:mb-8">
+        <div>
           <h1 className="text-2xl md:text-3xl font-bold mb-2 flex items-center gap-2">
             <SettingsIcon className="h-6 w-6 md:h-8 md:w-8 text-primary" />
             Account Settings
@@ -38,22 +38,22 @@ const Settings = () => {
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4 md:space-y-6">
-          <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 h-auto gap-1">
-            <TabsTrigger value="account" className="flex items-center gap-1 md:gap-2 text-xs md:text-sm py-2 md:py-3">
+          <TabsList className="flex w-full overflow-x-auto h-auto gap-1">
+            <TabsTrigger value="account" className="flex items-center gap-1 md:gap-2 text-xs md:text-sm min-h-[44px] flex-1">
               <User className="h-3 w-3 md:h-4 md:w-4" />
               <span className="hidden sm:inline">Account</span>
               <span className="sm:hidden">Acct</span>
             </TabsTrigger>
-            <TabsTrigger value="notifications" className="flex items-center gap-1 md:gap-2 text-xs md:text-sm py-2 md:py-3">
+            <TabsTrigger value="notifications" className="flex items-center gap-1 md:gap-2 text-xs md:text-sm min-h-[44px] flex-1">
               <Bell className="h-3 w-3 md:h-4 md:w-4" />
               <span className="hidden sm:inline">Notifications</span>
               <span className="sm:hidden">Notif</span>
             </TabsTrigger>
-            <TabsTrigger value="privacy" className="flex items-center gap-1 md:gap-2 text-xs md:text-sm py-2 md:py-3">
+            <TabsTrigger value="privacy" className="flex items-center gap-1 md:gap-2 text-xs md:text-sm min-h-[44px] flex-1">
               <Shield className="h-3 w-3 md:h-4 md:w-4" />
               Privacy
             </TabsTrigger>
-            <TabsTrigger value="data" className="flex items-center gap-1 md:gap-2 text-xs md:text-sm py-2 md:py-3">
+            <TabsTrigger value="data" className="flex items-center gap-1 md:gap-2 text-xs md:text-sm min-h-[44px] flex-1">
               <Download className="h-3 w-3 md:h-4 md:w-4" />
               Data
             </TabsTrigger>

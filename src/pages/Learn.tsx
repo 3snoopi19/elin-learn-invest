@@ -89,7 +89,7 @@ const Learn = () => {
   // If viewing a lesson, show the lesson view
   if (viewingLesson) {
     return (
-      <div className="px-4 md:px-8 py-4 md:py-8">
+      <div className="px-4 pt-4 md:px-8 md:pt-8 max-w-5xl mx-auto space-y-6">
         <div className="mb-6">
           <Button 
             variant="ghost" 
@@ -117,9 +117,9 @@ const Learn = () => {
   }
 
   return (
-    <div className="px-4 md:px-8 py-4 md:py-8">
+    <div className="px-4 pt-4 md:px-8 md:pt-8 max-w-5xl mx-auto space-y-6">
         {/* Hero Section */}
-        <div className="text-center mb-8 md:mb-12">
+        <div className="text-center">
           <div className="flex items-center justify-center gap-2 mb-4">
             <div className="p-3 rounded-2xl bg-gradient-to-br from-violet-500/20 to-purple-500/20">
               <Brain className="w-8 h-8 text-violet-500" />
@@ -160,7 +160,7 @@ const Learn = () => {
         </div>
 
         {/* Generate New Course */}
-        <Card className="mb-6 bg-gradient-to-r from-violet-500/10 via-purple-500/10 to-blue-500/10 border-violet-500/20">
+        <Card className="bg-gradient-to-r from-violet-500/10 via-purple-500/10 to-blue-500/10 border-violet-500/20">
           <CardHeader className="pb-3">
             <CardTitle className="flex items-center gap-2 text-lg">
               <Sparkles className="w-5 h-5 text-violet-500" />
@@ -212,7 +212,7 @@ const Learn = () => {
 
         {/* Progress Overview */}
         {courses.length > 0 && (
-          <Card className="mb-6 bg-gradient-to-r from-primary/5 to-success/5 border-primary/20">
+          <Card className="bg-gradient-to-r from-primary/5 to-success/5 border-primary/20">
             <CardContent className="pt-6">
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
                 <div className="text-center">
