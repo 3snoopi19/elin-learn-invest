@@ -1,7 +1,5 @@
 import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
-import { Header } from "@/components/layout/Header";
-import { Footer } from "@/components/layout/Footer";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -87,10 +85,7 @@ const Filings = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <Header />
-      
-      <main className="mobile-container mobile-content py-4 md:py-8 pb-32 md:pb-8">
+    <div className="px-4 md:px-8 py-4 md:py-8">
         {/* Header */}
         <div className="mb-6 md:mb-8">
           <h1 className="text-2xl md:text-3xl font-bold mb-2">SEC Filings Explorer</h1>
@@ -370,9 +365,6 @@ const Filings = () => {
             </CardContent>
           </Card>
         )}
-      </main>
-      
-      <Footer />
     </div>
   );
 };

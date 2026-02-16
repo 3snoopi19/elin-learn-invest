@@ -1,7 +1,5 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
-import { Header } from "@/components/layout/Header";
-import { Footer } from "@/components/layout/Footer";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -345,10 +343,7 @@ const Portfolio = () => {
   const diversificationData = getDiversificationData();
 
   return (
-    <div className="min-h-screen bg-background">
-      <Header />
-      
-      <main className="mobile-container mobile-content pb-32 md:pb-8 py-4 md:py-8">
+    <div className="px-4 md:px-8 py-4 md:py-8">
         {/* Header - Mobile optimized */}
         <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 md:mb-8 gap-4">
           <div>
@@ -722,9 +717,6 @@ const Portfolio = () => {
             </Tabs>
           </div>
         )}
-      </main>
-      
-      <Footer />
     </div>
   );
 };
