@@ -11,7 +11,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useNavigate } from "react-router-dom";
-import { Plus, TrendingUp, PieChart, AlertCircle, DollarSign, Percent, Flame, Loader2 } from "lucide-react";
+import { Plus, TrendingUp, PieChart, AlertCircle, DollarSign, Percent, Flame, Loader2, Share2, Copy, Check } from "lucide-react";
 import { PageLoadingState } from "@/components/ui/PageLoadingState";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { supabase } from "@/integrations/supabase/client";
@@ -19,6 +19,44 @@ import { marketDataProvider } from "@/services/marketDataProvider";
 import { validateTicker, validateShares, validateCostBasis, validatePurchaseDate } from "@/lib/validation";
 import { useToast } from "@/hooks/use-toast";
 import { PortfolioRoastCard } from "@/components/portfolio/PortfolioRoastCard";
+
+const SHARE_APP_URL = "https://elin-learn-invest.lovable.app";
+
+const ShareRoastButton = ({ result }: { result: RoastResult }) => {
+  const [copied, setCopied] = useState(false);
+  const { toast } = useToast();
+
+  const shareText = `ELIN roasted my portfolio — Score: ${result.roast_score}/100. "${result.headline_roast}" Try ELIN: ${SHARE_APP_URL}`;
+
+  const handleShare = async () => {
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: "My ELIN Portfolio Roast", text: shareText });
+      } catch (e) {
+        // User cancelled or share failed — fall back to copy
+        if ((e as DOMException).name !== "AbortError") copyToClipboard();
+      }
+    } else {
+      copyToClipboard();
+    }
+  };
+
+  const copyToClipboard = () => {
+    navigator.clipboard.writeText(shareText);
+    setCopied(true);
+    toast({ title: "📋 Copied!", description: "Paste anywhere to share your roast." });
+    setTimeout(() => setCopied(false), 2500);
+  };
+
+  return (
+    <div className="flex justify-center">
+      <Button variant="outline" size="sm" onClick={handleShare} className="gap-2">
+        {copied ? <Check className="h-4 w-4" /> : <Share2 className="h-4 w-4" />}
+        {copied ? "Copied!" : "Share my roast"}
+      </Button>
+    </div>
+  );
+};
 
 interface Holding {
   id: string;
@@ -525,10 +563,13 @@ const Portfolio = () => {
 
             {/* Roast Result */}
             {roastResult && (
-              <PortfolioRoastCard
-                result={roastResult}
-                onClose={() => setRoastResult(null)}
-              />
+              <>
+                <PortfolioRoastCard
+                  result={roastResult}
+                  onClose={() => setRoastResult(null)}
+                />
+                <ShareRoastButton result={roastResult} />
+              </>
             )}
 
             <Tabs defaultValue="holdings">
