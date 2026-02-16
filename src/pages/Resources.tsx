@@ -64,7 +64,7 @@ const Resources = () => {
   };
 
   return (
-    <div className="px-4 md:px-8 py-4 md:py-8 max-w-6xl mx-auto">
+    <div className="px-4 pt-4 md:px-8 md:pt-8 max-w-5xl mx-auto space-y-6">
       {/* Hero Section */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -80,23 +80,23 @@ const Resources = () => {
       </motion.div>
 
       <Tabs defaultValue="mental-models" className="w-full">
-        <TabsList className="grid w-full max-w-2xl mx-auto grid-cols-4 mb-8">
-          <TabsTrigger value="mental-models" className="flex items-center gap-1 text-xs md:text-sm">
+        <TabsList className="flex w-full max-w-2xl mx-auto overflow-x-auto mb-8">
+          <TabsTrigger value="mental-models" className="flex items-center gap-1 text-xs md:text-sm min-h-[44px] flex-1">
             <Brain className="w-4 h-4" />
             <span className="hidden md:inline">Mental Models</span>
             <span className="md:hidden">Models</span>
           </TabsTrigger>
-          <TabsTrigger value="wisdom" className="flex items-center gap-1 text-xs md:text-sm">
+          <TabsTrigger value="wisdom" className="flex items-center gap-1 text-xs md:text-sm min-h-[44px] flex-1">
             <BookOpen className="w-4 h-4" />
             <span className="hidden md:inline">5-Min Wisdom</span>
             <span className="md:hidden">Wisdom</span>
           </TabsTrigger>
-          <TabsTrigger value="calculator" className="flex items-center gap-1 text-xs md:text-sm">
+          <TabsTrigger value="calculator" className="flex items-center gap-1 text-xs md:text-sm min-h-[44px] flex-1">
             <Calculator className="w-4 h-4" />
             <span className="hidden md:inline">Career ROI</span>
             <span className="md:hidden">ROI</span>
           </TabsTrigger>
-          <TabsTrigger value="glossary" className="flex items-center gap-1 text-xs md:text-sm">
+          <TabsTrigger value="glossary" className="flex items-center gap-1 text-xs md:text-sm min-h-[44px] flex-1">
             <Rocket className="w-4 h-4" />
             <span className="hidden md:inline">Wiki & Tools</span>
             <span className="md:hidden">Wiki</span>
@@ -156,7 +156,7 @@ const Resources = () => {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.2 }}
-                className="flex flex-wrap justify-center gap-2 mb-8"
+                className="flex flex-wrap justify-center gap-2 mb-8 [&>button]:min-h-[44px]"
               >
                 {categories.map((cat) => (
                   <button
@@ -175,7 +175,7 @@ const Resources = () => {
               </motion.div>
 
               {/* Terms Grid */}
-              <div className="grid gap-4 md:grid-cols-2">
+              <div className="grid gap-4 grid-cols-1 md:grid-cols-2">
                 <AnimatePresence mode="popLayout">
                   {filteredTerms.map((term, index) => (
                     <motion.div

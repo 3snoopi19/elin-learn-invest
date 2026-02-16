@@ -76,12 +76,12 @@ const Dashboard = () => {
   if (!user) return null;
 
   return (
-    <div className="px-4 md:px-8 pt-6 md:py-8">
+    <div className="px-4 pt-4 md:px-8 md:pt-8 max-w-5xl mx-auto space-y-6">
       {/* Daily Briefing Modal */}
       <DailyBriefingModal isOpen={showBriefing} onClose={() => setShowBriefing(false)} />
 
       {/* Hero Greeting */}
-      <div className="mb-6 md:mb-8">
+      <div>
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="space-y-1 text-center md:text-left">
             <h1 className="text-2xl md:text-4xl font-bold bg-gradient-to-r from-text-heading via-primary to-text-secondary bg-clip-text text-transparent">
@@ -120,7 +120,7 @@ const Dashboard = () => {
 
       {/* Mobile Hero - Progress Rings and Big Numbers */}
       {isMobile && !cardsLoading && (
-        <div className="mb-5">
+        <div>
           <MobileDashboardHero animationDelay={0.05} />
         </div>
       )}
@@ -128,13 +128,13 @@ const Dashboard = () => {
 
       {/* Cash Crunch Alert - Shows if negative balance predicted */}
       {!cardsLoading && (
-        <div className="mb-6">
+        <div>
           <CashCrunchAlert animationDelay={0.05} />
         </div>
       )}
 
       {/* Spend Defense + Habit Stack Row - Hidden on mobile */}
-      <div className="hidden md:grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6 mb-6">
+      <div className="hidden md:grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
         <div>
           {cardsLoading ? <SkeletonLoader variant="card" /> : <SpendDefenseBar dailyBudget={80} spentToday={0} streakDays={3} animationDelay={0.1} />}
         </div>
@@ -144,7 +144,7 @@ const Dashboard = () => {
       </div>
 
       {/* Main Dashboard Grid - Hide complex cards on mobile */}
-      <div className="hidden md:grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6 mb-6">
+      <div className="hidden md:grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
         <div className="lg:col-span-2">
           {cardsLoading ? <SkeletonLoader variant="card" /> : <NetWorthCard animationDelay={0.1} />}
         </div>
@@ -154,17 +154,17 @@ const Dashboard = () => {
       </div>
 
       {/* 30-Day Cash Flow Forecast - The Crystal Ball */}
-      <div className="mb-6">
+      <div>
         {cardsLoading ? <SkeletonLoader variant="chart" /> : <CashFlowForecastChart animationDelay={0.3} />}
       </div>
 
       {/* Goal Visualization - Hidden on mobile */}
-      <div className="hidden md:block mb-6">
+      <div className="hidden md:block">
         {cardsLoading ? <SkeletonLoader variant="chart" /> : <GoalVisualization animationDelay={0.35} />}
       </div>
 
       {/* Impulse Interceptor Section */}
-      <div className="mb-6">
+      <div>
         {cardsLoading ? (
           <SkeletonLoader variant="card" />
         ) : (
@@ -186,7 +186,7 @@ const Dashboard = () => {
       </div>
 
       {/* Secondary Row - Hidden on mobile */}
-      <div className="hidden md:grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6 mb-6">
+      <div className="hidden md:grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
         {cardsLoading ? <SkeletonLoader variant="chart" /> : <PredictiveBalanceCard animationDelay={0.45} />}
         <div className="lg:col-span-1">
           {cardsLoading ? <SkeletonLoader variant="card" /> : <SpendingAnomaliesCard animationDelay={0.5} />}
@@ -194,17 +194,17 @@ const Dashboard = () => {
       </div>
 
       {/* Did You Know Card - Visible on mobile */}
-      <div className="mb-8">
+      <div>
         {cardsLoading ? <SkeletonLoader variant="card" /> : <DidYouKnowCard animationDelay={0.55} />}
       </div>
 
       {/* Transactions Feed - Visible on mobile */}
-      <div className="mb-8">
+      <div>
         {cardsLoading ? <SkeletonLoader variant="list" /> : <TransactionsFeed animationDelay={0.6} />}
       </div>
 
       {/* Quick Actions - Hide on mobile */}
-      <div className="hidden md:grid grid-cols-2 md:grid-cols-5 gap-3 pb-8">
+      <div className="hidden md:grid grid-cols-2 md:grid-cols-5 gap-3">
         {[
           { title: "Chat with ELIN", icon: MessageSquare, route: "/chat", color: "from-primary/20 to-primary/5" },
           { title: "Subscriptions", icon: Repeat, route: "/subscriptions", color: "from-secondary/20 to-secondary/5" },

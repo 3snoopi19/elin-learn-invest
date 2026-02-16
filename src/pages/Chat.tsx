@@ -606,10 +606,10 @@ Make the script natural, confident, and tailored to their specific situation.`;
   }
 
   return (
-    <div className="px-4 md:px-8 py-4 md:py-8">
-      <div className="max-w-7xl mx-auto">
+    <div className="px-4 pt-4 md:px-8 md:pt-8 max-w-5xl mx-auto space-y-6">
+      <div>
         {/* Header with Persona Toggle */}
-        <div className="mb-4 md:mb-6">
+          <div>
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
               <div className="flex items-center space-x-3 mb-2">
@@ -669,7 +669,7 @@ Make the script natural, confident, and tailored to their specific situation.`;
         </div>
 
         {/* Persistent AI disclosure – always visible, non-dismissible */}
-        <div className="flex items-center gap-2 rounded-md border border-border/40 bg-muted/30 px-3 py-1.5 mb-4">
+        <div className="flex items-center gap-2 rounded-md border border-border/40 bg-muted/30 px-3 py-1.5">
           <Bot className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
           <p className="text-xs text-muted-foreground">
             ELIN is an artificial intelligence. For education only — not financial advice.

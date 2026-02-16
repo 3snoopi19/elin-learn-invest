@@ -343,9 +343,9 @@ const Portfolio = () => {
   const diversificationData = getDiversificationData();
 
   return (
-    <div className="px-4 md:px-8 py-4 md:py-8">
+    <div className="px-4 pt-4 md:px-8 md:pt-8 max-w-5xl mx-auto space-y-6">
         {/* Header - Mobile optimized */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 md:mb-8 gap-4">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <h1 className="text-2xl md:text-3xl font-bold mb-2">Portfolio Tracker</h1>
             <p className="text-muted-foreground text-sm md:text-base">
@@ -460,7 +460,7 @@ const Portfolio = () => {
         </div>
 
         {/* Compliance Notice */}
-        <Alert className="mb-6 border-education/20 bg-education/5">
+        <Alert className="border-education/20 bg-education/5">
           <AlertCircle className="h-4 w-4 text-education" />
           <AlertDescription>
             <strong>Educational Tool:</strong> This portfolio tracker is for educational purposes 
@@ -483,7 +483,7 @@ const Portfolio = () => {
         ) : (
           <div className="space-y-4 md:space-y-6">
             {/* Portfolio Summary - Mobile responsive grid */}
-            <div className="mobile-grid gap-3 md:gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
               <Card className="mobile-card">
                 <CardHeader className="pb-2 mobile-padding">
                   <CardTitle className="text-sm font-medium flex items-center">
@@ -568,10 +568,10 @@ const Portfolio = () => {
             )}
 
             <Tabs defaultValue="holdings">
-              <TabsList>
-                <TabsTrigger value="holdings">Holdings</TabsTrigger>
-                <TabsTrigger value="diversification">Diversification</TabsTrigger>
-                <TabsTrigger value="insights">Educational Insights</TabsTrigger>
+              <TabsList className="w-full overflow-x-auto flex h-auto">
+                <TabsTrigger value="holdings" className="min-h-[44px]">Holdings</TabsTrigger>
+                <TabsTrigger value="diversification" className="min-h-[44px]">Diversification</TabsTrigger>
+                <TabsTrigger value="insights" className="min-h-[44px]">Educational Insights</TabsTrigger>
               </TabsList>
               
               <TabsContent value="holdings">

@@ -85,9 +85,9 @@ const Filings = () => {
   }
 
   return (
-    <div className="px-4 md:px-8 py-4 md:py-8">
+    <div className="px-4 pt-4 md:px-8 md:pt-8 max-w-5xl mx-auto space-y-6">
         {/* Header */}
-        <div className="mb-6 md:mb-8">
+        <div>
           <h1 className="text-2xl md:text-3xl font-bold mb-2">SEC Filings Explorer</h1>
           <p className="text-sm md:text-base text-muted-foreground">
             Search and explore company SEC filings with AI-powered explanations
@@ -95,7 +95,7 @@ const Filings = () => {
         </div>
 
         {/* Compliance Notice */}
-        <Alert className="mb-6 border-education/20 bg-education/5">
+        <Alert className="border-education/20 bg-education/5">
           <AlertCircle className="h-4 w-4 text-education" />
           <AlertDescription>
             <strong>Educational Tool:</strong> Use this to learn about companies and understand 
@@ -104,7 +104,7 @@ const Filings = () => {
         </Alert>
 
         {/* Search */}
-        <Card className="mb-6 md:mb-8 mobile-card">
+        <Card className="mobile-card">
           <CardHeader className="pb-3 md:pb-4">
             <CardTitle className="flex items-center space-x-2 text-base md:text-lg">
               <Search className="h-4 w-4 md:h-5 md:w-5" />
@@ -132,7 +132,7 @@ const Filings = () => {
 
         {/* Search Results */}
         {searchResults && (
-          <div className="space-y-4 md:space-y-6">
+          <div className="space-y-6">
             {/* Company Info */}
             <Card className="mobile-card">
               <CardHeader className="pb-3 md:pb-4">
