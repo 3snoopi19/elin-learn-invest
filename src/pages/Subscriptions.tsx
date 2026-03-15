@@ -465,7 +465,7 @@ const Subscriptions = () => {
             <p className="text-sm">Scanning your financial history...</p>
           </div>
         )}
-      </main>
+      
 
       {/* Negotiate Dialog */}
       <Dialog open={negotiateDialogOpen} onOpenChange={setNegotiateDialogOpen}>
