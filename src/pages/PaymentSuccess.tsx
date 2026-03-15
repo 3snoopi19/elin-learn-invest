@@ -8,7 +8,7 @@ export default function PaymentSuccess() {
   const sessionId = searchParams.get("session_id");
 
   return (
-    <div className="px-4 pt-4 md:px-8 md:pt-8 max-w-5xl mx-auto space-y-6 flex items-center justify-center min-h-[60vh]">
+    <div className="px-6 py-8 md:px-8 max-w-5xl mx-auto space-y-6 flex items-center justify-center min-h-[60vh]">
         <Card className="w-full max-w-md text-center">
           <CardHeader className="space-y-4">
             <div className="mx-auto w-16 h-16 bg-green-100 rounded-full flex items-center justify-center">

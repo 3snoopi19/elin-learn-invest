@@ -89,7 +89,7 @@ const Learn = () => {
   // If viewing a lesson, show the lesson view
   if (viewingLesson) {
     return (
-      <div className="px-4 pt-4 md:px-8 md:pt-8 max-w-5xl mx-auto space-y-6">
+      <div className="px-6 py-8 md:px-8 max-w-5xl mx-auto space-y-6">
         <div className="mb-6">
           <Button 
             variant="ghost" 
@@ -117,7 +117,7 @@ const Learn = () => {
   }
 
   return (
-    <div className="px-4 pt-4 md:px-8 md:pt-8 max-w-5xl mx-auto space-y-6">
+    <div className="px-6 py-8 md:px-8 max-w-5xl mx-auto space-y-6">
         {/* Hero Section */}
         <div className="text-center">
           <div className="flex items-center justify-center gap-2 mb-4">

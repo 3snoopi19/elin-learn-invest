@@ -153,7 +153,7 @@ const PortfolioSimulator = () => {
   const risk = getRiskLevel();
 
   return (
-    <div className="px-4 pt-4 md:px-8 md:pt-8 max-w-5xl mx-auto space-y-6">
+    <div className="px-6 py-8 md:px-8 max-w-5xl mx-auto space-y-6">
         {/* Header */}
         <div className="mb-6 md:mb-8">
           <h1 className="mobile-heading mb-2">AI Portfolio Simulator</h1>
