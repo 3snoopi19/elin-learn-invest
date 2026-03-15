@@ -651,7 +651,7 @@ const Subscriptions = () => {
         error={assassinError}
       />
 
-      <Footer />
+      
     </div>
   );
 };

@@ -459,9 +459,6 @@ const PortfolioSimulator = () => {
             </Card>
           </TabsContent>
         </Tabs>
-      </main>
-
-      <Footer />
     </div>
   );
 };
