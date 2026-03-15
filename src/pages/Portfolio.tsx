@@ -343,7 +343,7 @@ const Portfolio = () => {
   const diversificationData = getDiversificationData();
 
   return (
-    <div className="px-4 pt-4 md:px-8 md:pt-8 max-w-5xl mx-auto space-y-6">
+    <div className="px-6 py-8 md:px-8 max-w-5xl mx-auto space-y-6">
         {/* Header - Mobile optimized */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>

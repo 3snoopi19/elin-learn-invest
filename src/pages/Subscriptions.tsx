@@ -239,7 +239,7 @@ const Subscriptions = () => {
   const totalSavings = detectedIssues.reduce((sum, i) => sum + i.potentialSavings, 0);
 
   return (
-    <div className="px-4 pt-4 md:px-8 md:pt-8 max-w-5xl mx-auto space-y-6">
+    <div className="px-6 py-8 md:px-8 max-w-5xl mx-auto space-y-6">
         {/* Hero Section */}
         <motion.div 
           initial={{ opacity: 0, y: 20 }}

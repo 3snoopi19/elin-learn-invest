@@ -25,7 +25,7 @@ const Settings = () => {
   };
 
   return (
-    <div className="px-4 pt-4 md:px-8 md:pt-8 max-w-5xl mx-auto space-y-6">
+    <div className="px-6 py-8 md:px-8 max-w-5xl mx-auto space-y-6">
         {/* Header */}
         <div>
           <h1 className="text-2xl md:text-3xl font-bold mb-2 flex items-center gap-2">
