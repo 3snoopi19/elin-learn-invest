@@ -55,7 +55,7 @@ export const MobileBottomDock = () => {
       }}
     >
       {/* Dock container - Floating Glass Pill */}
-      <div className="flex items-center justify-around h-[72px] px-3 mx-auto max-w-md rounded-full bg-black/60 backdrop-blur-xl border border-white/10 shadow-2xl">
+      <div className="flex items-center justify-around h-[72px] px-3 mx-auto max-w-md rounded-full bg-black/60 backdrop-blur-md border border-white/10 shadow-2xl">
         {dockItems.map((item) => {
           const Icon = item.icon;
           const isActive = location.pathname === item.path;

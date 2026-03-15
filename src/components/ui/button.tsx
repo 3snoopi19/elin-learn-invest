@@ -22,7 +22,7 @@ const buttonVariants = cva(
         info: "bg-secondary text-secondary-foreground hover:bg-secondary/90 shadow-md hover:shadow-lg active:scale-95",
       },
       size: {
-        default: "h-11 px-6 py-2.5 min-h-[44px]",
+        default: "h-12 px-6 py-2.5 min-h-[48px]",
         sm: "h-9 rounded-md px-4 text-xs min-h-[36px]", 
         lg: "h-12 rounded-lg px-8 text-base min-h-[48px]",
         icon: "h-11 w-11 min-h-[44px] min-w-[44px]",
