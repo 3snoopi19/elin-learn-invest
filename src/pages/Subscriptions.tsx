@@ -240,10 +240,7 @@ const Subscriptions = () => {
   const totalSavings = detectedIssues.reduce((sum, i) => sum + i.potentialSavings, 0);
 
   return (
-    <div className="min-h-screen bg-background">
-      <Header />
-      
-      <main className="mobile-content mobile-container py-6 md:py-10 pb-32 md:pb-8">
+    <div className="px-4 pt-4 md:px-8 md:pt-8 max-w-5xl mx-auto space-y-6">
         {/* Hero Section */}
         <motion.div 
           initial={{ opacity: 0, y: 20 }}

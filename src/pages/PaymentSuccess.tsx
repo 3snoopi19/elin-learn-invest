@@ -46,8 +46,7 @@ export default function PaymentSuccess() {
             </div>
           </CardContent>
         </Card>
-      </main>
-      <Footer />
     </div>
+  );
   );
 }
