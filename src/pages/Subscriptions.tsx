@@ -1,6 +1,4 @@
 import { useState, useEffect } from 'react';
-import { Header } from '@/components/layout/Header';
-import { Footer } from '@/components/layout/Footer';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -241,10 +239,7 @@ const Subscriptions = () => {
   const totalSavings = detectedIssues.reduce((sum, i) => sum + i.potentialSavings, 0);
 
   return (
-    <div className="min-h-screen bg-background">
-      <Header />
-      
-      <main className="mobile-content mobile-container py-6 md:py-10 pb-32 md:pb-8">
+    <div className="px-4 pt-4 md:px-8 md:pt-8 max-w-5xl mx-auto space-y-6">
         {/* Hero Section */}
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
@@ -469,7 +464,7 @@ const Subscriptions = () => {
             <p className="text-sm">Scanning your financial history...</p>
           </div>
         )}
-      </main>
+      
 
       {/* Negotiate Dialog */}
       <Dialog open={negotiateDialogOpen} onOpenChange={setNegotiateDialogOpen}>
@@ -655,7 +650,7 @@ const Subscriptions = () => {
         error={assassinError}
       />
 
-      <Footer />
+      
     </div>
   );
 };

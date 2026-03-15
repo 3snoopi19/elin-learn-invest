@@ -3,17 +3,12 @@ import { useSearchParams, Link } from "react-router-dom";
 import { CheckCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Header } from "@/components/layout/Header";
-import { Footer } from "@/components/layout/Footer";
-
 export default function PaymentSuccess() {
   const [searchParams] = useSearchParams();
   const sessionId = searchParams.get("session_id");
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <Header />
-      <main className="flex-1 flex items-center justify-center p-6">
+    <div className="px-4 pt-4 md:px-8 md:pt-8 max-w-5xl mx-auto space-y-6 flex items-center justify-center min-h-[60vh]">
         <Card className="w-full max-w-md text-center">
           <CardHeader className="space-y-4">
             <div className="mx-auto w-16 h-16 bg-green-100 rounded-full flex items-center justify-center">
@@ -51,8 +46,6 @@ export default function PaymentSuccess() {
             </div>
           </CardContent>
         </Card>
-      </main>
-      <Footer />
     </div>
   );
 }

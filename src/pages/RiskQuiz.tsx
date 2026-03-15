@@ -1,7 +1,5 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
-import { Header } from "@/components/layout/Header";
-import { Footer } from "@/components/layout/Footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -244,10 +242,7 @@ const RiskQuiz = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <Header />
-      
-      <main className="container mx-auto px-4 py-8 max-w-2xl">
+    <div className="px-4 pt-4 md:px-8 md:pt-8 max-w-5xl mx-auto space-y-6">
         {!isCompleted ? (
           <>
             {/* Quiz Header */}
@@ -391,9 +386,6 @@ const RiskQuiz = () => {
             )}
           </div>
         )}
-      </main>
-      
-      <Footer />
     </div>
   );
 };
