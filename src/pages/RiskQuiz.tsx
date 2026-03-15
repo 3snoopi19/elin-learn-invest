@@ -386,9 +386,6 @@ const RiskQuiz = () => {
             )}
           </div>
         )}
-      </main>
-      
-      <Footer />
     </div>
   );
 };
