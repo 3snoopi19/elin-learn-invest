@@ -610,7 +610,7 @@ const Portfolio = () => {
                             </div>
                           </div>
                           
-                          <div className="mt-3 grid grid-cols-3 gap-4 text-sm">
+                          <div className="mt-3 grid grid-cols-1 sm:grid-cols-3 gap-3 text-sm">
                             <div>
                               <span className="text-muted-foreground">Current Price:</span>
                               <div className="font-medium">
